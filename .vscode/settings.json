@@ -1,0 +1,9 @@
+{
+	"prettier.insertPragma": true,
+	"prettier.printWidth": 160,
+	"prettier.tabWidth": 4,
+	"prettier.useTabs": true,
+	"prettier.vueIndentScriptAndStyle": true,
+	"prettier.singleAttributePerLine": true,
+	"vue.autoInsert.dotValue": true
+}
