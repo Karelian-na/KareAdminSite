@@ -1,0 +1,47 @@
+/**
+ * @format
+ *
+ * 此文件更改一些默认的element组件的样式
+ * 以及一些公共的样式
+ */
+
+@import "./reset.css";
+@import "./element.css";
+@import url("//at.alicdn.com/t/c/font_4677547_r4t1w2xvv5.css");
+
+::-webkit-scrollbar {
+	width: 8px;
+	height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+	border-radius: 4px;
+	background-color: #a8a8a8;
+}
+
+.position-center {
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	margin: auto;
+}
+
+.clear-fix:after {
+	content: "";
+	display: block;
+	clear: both;
+}
+
+.iconfont {
+	font-size: inherit;
+	color: inherit;
+}
+
+a {
+	color: inherit;
+}
+
+.ui-button.export {
+	background-color: chocolate;
+}

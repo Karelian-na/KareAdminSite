@@ -1,0 +1,31 @@
+{
+	"name": "kare-admin-site",
+	"version": "0.1.0",
+	"description": "The kare admin website",
+	"main": "index.js",
+	"scripts": {
+		"dev": "vite",
+		"build-www": "vite build"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"devDependencies": {
+		"@types/node": "^20.5.9",
+		"@types/store": "^2.0.2",
+		"@vitejs/plugin-vue": "^4.3.1",
+		"typescript": "^5.1.6",
+		"vite": "^4.4.9",
+		"vue": "^3.5.2"
+	},
+	"dependencies": {
+		"axios": "^1.4.0",
+		"deep-copy": "^1.4.2",
+		"element-plus": "^2.3.12",
+		"exceljs": "^4.4.0",
+		"js-sha256": "^0.10.1",
+		"store": "^2.0.12",
+		"vue-json-pretty": "^2.4.0",
+		"vue-router": "^4.2.4"
+	}
+}
