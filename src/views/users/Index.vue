@@ -163,6 +163,7 @@
 	.el-row.name {
 		flex-wrap: nowrap;
 		flex-shrink: 0;
+		width: fit-content;
 		justify-content: center;
 	}
 	.el-row.name .el-avatar {

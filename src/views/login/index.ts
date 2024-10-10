@@ -14,13 +14,13 @@ export const loginFields: Fields = {
 			rule: [
 				{ required: true, message: "请输入账户!", trigger: "blur" },
 				{
-					validator(rule, value: String, callback, source, options) {
-						if (
-							value.match(/^[a-zA-Z]\w{5,19}$/) || // 用户名登录
-							value.match(/^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/) || // 邮箱登录
-							value.match(/^(13[0-9]|14[5|7]|15[0|1|2|3|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9])\d{8}$/) || // 手机号登录
-							value.match(/^\d{6}|\d{8}|$\d{12}$/) // 用户id登录
-						) {
+					validator(rule, value: string, callback, source, options) {
+						const idMatch = /^[1-9]\d{7}$/.test(value); // 用户id登录
+						const uidMatch = /^[a-zA-Z]\w{5,20}$/.test(value); // 用户名登录
+						const emailMatch = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/.test(value); // 邮箱登录
+						const phoneMatch = /^(13[0-9]|14[5|7]|15[0|1|2|3|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9])\d{8}$/.test(value); // 手机号登录
+
+						if (uidMatch || emailMatch || phoneMatch || idMatch) {
 							callback();
 							return;
 						}
@@ -28,10 +28,8 @@ export const loginFields: Fields = {
 						if (value.match(/^\d*$/)) {
 							if (value.length === 11) {
 								callback("请输入正确的手机号!");
-							} else if (![6, 12].includes(value.length)) {
-								callback("请输入正确的账号!");
 							} else {
-								callback();
+								callback("请输入正确的账号!");
 							}
 						} else if (value.includes("@")) {
 							callback("请输入正确的邮箱!");
