@@ -67,11 +67,9 @@
 			params: params,
 			extraOptions: {
 				loading: modalDialogProps!.loading,
-				alwaysShowFeedbackMsg: false,
 			},
 			callback: (result) => {
 				if (!result.success) {
-					props.modalDialogProps!.loading.value = false;
 					return false;
 				}
 
@@ -107,7 +105,11 @@
 
 				// 更新授权的权限数据
 				data.auth.forEach((authId) => {
-					const permi = IdValueMap.get(authId)!;
+					const permi = IdValueMap.get(authId);
+					if (!permi) {
+						return;
+					}
+
 					permi.origin = true;
 					if (permi.children === undefined) {
 						checkedIds.value.push(authId);
@@ -121,7 +123,11 @@
 				// 更新独立的权限数据
 				if (userMode) {
 					data.independent.forEach((independentId) => {
-						const permi = IdValueMap.get(independentId)!;
+						const permi = IdValueMap.get(independentId);
+						if (!permi) {
+							return;
+						}
+
 						permi.independent = {
 							curSubAmount: 0,
 							checkedSubAmount: 0,
@@ -141,7 +147,6 @@
 				formData["auths"] = {};
 
 				time.value = new Date().getTime();
-				modalDialogProps!.show = true;
 				return true;
 			},
 		});

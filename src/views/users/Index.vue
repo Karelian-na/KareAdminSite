@@ -40,13 +40,13 @@
 				}
 
 				pageProps.operColumnButtons[field].condition = (data) => {
-					return ![1, 2, 99].includes(data["id"]);
+					return ![1, 2, 9].includes(data["id"]);
 				};
 			});
 
 			if (pageProps.operColumnButtons["authorize"]) {
 				pageProps.operColumnButtons["authorize"].condition = (data) => {
-					return ![1, 99].includes(data["id"]);
+					return ![1, 9].includes(data["id"]);
 				};
 			}
 		}
