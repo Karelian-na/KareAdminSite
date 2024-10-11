@@ -274,7 +274,21 @@
 							loading: props.modalDialogProps?.loading,
 						},
 						callback: (result) => {
-							if (!result.success) return false;
+							if (!result.success) {
+								// 字段校验错误，对应服务端错误代码
+								if (result.code & 0x6000000) {
+									const commaIdx = result.msg?.indexOf(":");
+									if (!commaIdx || commaIdx === -1) {
+										return;
+									}
+									const fieldName = result.msg.substring(commaIdx + 1).trim();
+									const field = props.fields[fieldName];
+									if (field) {
+										result.msg = result.msg.replace(fieldName, field.display_name);
+									}
+								}
+								return false;
+							}
 
 							success("alert", {
 								callback: () => {
