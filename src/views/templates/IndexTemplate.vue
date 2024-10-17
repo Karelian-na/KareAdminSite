@@ -9,6 +9,7 @@
 		DataChangedCallback,
 		IIndexPageProps,
 		IPageData,
+		IndexTemplateInsType,
 		IndexTemplateProps,
 		OperColumnButtonClickHandler,
 		OperbarButtonClickHandler,
@@ -27,12 +28,18 @@
 	import { detailButton, TemplateUtils } from ".";
 	import { adminRequest } from "@/common/utils/Network";
 	import { error, confirm, success, info } from "@/common/utils/Interactive";
-	import { ref, onBeforeMount, reactive, provide, nextTick, onActivated, watch, inject } from "vue";
+	import { ref, onBeforeMount, reactive, provide, nextTick, onActivated, watch, inject, getCurrentInstance, markRaw, proxyRefs } from "vue";
 
 	const props = defineProps<IndexTemplateProps>();
 	const router = useRouter();
 
 	const pageLoading = props.loading ?? inject<ILoading>("pageLoading")!;
+	const indexTemplateIns = new Proxy(getCurrentInstance()!, {
+		get(target, p) {
+			let des = target.proxy as any;
+			return des[p] ? des[p] : (target.exposeProxy ?? (proxyRefs(markRaw(target.exposed!)) as any))[p];
+		},
+	}) as any as IndexTemplateInsType;
 
 	const operColumnWidth = ref(0);
 	const pageData = ref<Array<KeyStringObject>>();
@@ -92,6 +99,7 @@
 		tableIns,
 		pageProps,
 		pageData,
+		getTableRowElements,
 	});
 
 	const onUpdatedData: DataChangedCallback = function (action, data) {
@@ -119,7 +127,7 @@
 	};
 
 	const operbarButtonClick: OperbarButtonClickHandler = function (button) {
-		if (button.type === "search" && operbar.value!.searchKey != "" && operbar.value!.searchField == "") {
+		if (button.type === "search" && operbar.value.searchField == "") {
 			error("msg", { message: "请选择查询字段!" });
 			return true;
 		}
@@ -129,7 +137,12 @@
 		}
 
 		switch (button.type) {
-			case "search":
+			case "search": {
+				if (props.localSearch === true) {
+					TemplateUtils.searchByField(pageData.value as any, indexTemplateIns);
+					break;
+				}
+			}
 			case "refresh":
 				refreshData();
 				break;
@@ -447,6 +460,10 @@
 		}
 
 		prop.call(undefined, ...args);
+	}
+
+	function getTableRowElements(): Array<HTMLTableRowElement> {
+		return Array.from(templateRootEle.value.querySelectorAll(".data .table .el-table__row"));
 	}
 </script>
 

@@ -20,6 +20,7 @@
 
 	import { inject, ref } from "vue";
 	import { EmptyObject } from "@/common/utils";
+	import { TemplateUtils } from "@/views/templates";
 	import { handleMenus, MenuType, MenuTypeFields, MenuTypeNames, Menu } from ".";
 
 	const props = defineProps<{
@@ -152,6 +153,8 @@
 	const operbarButtonClick: OperbarButtonClickHandler = function (button, buttons) {
 		switch (button.type) {
 			case "search": {
+				const data = Menu.flat(indexTemplateIns.value.pageData as any);
+				TemplateUtils.searchByField(data, indexTemplateIns.value);
 				break;
 			}
 			case "add": {

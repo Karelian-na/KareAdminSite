@@ -25,6 +25,7 @@
 	<IndexTemplate
 		v-bind="props"
 		ref="indexTemplateIns"
+		:local-search="true"
 		:no-pagination="true"
 		@oper-column-button-click="onOperColumnButtonClick"
 	>

@@ -6,6 +6,9 @@ import type { AxiosRequestOption } from "@/common/utils/Network";
 import type { ComputedRef, ExtractPropTypes, PropType, Ref } from "vue";
 import type { Arrayable, KeyStringObject, Optional, Promisable } from "@/common/utils";
 import type { ButtonInstance, FormItemInstance, FormRules, TableColumnInstance, TableInstance } from "element-plus";
+import type IndexTemplate from "./IndexTemplate.vue";
+
+import { error } from "@/common/utils/Interactive";
 
 import ExcelJS from "exceljs";
 
@@ -610,6 +613,7 @@ declare const indexTemplateProps: {
 
 	query: OptionalProp<IIndexTemplateQueryProps>;
 	loading: OptionalProp<ILoading>;
+	localSearch: OptionalProp<boolean>;
 	noPagination: OptionalProp<boolean>;
 	showIndexColumn: OptionalProp<boolean>;
 	noSelectionColumn: OptionalProp<boolean>;
@@ -624,6 +628,7 @@ declare const indexTemplateProps: {
 	onOperColumnButtonClick: OptionalProp<OperColumnButtonClickHandler>;
 };
 export type IndexTemplateProps = ExtractPropTypes<typeof indexTemplateProps>;
+export type IndexTemplateInsType = InstanceType<typeof IndexTemplate>;
 
 declare const editTemplateProps: {
 	mode: Prop<string>;
@@ -780,6 +785,32 @@ export namespace TemplateUtils {
 			document.body.removeChild(link);
 
 			options.loading.value = false;
+		});
+	}
+
+	export function searchByField(data: Array<any>, indexTemplateIns: IndexTemplateInsType) {
+		if (!Array.isArray(data) || !indexTemplateIns) {
+			return;
+		}
+
+		const elements = indexTemplateIns.getTableRowElements();
+		if (data.length != elements.length) {
+			error("msg", { message: "无法完成搜索，数据条目与元素不匹配！" });
+			return;
+		}
+
+		const searchField = indexTemplateIns.operbar.searchField;
+		const searchKey = indexTemplateIns.operbar.searchKey;
+		data.forEach((item, idx) => {
+			const value = item[searchField];
+			if (!searchKey || (value && String(value).includes(searchKey))) {
+				if (elements[idx].style.display == "none") {
+					elements[idx].style.display = "";
+				}
+				return;
+			}
+
+			elements[idx].style.display = "none";
 		});
 	}
 }
