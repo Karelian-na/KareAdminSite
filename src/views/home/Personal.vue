@@ -62,8 +62,8 @@
 			labelWidth: "0",
 		};
 
-		["id", "name", "profile"].forEach((fieldName) => {
-			ObjectUtils.mergeAttributes(userFields[fieldName].config, "itemBindProps", { labelWidth: "3em" });
+		["id", "uid", "name", "profile"].forEach((fieldName) => {
+			ObjectUtils.mergeAttributes(userFields[fieldName].config, "itemBindProps", { labelWidth: "4.5em" });
 		});
 		ready.value = true;
 	});
@@ -143,7 +143,7 @@
 					<div class="info">
 						<EditItem
 							:ref="references"
-							v-for="fieldName in ['id', 'name', 'profile']"
+							v-for="fieldName in ['id', 'uid', 'name', 'profile']"
 							v-model="formData[fieldName]"
 							:field="userFields[fieldName]"
 						/>
@@ -286,7 +286,6 @@
 	}
 	.edit-template .base .info {
 		flex-grow: 1;
-		max-width: 25em;
 		overflow: hidden;
 		padding: 0 2em;
 		transition: 0.5s cubic-bezier(0.075, 0.82, 0.165, 1);

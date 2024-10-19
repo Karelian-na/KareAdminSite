@@ -34,7 +34,12 @@ export const userFields: Fields = {
 	},
 	id: {
 		field_name: "id",
-		display_name: "ID",
+		display_name: "用户ID",
+		editable: false,
+	},
+	uid: {
+		field_name: "uid",
+		display_name: "用户名",
 		editable: false,
 	},
 	name: {
