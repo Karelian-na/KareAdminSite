@@ -2,18 +2,26 @@
 
 <script setup lang="ts">
 	import type { ILoading } from "@/common/utils/Interactive";
-	import type { OperbarButtonClickHandler, PreparedCallback, HandleEditTemplateProps, PageInfoHandler } from "@/views/templates";
+	import type {
+		OperbarButtonClickHandler,
+		PreparedCallback,
+		HandleEditTemplateProps,
+		PageInfoHandler,
+		OperColumnButtonClickHandler,
+	} from "@/views/templates";
 
 	import AssignRole from "./Assign.vue";
-	import { ElAvatar, ElRow, TableProps } from "element-plus";
+	import AoTag from "@/components/AoTag.vue";
 	import Authorize from "@/views/menus/Authorize.vue";
+	import { ElAvatar, ElRow, TableProps } from "element-plus";
 	import IndexTemplate from "@/views/templates/IndexTemplate.vue";
 
 	import { inject, ref } from "vue";
 	import { EmptyObject } from "@/common/utils";
+	import { TemplateUtils } from "@/views/templates";
+	import { ObjectUtils } from "@/common/utils/Object";
 	import { adminRequest } from "@/common/utils/Network";
 	import { confirm, error } from "@/common/utils/Interactive";
-	import { ObjectUtils } from "@/common/utils/Object";
 
 	const pageLoading = inject<ILoading>("pageLoading")!;
 
@@ -52,9 +60,10 @@
 		}
 	};
 
-	const onOperbarButtonClick: OperbarButtonClickHandler = function (button) {
+	const onOperbarButtonClick: OperbarButtonClickHandler = function (button, buttons, modalDialogProps) {
 		switch (button.type) {
 			case "reset": {
+				// normal user mode
 				const selectedRows = indexTemplateIns.value.getSelectedRows();
 				if (selectedRows.length === 0) {
 					error("msg", { message: "请先选择数据!" });
@@ -75,9 +84,10 @@
 						});
 					},
 				});
-				break;
+				return true;
 			}
-			case "assign":
+			case "assign": {
+				// normal user mode
 				const selectedRows = indexTemplateIns.value.getSelectedRows();
 				if (selectedRows.length === 0) {
 					error("msg", { message: "请先选择数据!" });
@@ -88,10 +98,76 @@
 				indexTemplateIns.value.modalDialogProps.data = selectedRows;
 				indexTemplateIns.value.modalDialogProps.action = button.action;
 				return false;
+			}
+			case "restore": {
+				// deleted user mode
+				const selectedRows = indexTemplateIns.value.getSelectedRows();
+				if (selectedRows.length === 0) {
+					error("msg", { message: "请先选择数据!" });
+					break;
+				}
+				const ids = selectedRows.map((value) => value.id);
+				return onOperColumnButtonClick(button, ids as any, buttons, modalDialogProps);
+			}
 			default:
 				return false;
 		}
 		return true;
+	};
+
+	const onOperColumnButtonClick: OperColumnButtonClickHandler = function (button, param, _, modalDialogProps) {
+		switch (button.type) {
+			case "restore": {
+				modalDialogProps!.show = false;
+
+				const ids = Array.isArray(param) ? param : [(param as any).id];
+				const msg = "确定要恢复" + (Array.isArray(param) ? "选中的" : "该") + "删除的用户吗?";
+				confirm(msg, {
+					callback: async (action, _ins) => {
+						if (action != "confirm") return;
+
+						const result = await adminRequest({
+							method: "PUT",
+							url: button.action,
+							data: ids,
+							extraOptions: {
+								loading: pageLoading,
+							},
+						});
+
+						if (!result.success) {
+							return;
+						}
+
+						indexTemplateIns.value.refreshData();
+					},
+				});
+				return true;
+			}
+			case "delete": {
+				// deleted user mode
+				if (!userMode || !props.url.includes("/deleted")) {
+					return false;
+				}
+
+				return {
+					tip:
+						"确定要永久删除" +
+						(Array.isArray(param) ? "所选中的" : "该") +
+						"用户吗？\n" +
+						"该操作非常危险，并且不可逆！\n" +
+						"该将删除所有与用户关联的数据，所有由用户添加的数据将丢失关联！",
+					extraMsgBoxOptions: {
+						customStyle: {
+							whiteSpace: "pre-wrap",
+						},
+					},
+				};
+			}
+			default:
+				break;
+		}
+		return false;
 	};
 
 	const onEditTemplatePrepared: PreparedCallback = function (formData, fields, mode) {
@@ -127,6 +203,7 @@
 		:table-props="tableProps"
 		@page-info-handled="pageInfoAccepted"
 		@operbar-button-click="onOperbarButtonClick"
+		@oper-column-button-click="onOperColumnButtonClick"
 		@edit-template-prepared="onEditTemplatePrepared"
 	>
 		<template
@@ -143,6 +220,16 @@
 					<p>{{ data["name"] }}</p>
 				</div>
 			</ElRow>
+		</template>
+
+		<template
+			v-if="userMode"
+			#delete_type="{ value, field }"
+		>
+			<AoTag
+				class="delete"
+				:label="String(TemplateUtils.mapDataValueToLabel(field, value))"
+			/>
 		</template>
 
 		<template #dialogContent="attrs">
@@ -184,5 +271,9 @@
 	}
 	.index-template :deep(.edit-item .el-upload) {
 		border-radius: 50%;
+	}
+
+	.ao-tag.delete {
+		background-color: brown;
 	}
 </style>

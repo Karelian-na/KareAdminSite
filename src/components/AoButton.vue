@@ -36,7 +36,8 @@
 		background-color: var(--el-color-primary);
 	}
 
-	:global(.ui-button.delete) {
+	:global(.ui-button.delete),
+	:global(.ui-button.bulkdelete) {
 		background-color: darkred;
 	}
 	:global(.ui-button.add),

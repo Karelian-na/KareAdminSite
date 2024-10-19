@@ -38,6 +38,7 @@
 
 		"roles/index": () => import("@/views/users/Index.vue"),
 		"users/index": () => import("@/views/users/Index.vue"),
+		"users/admin/deleted/index": () => import("@/views/users/Index.vue"),
 		"databases/index": () => import("@/views/databases/Index.vue"),
 		"menus/index": () => import("@/views/menus/Index.vue"),
 		"permissions/index": () => import("@/views/permissions/Index.vue"),

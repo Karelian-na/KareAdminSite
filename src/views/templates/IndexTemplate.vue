@@ -132,7 +132,7 @@
 			return true;
 		}
 
-		if (props.onOperbarButtonClick?.(button, pageProps.value!.operbarButtons)) {
+		if (props.onOperbarButtonClick?.(button, pageProps.value!.operbarButtons, modalDialogProps)) {
 			return true;
 		}
 
@@ -150,6 +150,7 @@
 				operColumnButtonClick(button, null, pageProps.value!.operbarButtons);
 				break;
 			case "delete":
+			case "bulkdelete":
 				const rows = getSelectedRows();
 				if (rows.length === 0) {
 					error("msg", { message: "请选择要删除的数据!" });
@@ -182,8 +183,8 @@
 		modalDialogProps.data = param!;
 		modalDialogProps.action = button.action;
 
-		let sendData = props.onOperColumnButtonClick?.(button, param, pageProps.value!.operColumnButtons) as any;
-		if (sendData === true) {
+		let operAttrs = props.onOperColumnButtonClick?.(button, param, pageProps.value!.operColumnButtons, modalDialogProps);
+		if (operAttrs === true) {
 			return true;
 		} else if (button.type !== "details" && !button.action) {
 			modalDialogProps.show = false;
@@ -191,54 +192,69 @@
 			return true;
 		}
 
+		if (!operAttrs) {
+			operAttrs = {};
+		}
+
 		switch (button.type) {
 			case "add":
 				break;
-			case "delete": {
+			case "delete":
+			case "bulkdelete": {
 				modalDialogProps.show = false;
-				let warningText;
+				!operAttrs.action && (operAttrs.action = button.action);
+
 				if (Array.isArray(param)) {
-					if (!sendData) {
-						sendData = { ids: param.map((item) => item.id).join(",") };
+					if (!operAttrs.sendData) {
+						operAttrs.sendData = { ids: param.map((item) => item.id).join(",") };
 					}
-					warningText = "确定要删除选中数据吗?";
+					if (button.action?.endsWith("/delete")) {
+						operAttrs.action = button.action.slice(0, -"/delete".length) + "/bulkdelete";
+					}
+					!operAttrs.tip && (operAttrs.tip = "确定要删除选中数据吗?");
 				} else {
-					if (!sendData) {
-						sendData = { id: param!["id"] };
+					if (!operAttrs.sendData) {
+						operAttrs.sendData = { id: param!["id"] };
 					}
-					warningText = "确定要删除该条数据吗?";
+					!operAttrs.tip && (operAttrs.tip = "确定要删除该条数据吗?");
 				}
 
-				confirm(warningText, {
-					callback: (action, _ins) => {
-						if (action != "confirm") return;
+				!operAttrs.extraMsgBoxOptions && (operAttrs.extraMsgBoxOptions = {});
+				operAttrs.extraMsgBoxOptions.callback = (action, _ins) => {
+					if (action != "confirm") return;
 
-						adminRequest({
-							method: "DELETE",
-							url: button.action,
-							params: sendData,
-							extraOptions: {
-								loading: pageLoading,
-							},
-							callback: (result) => {
-								if (!result.success) {
-									return;
+					adminRequest({
+						method: "DELETE",
+						url: operAttrs.action,
+						params: operAttrs.sendData,
+						extraOptions: {
+							loading: pageLoading,
+						},
+						callback: (result) => {
+							if (!result.success) {
+								if (result.msg.includes("404")) {
+									error("msg", { message: "操作失败！后台不支持批量删除！" });
+									return true;
 								}
+								return false;
+							}
 
-								if (props.onDataChanged?.("delete", param!, pageData.value)) {
-									return;
-								}
+							if (props.onDataChanged?.("delete", param!, pageData.value)) {
+								return false;
+							}
 
-								if (Array.isArray(param)) {
-									refreshData();
-								} else {
-									const idx = pageData.value!.indexOf(param!);
-									idx != -1 && pageData.value!.remove(idx);
-								}
-							},
-						});
-					},
-				});
+							if (Array.isArray(param)) {
+								refreshData();
+							} else {
+								const idx = pageData.value!.indexOf(param!);
+								idx != -1 && pageData.value!.remove(idx);
+							}
+
+							return false;
+						},
+					});
+				};
+				confirm(operAttrs.tip, operAttrs.extraMsgBoxOptions);
 				break;
 			}
 			default:

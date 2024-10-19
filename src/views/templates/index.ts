@@ -1,9 +1,9 @@
 /** @format */
 
 import type { IDialogProps } from "@/common";
-import type { ILoading } from "@/common/utils/Interactive";
 import type { AxiosRequestOption } from "@/common/utils/Network";
 import type { ComputedRef, ExtractPropTypes, PropType, Ref } from "vue";
+import type { AlertOptions, ILoading } from "@/common/utils/Interactive";
 import type { Arrayable, KeyStringObject, Optional, Promisable } from "@/common/utils";
 import type { ButtonInstance, FormItemInstance, FormRules, TableColumnInstance, TableInstance } from "element-plus";
 import type IndexTemplate from "./IndexTemplate.vue";
@@ -484,6 +484,13 @@ export interface IDataRequestParam extends KeyStringObject {
 	searchKey?: string;
 }
 
+export interface IOperAttrs {
+	tip?: string;
+	action?: string;
+	sendData?: any;
+	extraMsgBoxOptions?: AlertOptions;
+}
+
 /**
  * 数据操作类型
  */
@@ -521,7 +528,7 @@ export type DataChangedCallback<T extends any = any> = (action: string, data: T,
  * @param {IOperButton} button 点击的按钮的操作属性
  * @param {Record<string, IOperButton>} buttons 页面所拥有的所有的操作按钮属性
  */
-export type OperbarButtonClickHandler = (button: IOperButton, buttons: Record<string, IOperButton>) => boolean;
+export type OperbarButtonClickHandler = (button: IOperButton, buttons: Record<string, IOperButton>, modalDialogProps?: IDialogProps) => boolean | IOperAttrs;
 
 /**
  * 表格操作列按钮点击时触发的回调
@@ -529,7 +536,12 @@ export type OperbarButtonClickHandler = (button: IOperButton, buttons: Record<st
  * @param {KeyStringObject} param 点击的按钮所在的行的数据
  * @param {Record<string, IOperButton>} buttons 页面所拥有的所有的操作按钮属性
  */
-export type OperColumnButtonClickHandler = (button: IOperButton, param: KeyStringObject | null, buttons: Record<string, IOperButton>) => boolean | any;
+export type OperColumnButtonClickHandler = (
+	button: IOperButton,
+	param: KeyStringObject | null,
+	buttons: Record<string, IOperButton>,
+	modalDialogProps?: IDialogProps
+) => boolean | IOperAttrs;
 
 /**
  * 在对话框弹出前， EditTemplate 初始化，更新操作数据的回调
