@@ -22,6 +22,7 @@
 	import { ObjectUtils } from "@/common/utils/Object";
 	import { adminRequest } from "@/common/utils/Network";
 	import { confirm, error } from "@/common/utils/Interactive";
+	import { Constants } from "@/common/utils/Constants";
 
 	const pageLoading = inject<ILoading>("pageLoading")!;
 
@@ -48,13 +49,13 @@
 				}
 
 				pageProps.operColumnButtons[field].condition = (data) => {
-					return ![1, 2, 9].includes(data["id"]);
+					return ![Constants.adminRole, Constants.commonUserRole].includes(data["id"]);
 				};
 			});
 
 			if (pageProps.operColumnButtons["authorize"]) {
 				pageProps.operColumnButtons["authorize"].condition = (data) => {
-					return ![1, 9].includes(data["id"]);
+					return ![Constants.commonUserRole].includes(data["id"]);
 				};
 			}
 		}
@@ -97,7 +98,7 @@
 				indexTemplateIns.value.modalDialogProps.mode = "assign";
 				indexTemplateIns.value.modalDialogProps.data = selectedRows;
 				indexTemplateIns.value.modalDialogProps.action = button.action;
-				return false;
+				return true;
 			}
 			case "restore": {
 				// deleted user mode

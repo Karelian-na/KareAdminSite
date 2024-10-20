@@ -10,6 +10,7 @@
 	import { ref } from "vue";
 	import { ObjectUtils } from "@/common/utils/Object";
 	import { adminRequest } from "@/common/utils/Network";
+	import { Constants } from "@/common/utils/Constants";
 
 	interface Option {
 		key: number;
@@ -39,7 +40,7 @@
 				roles.value = (result.data.roles as Array<KeyStringObject>).map((item) => ({
 					key: item["id"],
 					label: item["name"],
-					disabled: [1, 99].includes(item["id"]),
+					disabled: [Constants.commonUserRole].includes(item["id"]),
 				}));
 				assignedRoles.value = result.data.common;
 				formData["roles"] = ObjectUtils.clone(result.data.common);

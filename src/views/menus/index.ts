@@ -1,6 +1,7 @@
 /** @format */
 
-import { externalLinkRegex, Nullable, Optional } from "@/common/utils";
+import { Nullable } from "@/common/utils";
+import { Constants } from "@/common/utils/Constants";
 
 export type DetailMenuItem = Menu & IMenuItem;
 
@@ -124,7 +125,7 @@ export class Menu {
 	}
 
 	public static isExternalLink(menu: Menu): boolean {
-		return Boolean(menu.url && externalLinkRegex.test(menu.url));
+		return Boolean(menu.url && Constants.externalLinkRegex.test(menu.url));
 	}
 }
 
