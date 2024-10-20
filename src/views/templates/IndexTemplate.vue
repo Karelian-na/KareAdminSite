@@ -151,6 +151,10 @@
 				break;
 			case "delete":
 			case "bulkdelete":
+				if (props.noSelectionColumn) {
+					info("msg", { message: "当前操作不被支持！" });
+					break;
+				}
 				const rows = getSelectedRows();
 				if (rows.length === 0) {
 					error("msg", { message: "请选择要删除的数据!" });
@@ -158,8 +162,10 @@
 				}
 				operColumnButtonClick(button, rows.length === 1 ? rows[0] : rows, pageProps.value!.operbarButtons);
 				break;
-			default:
+			default: {
+				info("msg", { message: "当前操作不被支持！" });
 				break;
+			}
 		}
 		return true;
 	};
@@ -526,7 +532,7 @@
 							type="selection"
 							align="center"
 							width="39px"
-v-bind="selectionColumnProps"
+							v-bind="selectionColumnProps"
 						/>
 						<ElTableColumn
 							v-if="showIndexColumn"
