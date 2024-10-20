@@ -526,6 +526,7 @@
 							type="selection"
 							align="center"
 							width="39px"
+v-bind="selectionColumnProps"
 						/>
 						<ElTableColumn
 							v-if="showIndexColumn"

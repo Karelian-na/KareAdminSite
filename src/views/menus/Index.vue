@@ -41,6 +41,11 @@
 		if (pageProps.operColumnButtons["add"]) {
 			pageProps.operColumnButtons["add"].condition = (data) => data["type"] != MenuType.Oper;
 		}
+
+		if (pageProps.operColumnButtons["delete"]) {
+			pageProps.operColumnButtons["delete"].condition = (data) => data["id"] >= 10000;
+		}
+
 		pageProps.operbarButtons["expand-all"] = {
 			type: "expand-all",
 			icon: "expand-all",

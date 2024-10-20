@@ -1,7 +1,7 @@
 <!-- @format -->
 
 <script setup lang="ts">
-	import type { OperColumnButtonClickHandler } from "@/views/templates";
+	import type { OperColumnButtonClickHandler, PageInfoHandler } from "@/views/templates";
 
 	import AoTag from "@/components/AoTag.vue";
 	import IndexTemplate from "@/views/templates/IndexTemplate.vue";
@@ -13,6 +13,12 @@
 		url: string;
 		head: string;
 	}>();
+
+	const onPageInfoHandled: PageInfoHandler = function (pageProps) {
+		if (pageProps.operColumnButtons["delete"]) {
+			pageProps.operColumnButtons["delete"].condition = (data) => data["id"] >= 100;
+		}
+	};
 
 	const onOperColumnButtonClick: OperColumnButtonClickHandler = function (button, param, buttons) {
 		return false;
@@ -27,6 +33,8 @@
 		ref="indexTemplateIns"
 		:local-search="true"
 		:no-pagination="true"
+		:selection-column-props="{ selectable: (row) => row['id'] >= 100 }"
+		@page-info-handled="onPageInfoHandled"
 		@oper-column-button-click="onOperColumnButtonClick"
 	>
 		<template #status="{ data }">

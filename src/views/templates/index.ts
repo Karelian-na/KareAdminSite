@@ -5,7 +5,7 @@ import type { AxiosRequestOption } from "@/common/utils/Network";
 import type { ComputedRef, ExtractPropTypes, PropType, Ref } from "vue";
 import type { AlertOptions, ILoading } from "@/common/utils/Interactive";
 import type { Arrayable, KeyStringObject, Optional, Promisable } from "@/common/utils";
-import type { ButtonInstance, FormItemInstance, FormRules, TableColumnInstance, TableInstance } from "element-plus";
+import type { ButtonInstance, ElTableColumn, FormItemInstance, FormRules, TableColumnInstance, TableInstance } from "element-plus";
 import type IndexTemplate from "./IndexTemplate.vue";
 
 import { error } from "@/common/utils/Interactive";
@@ -631,6 +631,7 @@ declare const indexTemplateProps: {
 	noSelectionColumn: OptionalProp<boolean>;
 	defaultSearchField: OptionalProp<string>;
 	tableProps: OptionalProp<TableInstance["$props"]>;
+	selectionColumnProps: OptionalProp<InstanceType<typeof ElTableColumn>["$props"]>
 	onRefreshData: OptionalProp<RefreshCallback>;
 	onDataChanged: OptionalProp<DataChangedCallback>;
 	onPageInfoHandled: OptionalProp<PageInfoHandler>;
