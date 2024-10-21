@@ -13,4 +13,6 @@ export namespace Constants {
 			"(\\#[-a-z\\d_]*)?$",
 		"i"
 	);
+
+	export const nonEditableFieldRegex = /^(?:(?:(?:add|update)_(?:uid|user|time))|id)$/;
 }

@@ -17,6 +17,7 @@
 
 	import { error } from "@/common/utils/Interactive";
 	import { adminRequest } from "@/common/utils/Network";
+	import { Constants } from "@/common/utils/Constants";
 
 	const props = defineProps<EditTemplateProps>();
 
@@ -242,7 +243,7 @@
 					<template #default="{ row }">
 						<ElCheckbox
 							v-model="formData['fields'][row.field_name].editable"
-							:disabled="disabled || /((.*_id)|.*(user|time))$/.test(row.field_name)"
+							:disabled="disabled || Constants.nonEditableFieldRegex.test(row.field_name)"
 						/>
 					</template>
 				</ElTableColumn>
@@ -254,7 +255,7 @@
 					<template #default="{ row }">
 						<ElCheckbox
 							v-model="formData['fields'][row.field_name].editable_when_add"
-							:disabled="disabled || /((add|update)_(uid|user|time))$/.test(row.field_name)"
+							:disabled="disabled || Constants.nonEditableFieldRegex.test(row.field_name)"
 						/>
 					</template>
 				</ElTableColumn>
