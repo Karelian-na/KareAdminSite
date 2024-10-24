@@ -109,6 +109,15 @@ export interface IInPageTab {
 	 * @memberof IInPageTab
 	 */
 	icon?: string;
+
+	/**
+	 * @description 上次离开时的请求地址
+	 * @author Karelian_na
+	 * @date 2024/10/24 00:03:57
+	 * @type {string}
+	 * @memberof IInPageTab
+	 */
+	lastQuery?: string;
 }
 
 /**

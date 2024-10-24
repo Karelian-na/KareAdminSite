@@ -14,6 +14,7 @@
 	import Store from "store";
 
 	import { Optional } from "@/common/utils";
+	import { error } from "@/common/utils/Interactive";
 	import { RouterView, useRouter } from "vue-router";
 	import { specialTabs, specialInPageProps } from ".";
 	import { MenuType, handleMenus } from "@/views/menus";
@@ -295,6 +296,7 @@
 	function switchPage(tabProps: ITab, itemClick: boolean, replaceRouter: boolean = false) {
 		if (tabProps === curTab.value) {
 			sidebar.value?.onLocateCurNavItem();
+			return true;
 		}
 
 		const url = tabProps.lastRecordUrl ?? tabProps.url;
@@ -307,9 +309,16 @@
 	}
 
 	function onInPageTabChange(tab: TabPaneName) {
-		const url = curInPageProps.value.tabs.find((val) => val.id == tab)!.url;
-		curTab.value.url = url;
-		router.push(url);
+		const oldInPageTab = curInPageProps.value.tabs.find((val) => val.url == curTab.value.url);
+		const targetInPageTab = curInPageProps.value.tabs.find((val) => val.id == tab);
+
+		if (!oldInPageTab || !targetInPageTab) {
+			error("msg", { message: "切换标签失败！无法找到对应标签！" });
+			return;
+		}
+
+		oldInPageTab.lastQuery = window.location.search;
+		router.push(targetInPageTab.url + (targetInPageTab.lastQuery ?? ""));
 	}
 </script>
 
