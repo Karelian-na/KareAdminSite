@@ -28,7 +28,7 @@
 	import { detailButton, TemplateUtils } from ".";
 	import { adminRequest } from "@/common/utils/Network";
 	import { error, confirm, success, info } from "@/common/utils/Interactive";
-	import { ref, onBeforeMount, reactive, provide, nextTick, onActivated, watch, inject, getCurrentInstance, markRaw, proxyRefs } from "vue";
+	import { ref, onBeforeMount, reactive, provide, nextTick, watch, inject, getCurrentInstance, markRaw, proxyRefs } from "vue";
 
 	const props = defineProps<IndexTemplateProps>();
 	const router = useRouter();
@@ -42,17 +42,16 @@
 	}) as any as IndexTemplateInsType;
 
 	const operColumnWidth = ref(0);
-	const pageData = ref<Array<KeyStringObject>>();
 	const pageProps = ref<IIndexPageProps>();
+	const pageData = ref<Array<KeyStringObject>>();
+	const queriesWithoutPager = ref<Omit<typeof props.query, keyof typeof pageValue>>({});
+
 	const templateRootEle = ref<HTMLDivElement>(EmptyObject);
 	const pagination = ref<InstanceType<typeof Pagination>>();
 	const tableIns = ref<InstanceType<typeof ElTable>>(EmptyObject);
 	const operbar = ref<InstanceType<typeof OperationBar>>(EmptyObject);
-	const pageValue = reactive({
-		pageIdx: 1,
-		pageSize: 20,
-		dataCount: 0,
-	});
+
+	const pageValue = reactive({ pageIdx: 1, pageSize: 20, dataCount: 0 });
 	const modalDialogProps = reactive<IDialogProps>({
 		show: false,
 		mode: "",
@@ -67,10 +66,26 @@
 	var loading: ReturnType<typeof ElLoading.service>;
 
 	onBeforeMount(updateTemplate);
-	onActivated(onPageChanged);
 
-	watch(() => props.url, updateTemplate);
-	watch(() => JSON.stringify(props.query), refreshData.bind(undefined, undefined));
+	watch(
+		() => props.url + "☆" + JSON.stringify(props.query),
+		async (newV, old) => {
+			// page is not prepared
+			if (!pageProps.value) {
+				return;
+			}
+
+			const [oldPath, oldSearch] = (old ?? "").split("☆", 2);
+			const [newPath, newSearch] = (newV ?? "").split("☆", 2);
+			if (oldPath != newPath) {
+				props.onQueryChanged?.(props.query);
+				updateTemplate();
+			} else if (oldSearch != newSearch) {
+				await refreshData();
+				props.onQueryChanged?.(props.query);
+			}
+		}
+	);
 	watch(
 		() => modalDialogProps.loading.value,
 		(newVal) => {
@@ -92,7 +107,7 @@
 	);
 
 	defineExpose({
-		operbar,
+		queriesWithoutPager,
 		modalDialogProps,
 		getSelectedRows,
 		refreshData,
@@ -127,7 +142,7 @@
 	};
 
 	const operbarButtonClick: OperbarButtonClickHandler = function (button) {
-		if (button.type === "search" && operbar.value.searchField == "") {
+		if (button.type === "search" && !queriesWithoutPager.value.searchField) {
 			error("msg", { message: "请选择查询字段!" });
 			return true;
 		}
@@ -142,6 +157,8 @@
 					TemplateUtils.searchByField(pageData.value as any, indexTemplateIns);
 					break;
 				}
+				onChangePage(pageValue.pageIdx, pageValue.pageSize);
+				break;
 			}
 			case "refresh":
 				refreshData();
@@ -272,21 +289,10 @@
 	provide("onUpdatedData", onUpdatedData);
 
 	async function refreshData(initIndexUrl?: string) {
-		pageValue.pageIdx = props.query?.pageIdx ?? 1;
-		pageValue.pageSize = props.query?.pageSize ?? 20;
-
 		const configs: Parameters<RefreshCallback>[0] = {
 			method: "GET",
 			url: initIndexUrl ?? pageProps.value!.indexUrl,
-			params:
-				pagination.value || initIndexUrl
-					? {
-							pageIdx: pageValue.pageIdx,
-							pageSize: pageValue.pageSize,
-							searchKey: operbar.value.searchKey,
-							searchField: operbar.value.searchField,
-					  }
-					: {},
+			params: pagination.value || initIndexUrl ? { ...props.query } : {},
 			extraOptions: {
 				loading: pageLoading,
 				alwaysShowFeedbackMsg: false,
@@ -325,6 +331,16 @@
 	}
 
 	async function updateTemplate() {
+		const queryEntriesWithoutPager = Object.entries(props.query).filter((item) => !Object.keys(pageValue).includes(item[0]));
+		queriesWithoutPager.value = Object.assign(Object.fromEntries(queryEntriesWithoutPager));
+
+		const curUrlQueryKeys = Array.from(new URLSearchParams(window.location.search).keys());
+		if (Object.keys(props.query).some((item) => !curUrlQueryKeys.hasOwnProperty(item))) {
+			const query = { ...(props.query as any) };
+			props.query.ts = new Date().getTime();
+			router.replace({ query });
+		}
+
 		operColumnWidth.value = 0;
 
 		pageData.value = undefined;
@@ -335,10 +351,8 @@
 		// 保存当前页面的所有页地址与父地址
 		if (props.url.endsWith("/")) {
 			tempPageProps.indexUrl = props.url + "index";
-			tempPageProps.parentUrl = props.url;
 		} else {
 			tempPageProps.indexUrl = props.url;
-			tempPageProps.parentUrl = props.url.substring(0, props.url.lastIndexOf("/") + 1);
 		}
 
 		const result = (await refreshData(tempPageProps.indexUrl)) as Result;
@@ -429,8 +443,11 @@
 	}
 
 	function onChangePage(pageIdx: number, pageSize: number) {
-		router.push(`${props.url}?pageIdx=${pageIdx}&pageSize=${pageSize}`);
-		return true;
+		const params = { pageIdx, pageSize, ...queriesWithoutPager.value };
+
+		const query = new URLSearchParams(params as any).toString();
+		router.push(`${props.url}?${query}`);
+		return false;
 	}
 
 	async function onPageChanged() {
@@ -497,7 +514,7 @@
 		<template v-if="pageProps">
 			<OperationBar
 				ref="operbar"
-				:default-search-field="defaultSearchField"
+				v-model="queriesWithoutPager"
 				:oper-buttons="pageProps.operbarButtons"
 				:searchable-fields="pageProps.searchableFields"
 				@operbar-button-click="operbarButtonClick"

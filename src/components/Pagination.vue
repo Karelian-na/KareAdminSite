@@ -5,7 +5,7 @@
 	import AoButton from "@/components/AoButton.vue";
 	import { ElInputNumber, ElSelect, ElOption } from "element-plus";
 
-	import { ref } from "vue";
+	import { onBeforeMount, ref } from "vue";
 	import { error, info } from "@/common/utils/Interactive";
 
 	const props = defineProps<{
@@ -20,13 +20,14 @@
 		onChanged?(): void;
 	}>();
 
-	let needRegular = true;
 	const pageAmount = ref(Math.ceil(props.modelValue.dataCount / props.modelValue.pageSize));
 	const startIdx = ref(1);
 	const inputIdxValue = ref();
 	const endIdx = ref(pageAmount.value <= props.maxPageAmount ? pageAmount.value : props.maxPageAmount);
 
 	defineExpose({ pageAmount, refresh });
+
+	onBeforeMount(refresh);
 
 	function refresh() {
 		pageAmount.value = Math.ceil(props.modelValue.dataCount / props.modelValue.pageSize);
@@ -53,11 +54,15 @@
 			return;
 		}
 
-		props.modelValue.pageIdx = idx === -1 ? 1 : idx;
-		if (!props?.onChange(props.modelValue.pageIdx, props.modelValue.pageSize)) {
-			needRegular = false;
+		const old = props.modelValue.pageIdx;
+		if (idx != -1) {
+			props.modelValue.pageIdx = idx;
+		}
+
+		if (!props.onChange || props.onChange(props.modelValue.pageIdx, props.modelValue.pageSize)) {
 			refresh();
-			needRegular = true;
+		} else {
+			props.modelValue.pageIdx = old;
 		}
 	}
 

@@ -160,18 +160,9 @@
 				const componentProps: IndexTemplateProps = {
 					url: to.path,
 					head: item.name,
-					query: {},
+					query: to.query as any,
 				};
 
-				let value = parseInt(to.query.pageIdx as any);
-				if (!isNaN(value)) {
-					componentProps.query!.pageIdx = value;
-				}
-
-				value = parseInt(to.query.pageSize as any);
-				if (!isNaN(value)) {
-					componentProps.query!.pageSize = value;
-				}
 				return componentProps;
 			};
 			router.addRoute("admin", route);

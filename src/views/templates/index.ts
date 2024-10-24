@@ -399,13 +399,6 @@ export interface IIndexPageProps {
 	indexUrl: string;
 
 	/**
-	 * 相对于 {@link indexUrl} 的上级请求地址
-	 * @type {string}
-	 * @memberof IIndexPageProps
-	 */
-	parentUrl: string;
-
-	/**
 	 * 服务器获取的该页面的数据属性
 	 * @type {IPageInfo}
 	 * @memberof IIndexPageProps
@@ -502,6 +495,13 @@ export type DataOperAction = "add" | "edit" | "delete";
  * @param {IIndexPageProps} pageProps 页面的相关属性
  */
 export type PageInfoHandler = (pageProps: IIndexPageProps) => void;
+
+/**
+ * 当 IndexTemplate 的页面的url检索参数更改时执行的回调，用于处理自定义搜索表单的数据的同步
+ *
+ * @param {IIndexTemplateQueryProps} query 页面url的参数
+ */
+export type QueryChangeCallback = (query: IIndexTemplateQueryProps) => void;
 
 /**
  * 在 IndexTemplate 请求数据前，执行的回调。用来调整相关请求参数
@@ -614,16 +614,21 @@ export type OptionalProp<T> = {
 	required: false;
 };
 
-export interface IIndexTemplateQueryProps extends Record<string, any> {
+export interface IIndexTemplateQueryProps extends Record<string, any>, Object {
 	pageIdx?: number;
 	pageSize?: number;
+
+	searchKey?: string;
+	searchField?: string;
+
+	ts: number;
 }
 
 declare const indexTemplateProps: {
 	url: Prop<string>;
 	head: Prop<string>;
+	query: Prop<IIndexTemplateQueryProps>;
 
-	query: OptionalProp<IIndexTemplateQueryProps>;
 	loading: OptionalProp<ILoading>;
 	localSearch: OptionalProp<boolean>;
 	noPagination: OptionalProp<boolean>;
@@ -631,10 +636,11 @@ declare const indexTemplateProps: {
 	noSelectionColumn: OptionalProp<boolean>;
 	defaultSearchField: OptionalProp<string>;
 	tableProps: OptionalProp<TableInstance["$props"]>;
-	selectionColumnProps: OptionalProp<InstanceType<typeof ElTableColumn>["$props"]>
+	selectionColumnProps: OptionalProp<InstanceType<typeof ElTableColumn>["$props"]>;
 	onRefreshData: OptionalProp<RefreshCallback>;
 	onDataChanged: OptionalProp<DataChangedCallback>;
 	onPageInfoHandled: OptionalProp<PageInfoHandler>;
+	onQueryChanged: OptionalProp<QueryChangeCallback>;
 	onDataRefreshed: OptionalProp<RefreshedDataCallback>;
 	onEditTemplatePrepared: OptionalProp<PreparedCallback>;
 	onOperbarButtonClick: OptionalProp<OperbarButtonClickHandler>;
@@ -812,8 +818,8 @@ export namespace TemplateUtils {
 			return;
 		}
 
-		const searchField = indexTemplateIns.operbar.searchField;
-		const searchKey = indexTemplateIns.operbar.searchKey;
+		const searchField = indexTemplateIns.queriesWithoutPager.searchField ?? "";
+		const searchKey = indexTemplateIns.queriesWithoutPager.searchKey;
 		data.forEach((item, idx) => {
 			const value = item[searchField];
 			if (!searchKey || (value && String(value).includes(searchKey))) {
