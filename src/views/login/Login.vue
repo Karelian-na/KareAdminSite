@@ -96,12 +96,6 @@
 			});
 		}
 	}
-
-	function onKeyUp(e: KeyboardEvent) {
-		if (e.code == "Enter") {
-			editTemplateIns.value.submit();
-		}
-	}
 </script>
 
 <template>
@@ -124,6 +118,7 @@
 						<EditItem
 							v-model="formData['account']"
 							:field="fields['account']"
+							@keyup.enter="editTemplateIns.submit"
 						>
 							<template #prepend>
 								<IconFont value="user-line" />
@@ -133,7 +128,7 @@
 							class="pwd"
 							v-model="formData['pwd']"
 							:field="fields['pwd']"
-							@keyup="onKeyUp"
+							@keyup.enter="editTemplateIns.submit"
 						>
 							<template #prepend>
 								<IconFont value="password" />
