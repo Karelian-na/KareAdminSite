@@ -2,13 +2,13 @@
 
 <script setup lang="ts">
 	import type { IUserInfo } from "@/common";
-	import type { IInPageProps, SwitchPageFunction, TabPageMapType } from ".";
+	import type { ITab, SwitchPageFunction, TabPageMapType } from ".";
 
 	import { ElAvatar } from "element-plus";
 	import IconFont from "@/components/IconFont.vue";
 
 	import Store from "store";
-	
+
 	import { specialTabs } from ".";
 	import { inject, Ref } from "vue";
 	import { useRouter } from "vue-router";
@@ -16,21 +16,17 @@
 	import { confirm, success } from "@/common/utils/Interactive";
 
 	const router = useRouter();
+	const curTab = inject<Ref<ITab>>("curTab")!;
 	const userInfo = inject<Ref<IUserInfo>>("userInfo")!;
 	const switchPage = inject<SwitchPageFunction>("switchPage")!;
 	const tabMapPage = inject<Ref<TabPageMapType>>("tabMapPage")!;
-	const curInPageProps = inject<Ref<IInPageProps>>("curInPageProps")!;
 
 	function fullscreenOnclick() {
 		document.documentElement.requestFullscreen();
 	}
 
 	function onRefreshPage() {
-		curInPageProps.value.key = new Date().getTime();
-		// const route = router.currentRoute.value.matched[router.currentRoute.value.matched.length - 1];
-		// const component = route.components?.[route.name as string];
-		// if (component) {
-		// }
+		curTab.value.key = new Date();
 	}
 
 	function onPersonalTabClick() {

@@ -53,6 +53,15 @@ export interface ITab {
 	 * @memberof ITab
 	 */
 	element?: HTMLLIElement;
+
+	/**
+	 * @description 页内当前标签的键，当刷新页面时，改变该值，使组件强制更新
+	 * @author Karelian_na
+	 * @date 2023/09/14 10:09:32
+	 * @type {number}
+	 * @memberof IInPageProps
+	 */
+	key?: Date;
 }
 
 /**
@@ -127,15 +136,6 @@ export interface IInPageProps {
 	 * @memberof IInPageProps
 	 */
 	tabs: Array<IInPageTab>;
-
-	/**
-	 * @description 页内当前标签的键，当刷新页面时，改变该值，使组件强制更新
-	 * @author Karelian_na
-	 * @date 2023/09/14 10:09:32
-	 * @type {number}
-	 * @memberof IInPageProps
-	 */
-	key: number;
 }
 
 export type IPageProps = string;
@@ -204,7 +204,6 @@ export const specialInPageProps: Record<SpecialTabName, IInPageProps> = {
 			},
 		],
 		curTab: 0,
-		key: new Date().getTime(),
 	},
 	personal: {
 		tabs: [
@@ -215,6 +214,5 @@ export const specialInPageProps: Record<SpecialTabName, IInPageProps> = {
 			},
 		],
 		curTab: 0,
-		key: new Date().getTime(),
 	},
 };

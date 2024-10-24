@@ -241,7 +241,6 @@
 		const inPageProps: IInPageProps = {
 			tabs: [],
 			curTab: 0,
-			key: new Date().getTime(),
 		};
 		if (navItem.children) {
 			navItem.children.forEach((child) => {
@@ -358,11 +357,13 @@
 					>
 						<div
 							class="inpage-tab-content"
-							:key="item[1].key"
 							:class="{ active: curPage == item[0] }"
 						>
 							<KeepAlive>
-								<component :is="Component" />
+								<component
+									:key="curTab.key"
+									:is="Component"
+								/>
 							</KeepAlive>
 						</div>
 					</RouterView>
