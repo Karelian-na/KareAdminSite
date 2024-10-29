@@ -288,18 +288,18 @@
 
 	provide("onUpdatedData", onUpdatedData);
 
-	async function refreshData(initIndexUrl?: string) {
+	async function refreshData(init?: boolean) {
 		const configs: Parameters<RefreshCallback>[0] = {
 			method: "GET",
-			url: initIndexUrl ?? pageProps.value!.indexUrl,
-			params: pagination.value || initIndexUrl ? { ...props.query } : {},
+			url: props.url,
+			params: pagination.value || init ? { ...props.query } : {},
 			extraOptions: {
 				loading: pageLoading,
 				alwaysShowFeedbackMsg: false,
 			},
 		};
 
-		if (initIndexUrl) {
+		if (init) {
 			configs.params["initPageSize"] = pageValue.pageSize;
 		}
 
@@ -308,7 +308,7 @@
 		}
 
 		const result = await adminRequest(configs);
-		if (initIndexUrl) {
+		if (init) {
 			return result;
 		}
 
@@ -319,12 +319,12 @@
 			pageValue.pageIdx = data.curPageIdx;
 			pageValue.dataCount = data.totalCount;
 			props.onDataRefreshed?.(pageData.value!);
+			if (pagination.value) {
+				pagination.value.refresh();
+			}
 		} else {
-			error("msg", { message: `请求失败！${result.msg}` });
-		}
-
-		if (pagination.value) {
-			pagination.value.refresh();
+			pageData.value?.clear();
+			error("msg", { message: `请求失败！${result.msg ?? ""}` });
 		}
 
 		return result.success;
@@ -346,16 +346,7 @@
 		pageData.value = undefined;
 		pageProps.value = undefined;
 
-		const tempPageProps: IIndexPageProps = {} as any;
-
-		// 保存当前页面的所有页地址与父地址
-		if (props.url.endsWith("/")) {
-			tempPageProps.indexUrl = props.url + "index";
-		} else {
-			tempPageProps.indexUrl = props.url;
-		}
-
-		const result = (await refreshData(tempPageProps.indexUrl)) as Result;
+		const result = (await refreshData(true)) as Result;
 		if (!result.success) {
 			error("alert", {
 				title: "错误!",
@@ -364,13 +355,15 @@
 			return;
 		}
 
-		tempPageProps.info = result.data;
-		tempPageProps.allFields = {};
-		tempPageProps.displayFields = {};
-		tempPageProps.searchableFields = {};
-		tempPageProps.operColumnButtons = {};
-		tempPageProps.operbarButtons = {
-			refresh: { icon: "refresh", oper_type: 1, title: "刷新", type: "refresh" },
+		const tempPageProps: IIndexPageProps = {
+			info: result.data,
+			allFields: {},
+			displayFields: {},
+			searchableFields: {},
+			operColumnButtons: {},
+			operbarButtons: {
+				refresh: { icon: "refresh", oper_type: 1, title: "刷新", type: "refresh" },
+			},
 		};
 
 		const fieldsConfig = await TemplateUtils.resolveFieldConfigs(tempPageProps.info.fieldsConfig);

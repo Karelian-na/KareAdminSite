@@ -392,13 +392,6 @@ export interface IPageInfo {
  */
 export interface IIndexPageProps {
 	/**
-	 * 请求服务器数据的地址
-	 * @type {string}
-	 * @memberof IIndexPageProps
-	 */
-	indexUrl: string;
-
-	/**
 	 * 服务器获取的该页面的数据属性
 	 * @type {IPageInfo}
 	 * @memberof IIndexPageProps
