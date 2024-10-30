@@ -11,9 +11,11 @@
 	import { ElInput, ElSelect, ElOption } from "element-plus";
 	import EditTemplate from "@/views/templates/EditTemplate.vue";
 
+	import { KasConfig } from "@/configs";
 	import { EmptyObject } from "@/common/utils";
 	import { ref, computed, nextTick } from "vue";
 	import { ObjectUtils } from "@/common/utils/Object";
+	import { Constants } from "@/common/utils/Constants";
 	import { MenuType, MenuTypeFields, MenuTypeNames, Menu } from ".";
 
 	const props = defineProps<
@@ -185,12 +187,11 @@
 		<template #icon-input="{ fieldConfig, formData }">
 			<IconSelector
 				v-model="formData['icon']"
-				req-url="https://at.alicdn.com/t/c/font_4677547_r4t1w2xvv5.json"
+				:req-url="KasConfig.iconfont.libUrl"
 			>
 				<ElInput
 					v-model="formData['icon']"
 					v-bind="fieldConfig.bindProps"
-					@change=""
 				>
 					<template #prepend>
 						<IconFont :value="formData['icon']" />
@@ -266,7 +267,7 @@
 		<template #url-display="{ formData }">
 			<template v-if="formData['url']">
 				<a
-					v-if="/^(?:(http|https|ftp):\/\/)?((|[\w-]+\.)+[a-z0-9]+)(?:(\/[^/?#]+)*)?(\?[^#]+)?(#.+)?$/.test(formData['url'])"
+					v-if="Constants.externalLinkRegex.test(formData['url'])"
 					:href="formData['url']"
 					target="__blank"
 					>{{ formData["url"] }}</a
@@ -280,7 +281,8 @@
 			<p>1. 若当前权限类型为菜单或选项, 则其父权限类型必须为菜单或无;</p>
 			<p>2. 若当前权限类型为标签, 则其父权限类型必须为选项;</p>
 			<p>3. 若当前权限类型为操作, 则其父权限类型不能为操作;</p>
-			<p>4. 当操作类型权限的父权限类型为菜单或选项时, 该权限对其所有兄弟权限生效.</p>
+			<p>4. 当操作类型权限的父权限类型为菜单或选项时, 该权限对其所有兄弟权限生效;</p>
+			<p>5. 当菜单关联权限时, 操作类型由关联的权限决定; 不关联权限时,可修改菜单的操作类型.</p>
 		</template>
 	</EditTemplate>
 </template>

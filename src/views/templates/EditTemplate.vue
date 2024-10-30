@@ -281,10 +281,10 @@
 									if (!commaIdx || commaIdx === -1) {
 										return;
 									}
-									const fieldName = result.msg.substring(commaIdx + 1).trim();
+									const fieldName = result.msg!.substring(commaIdx + 1).trim();
 									const field = props.fields[fieldName];
 									if (field) {
-										result.msg = result.msg.replace(fieldName, field.display_name);
+										result.msg = result.msg!.replace(fieldName, field.display_name);
 									}
 								}
 								return false;

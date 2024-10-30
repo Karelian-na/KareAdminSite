@@ -2,9 +2,6 @@
 
 import { createWebHistory, createRouter } from "vue-router";
 
-/**
- * @type {() => import("vue-router").RouterOptions}
- */
 export const router = createRouter({
 	routes: [
 		{

@@ -1,1 +1,0 @@
-export const serverHost = "//kas.karelian.cn:800/api";

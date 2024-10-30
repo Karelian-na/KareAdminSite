@@ -1,15 +1,14 @@
 /** @format */
 
-import type { Arrayable, Nullable } from ".";
 import type { Router } from "vue-router";
+import type { Arrayable, Nullable } from ".";
 import type { AxiosRequestConfig } from "axios";
-import type { Result } from "@/common/utils/Result";
 import type { ILoading } from "@/common/utils/Interactive";
 
 import { nextTick } from "vue";
-import { Codes } from "@/common/utils/Codes";
-import { serverHost } from "@/configs/axios";
+import { KasConfig } from "@/configs";
 import { UploadUserFile } from "element-plus";
+import { Result } from "@/common/utils/Result";
 import { error, success } from "@/common/utils/Interactive";
 
 import Store from "store";
@@ -28,7 +27,7 @@ export type AxiosRequestOption = AxiosRequestConfig & {
 export async function axiosRequest(config: AxiosRequestOption) {
 	config.withCredentials = true;
 	if (!config.baseURL) {
-		config.baseURL = serverHost;
+		config.baseURL = KasConfig.axios.serverHost;
 	}
 
 	// 保存回调
@@ -48,18 +47,14 @@ export async function axiosRequest(config: AxiosRequestOption) {
 	try {
 		const response = await Axios<Result>(config);
 		result = response.data;
+		Object.setPrototypeOf(result, Result.prototype);
 		result.response = response;
 	} catch (ex: any) {
-		result = {
-			code: 0,
-			success: false,
-			msg: ex.message,
-			data: null,
-		};
+		result = new Result(ex.message);
 	}
 
 	// 未联网，或无法连接服务器
-	if (result.msg === "Network Error") {
+	if (result.isNetworkError()) {
 		extraOptions?.loading && (extraOptions.loading.value = false);
 		error("alert", { message: "网络错误，无法连接至服务器！" });
 		return result;
@@ -134,13 +129,13 @@ export async function uploadFile(files: Arrayable<UploadUserFile>, extraOptions?
 
 export async function adminRequest(config: AxiosRequestOption) {
 	if (!config.baseURL) {
-		config.baseURL = `${serverHost}`;
+		config.baseURL = `${KasConfig.axios.serverHost}`;
 	}
 
 	const oldCallback = config.callback;
 	config.callback = (result) => {
 		// 登录状态失效或未登录，跳转到登录页面
-		if (result.code == Codes.UN_LOGIN) {
+		if (result.code == Result.ERROR_UN_LOGIN) {
 			// const handled = await callback?.(result);
 			Store.namespace("cookie").each((val, key) => {
 				Store.namespace("cookie").remove(key);

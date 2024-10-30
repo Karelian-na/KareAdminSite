@@ -1,32 +1,33 @@
 <!-- @format -->
 
 <script setup lang="ts">
-	const props = defineProps<{
+	import { KasConfig } from "@/configs";
+	import { Constants } from "@/common/utils/Constants";
+
+	defineProps<{
 		value?: string;
 		type?: "font" | "svg";
 	}>();
-
-	const isUri = /^(https?|ftp):\/\/([a-zA-Z0-9.-]+)(:[0-9]+)?(\/[^\s]*)?$/.test(props.value ?? "");
 </script>
 
 <template>
-	<template v-if="/^[\w-]+$/.test(value ?? '')">
+	<template v-if="!value || KasConfig.iconfont.valueRegex.test(value)">
 		<svg
 			v-if="type === 'svg'"
 			class="icon"
 			aria-hidden="true"
 		>
-			<use :xlink:href="`#icon-${value}`" />
+			<use :xlink:href="`#${KasConfig.iconfont.prefix}${value}`" />
 		</svg>
 		<i
 			v-else
 			class="iconfont"
-			:class="`icon-${value}`"
+			:class="`${KasConfig.iconfont.prefix}${value}`"
 			v-bind="$attrs"
 		/>
 	</template>
 	<i
-		v-else-if="isUri"
+		v-else-if="Constants.externalLinkRegex.test(value)"
 		class="iconfont"
 	>
 		<img
@@ -38,7 +39,7 @@
 	</i>
 	<i
 		v-else
-		class="iconfont icon-none"
+		:class="`iconfont ${KasConfig.iconfont.prefix}none`"
 		v-bind="$attrs"
 	/>
 </template>

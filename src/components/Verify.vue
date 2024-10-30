@@ -73,7 +73,7 @@
 					} else {
 						props.onSent?.("");
 						formItemSerialIns.value.validateState = "error";
-						formItemSerialIns.value.validateMessage = result.msg;
+						formItemSerialIns.value.validateMessage = result.msg!;
 					}
 					sending.value = false;
 				} else {

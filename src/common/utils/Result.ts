@@ -5,42 +5,29 @@
 
 import type { AxiosResponse } from "axios";
 
-export type Result = {
-	code: number;
-	success: boolean;
-	msg: string;
-	data: any;
+export class Result extends Object {
+	public static readonly ERROR_UN_LOGIN = 0x5000005;
 
-	response?: AxiosResponse<Result, any>;
-};
+	public code: number = -1;
+	public success: boolean = false;
+	public msg?: string;
+	public data?: any;
+	public response?: AxiosResponse<Result, any>;
 
-export class StatusCode {
-	static readonly ERROR_EMPTY_REQUEST = 600001;
-	static readonly ERROR_ILLEGAL_ACCESS = 600002;
-	static readonly ERROR_PERMISSION_NOT_FOUND = 600003;
-	static readonly ERROR_PERMISSION_NOT_ALLOWED = 600004;
-	static readonly ERROR_UN_LOGIN = 600005;
-	static readonly ERROR_UN_AUTHORIZED = 600006;
-	static readonly ERROR_INVALID_ARGUMENT = 600007;
+	constructor(success: boolean, data?: any);
+	constructor(msg: string);
+
+	constructor(successOrMsg: boolean | string, data?: any) {
+		super();
+		if (typeof successOrMsg === "boolean") {
+			this.success = successOrMsg;
+			this.data = data;
+		} else {
+			this.msg = successOrMsg;
+		}
+	}
+
+	public isNetworkError() {
+		return this.msg === "Network Error";
+	}
 }
-
-export type DailyPoemResult = {
-	status: boolean;
-	data: {
-		id: string;
-		content: string;
-		popularity: number;
-		origin: {
-			title: string;
-			dynasty: string;
-			author: string;
-			content: string[];
-			translate: string[];
-		};
-		matchTags: string[];
-		recommendedReason: string;
-		cacheAt: string;
-	};
-	token: string;
-	ipAddress: string;
-};

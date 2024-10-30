@@ -255,7 +255,7 @@
 						},
 						callback: (result) => {
 							if (!result.success) {
-								if (result.msg.includes("404")) {
+								if (result.msg?.includes("404")) {
 									error("msg", { message: "操作失败！后台不支持批量删除！" });
 									return true;
 								}

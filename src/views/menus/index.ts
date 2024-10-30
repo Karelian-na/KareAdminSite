@@ -155,7 +155,7 @@ export function handleMenus(items: IMenuItem[]): IMenuItem[] {
 		}
 
 		if (left.type === MenuType.Item) {
-			return /^((https?|ftp):\/\/)?([a-zA-Z0-9.-]+)(:[0-9]+)?(\/[^\s]*)?$/.test(left.url) ? 1 : -1;
+			return Constants.externalLinkRegex.test(left.url) ? 1 : -1;
 		}
 
 		return 0;

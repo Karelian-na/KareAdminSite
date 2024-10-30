@@ -7,6 +7,7 @@
 	import IconFont from "@/components/IconFont.vue";
 
 	import { inject, Ref } from "vue";
+import { KasConfig } from "@/configs";
 
 	defineProps<{
 		items: IMenuItem[];
@@ -96,9 +97,9 @@
 	<div class="sidebar">
 		<header class="header">
 			<div class="logo">
-				<img src="/assets/imgs/favicon.png" />
+				<img :src="KasConfig.sysIcon" />
 			</div>
-			<h1 class="title">Kas 后台管理系统</h1>
+			<h1 class="title">{{ KasConfig.sysTitle }}</h1>
 		</header>
 		<nav
 			class="navigation"

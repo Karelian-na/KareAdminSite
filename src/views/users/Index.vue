@@ -17,12 +17,12 @@
 	import IndexTemplate from "@/views/templates/IndexTemplate.vue";
 
 	import { inject, ref } from "vue";
+	import { KasConfig } from "@/configs";
 	import { EmptyObject } from "@/common/utils";
 	import { TemplateUtils } from "@/views/templates";
 	import { ObjectUtils } from "@/common/utils/Object";
 	import { adminRequest } from "@/common/utils/Network";
 	import { confirm, error } from "@/common/utils/Interactive";
-	import { Constants } from "@/common/utils/Constants";
 
 	const pageLoading = inject<ILoading>("pageLoading")!;
 
@@ -49,13 +49,13 @@
 				}
 
 				pageProps.operColumnButtons[field].condition = (data) => {
-					return ![Constants.adminRole, Constants.commonUserRole].includes(data["id"]);
+					return ![KasConfig.adminRole, KasConfig.commonUserRole].includes(data["id"]);
 				};
 			});
 
 			if (pageProps.operColumnButtons["authorize"]) {
 				pageProps.operColumnButtons["authorize"].condition = (data) => {
-					return ![Constants.commonUserRole].includes(data["id"]);
+					return ![KasConfig.commonUserRole].includes(data["id"]);
 				};
 			}
 		}

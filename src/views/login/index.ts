@@ -1,5 +1,7 @@
 /** @format */
 
+import { KasConfig } from "@/configs";
+import { Constants } from "@/common/utils/Constants";
 import type { Fields, IField } from "@/views/templates";
 
 export const loginFields: Fields = {
@@ -15,10 +17,10 @@ export const loginFields: Fields = {
 				{ required: true, message: "请输入账户!", trigger: "blur" },
 				{
 					validator(rule, value: string, callback, source, options) {
-						const idMatch = /^[1-9]\d{7}$/.test(value); // 用户id登录
-						const uidMatch = /^[a-zA-Z]\w{5,20}$/.test(value); // 用户名登录
-						const emailMatch = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/.test(value); // 邮箱登录
-						const phoneMatch = /^(13[0-9]|14[5|7]|15[0|1|2|3|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9])\d{8}$/.test(value); // 手机号登录
+						const idMatch = KasConfig.idRegex.test(value); // 用户id登录
+						const uidMatch = KasConfig.uidRegex.test(value); // 用户名登录
+						const emailMatch = Constants.emailRegex.test(value); // 邮箱登录
+						const phoneMatch = Constants.phoneRegex.test(value); // 手机号登录
 
 						if (uidMatch || emailMatch || phoneMatch || idMatch) {
 							callback();

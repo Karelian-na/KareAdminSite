@@ -8,6 +8,7 @@
 	import { ElPopover, vLoading } from "element-plus";
 
 	import axios from "axios";
+	import { KasConfig } from "@/configs";
 
 	const props = defineProps<{
 		reqUrl?: string;
@@ -26,16 +27,18 @@
 	watch(
 		() => props.modelValue,
 		(newVal, oldVal) => {
-			if (!newVal || oldVal === undefined) {
+			if (!newVal || oldVal === undefined || !KasConfig.iconfont.valueRegex.test(newVal)) {
 				icons.value = allIcons;
 				return;
 			}
+
 			icons.value = allIcons.reduce((prev, cur) => {
 				if (cur.includes(newVal)) {
 					prev.push(cur);
 				}
 				return prev;
 			}, new Array<string>());
+			emits("update:model-value", newVal);
 		}
 	);
 
