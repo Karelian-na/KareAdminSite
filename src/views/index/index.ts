@@ -1,6 +1,6 @@
 /** @format */
 
-import type { IMenuItem } from "../menus";
+import type { Menu } from "../menus";
 
 /**
  * @description 主页的标签属性
@@ -167,7 +167,7 @@ export type PageInPageTabMapType = Map<IPageProps, IInPageProps>;
 /**
  * 创建标签的函数原型
  */
-export type CreateTabFunction = (navItem: IMenuItem) => ITab;
+export type CreateTabFunction = (navItem: Menu) => ITab;
 
 /**
  * 交换页面的函数原型

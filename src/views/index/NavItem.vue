@@ -1,17 +1,16 @@
 <!-- @format -->
 
 <script setup lang="ts">
-	import type { IMenuItem } from "@/views/menus";
+	import type { Menu } from "@/views/menus";
 	import type { CreateTabFunction, ITab, ItemTabMapType, SwitchPageFunction } from ".";
 
 	import IconFont from "@/components/IconFont.vue";
 
 	import { ref, inject, Ref } from "vue";
-	import { MenuType } from "@/views/menus";
 	import { Animation } from "@/common/utils/Animation";
 
 	const props = defineProps<{
-		navItem: IMenuItem;
+		navItem: Menu;
 	}>();
 
 	const expanded = ref(false);
@@ -22,7 +21,7 @@
 	const switchPage = inject<SwitchPageFunction>("switchPage")!;
 	const itemMapTab = inject<Ref<ItemTabMapType>>("itemMapTab")!;
 
-	function onNavItemClick(nav: IMenuItem) {
+	function onNavItemClick(nav: Menu) {
 		if (nav.url != "#" && !nav.url.startsWith("/")) {
 			window.open(nav.url);
 		} else {
@@ -57,7 +56,7 @@
 </script>
 
 <template>
-	<template v-if="navItem.type == MenuType.Menu">
+	<template v-if="navItem.isMenu()">
 		<li
 			v-if="navItem.children && navItem.children.length != 0"
 			class="nav-directory"

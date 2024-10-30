@@ -1,10 +1,10 @@
 /** @format */
 
-import { IUserInfo } from "./common";
-import { IMenuItem } from "./menus";
+import type { Menu } from "./menus";
+import type { IUserInfo } from "./common";
 
 export interface IIndexInfo {
 	fieldsConfig: string;
-	menus: Array<IMenuItem>;
+	menus: Array<Menu>;
 	userMsg: IUserInfo;
 }

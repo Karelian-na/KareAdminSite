@@ -9,8 +9,8 @@
 	import { ElTree, ElRow, ElCol } from "element-plus";
 	import EditTemplate from "@/views/templates/EditTemplate.vue";
 
+	import { Menu } from ".";
 	import { ref } from "vue";
-	import { handleMenus, IMenuItem } from ".";
 	import { adminRequest } from "@/common/utils/Network";
 
 	type ElTreeInstance = InstanceType<typeof ElTree>;
@@ -87,7 +87,7 @@
 						item.disabled = false;
 						item.checkedSubAmount = 0;
 					});
-					allAuthorizedMenus.value = handleMenus(data.all as unknown as IMenuItem[]) as unknown as TreeNodeData[];
+					allAuthorizedMenus.value = Menu.treeable(data.all as any) as unknown as TreeNodeData[];
 
 					IdValueMap.forEach((value) => {
 						value.totalSubAmount = value.children ? value.children.length : 0;

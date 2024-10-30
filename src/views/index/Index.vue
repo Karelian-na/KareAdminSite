@@ -2,7 +2,6 @@
 
 <script setup lang="ts">
 	import type { TabPaneName } from "element-plus";
-	import type { IMenuItem } from "@/views/menus";
 	import type { ITab, ItemTabMapType, TabPageMapType, PageInPageTabMapType, IInPageProps, SpecialTabName } from ".";
 
 	import TabBar from "./TabBar.vue";
@@ -13,17 +12,17 @@
 
 	import Store from "store";
 
-	import { Optional } from "@/common/utils";
+	import { Menu } from "@/views/menus";
 	import { error } from "@/common/utils/Interactive";
 	import { RouterView, useRouter } from "vue-router";
 	import { specialTabs, specialInPageProps } from ".";
-	import { MenuType, handleMenus } from "@/views/menus";
+	import { Nullable, Optional } from "@/common/utils";
 	import { onBeforeMount, provide, ref, nextTick, inject, shallowRef, reactive, watch, toRaw } from "vue";
 
-	const rawItems = inject<IMenuItem[]>("rawItems")!;
+	const rawItems = inject<Array<Menu>>("rawItems")!;
 
 	const router = useRouter();
-	const treeItems = handleMenus(rawItems);
+	const treeItems = Menu.treeable(rawItems);
 	const cookieStore = Store.namespace("cookie");
 
 	const tabMapPage = ref<TabPageMapType>(new Map());
@@ -157,7 +156,7 @@
 			const navItem = getNavItem(route);
 			if (navItem) {
 				// 如果当前路由对应的菜单类型为 Item，则直接创建主页面标签
-				if (navItem.type === MenuType.Item) {
+				if (navItem.isItem()) {
 					tab = createTab(navItem, route);
 
 					// 当前路由对应的菜单类型为 Page
@@ -165,11 +164,11 @@
 					const parent = navItem.parent;
 
 					// 查找该页内标签对应的主页面标签
-					tab = tabMapPage.value.getByValue(`r${parent.id}`);
+					tab = tabMapPage.value.getByValue(`r${parent!.id}`);
 
 					// 该页内标签对应的主页面标签已关闭，则根据当前路由和其父菜单创建主页面标签
 					if (!tab) {
-						tab = createTab(parent, route);
+						tab = createTab(parent!, route);
 					}
 				}
 			}
@@ -223,11 +222,11 @@
 		}
 	}
 
-	function createTab(navItem: IMenuItem, inPageUrl?: string) {
+	function createTab(navItem: Menu, inPageUrl?: string) {
 		const name = `r${navItem.id}`;
 
 		let title = "";
-		let iter = navItem;
+		let iter: Nullable<Menu> = navItem;
 		while (iter) {
 			title = iter.name + "-" + title;
 			iter = iter.parent;

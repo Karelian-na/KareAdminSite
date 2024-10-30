@@ -3,22 +3,21 @@
 <script setup lang="ts">
 	import type { IIndexInfo } from ".";
 	import type { IUserInfo } from "@/common";
-	import type { IMenuItem } from "@/views/menus";
 	import { RouteLocationNormalizedGeneric, RouteRecordRaw } from "vue-router";
 
 	import Store from "store";
 
+	import { Menu } from "@/views/menus";
 	import { useRouter } from "vue-router";
-	import { Menu, MenuType } from "@/views/menus";
 	import { zhCn } from "element-plus/es/locale";
 	import { error } from "@/common/utils/Interactive";
 	import { adminRequest } from "@/common/utils/Network";
+	import { IndexTemplateProps } from "./views/templates";
 	import { onBeforeMount, provide, reactive, ref } from "vue";
 	import { ElConfigProvider, vLoading, ElDialog } from "element-plus";
-	import { IndexTemplateProps } from "./views/templates";
 
 	const router = useRouter();
-	const rawItems = new Array<IMenuItem>();
+	const rawItems = new Array<Menu>();
 	const mainLoading = reactive({
 		value: false,
 		set tip(v: string) {
@@ -117,9 +116,9 @@
 
 		URL.revokeObjectURL(url);
 
-		rawItems.reset(data.menus);
+		rawItems.reset(Menu.protoable(data.menus));
 		rawItems.forEach((item) => {
-			if (!item.url || item.url == "#" || item.type == MenuType.Menu || Menu.isExternalLink(item as any)) {
+			if (!item.url || item.url == "#" || item.isMenu() || item.isExternalLink()) {
 				return;
 			}
 			let viewName: string;
@@ -141,9 +140,9 @@
 				item.url += "index";
 			}
 
-			if (item.type == MenuType.Item && !item.children) {
+			if (item.isItem() && !item.children) {
 				viewName = `r${item.id}`;
-			} else if (item.type != MenuType.Page) {
+			} else if (!item.isPage()) {
 				return;
 			} else {
 				viewName = `r${item.pid}`;

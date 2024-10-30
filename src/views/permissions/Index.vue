@@ -1,7 +1,7 @@
 <!-- @format -->
 
 <script setup lang="ts">
-	import type { OperColumnButtonClickHandler, PageInfoHandler } from "@/views/templates";
+	import type { IndexTemplateProps, OperColumnButtonClickHandler, PageInfoHandler } from "@/views/templates";
 
 	import AoTag from "@/components/AoTag.vue";
 	import IndexTemplate from "@/views/templates/IndexTemplate.vue";
@@ -9,10 +9,7 @@
 	import { ref } from "vue";
 	import { EmptyObject } from "@/common/utils";
 
-	const props = defineProps<{
-		url: string;
-		head: string;
-	}>();
+	const props = defineProps<IndexTemplateProps>();
 
 	const onPageInfoHandled: PageInfoHandler = function (pageProps) {
 		if (pageProps.operColumnButtons["delete"]) {

@@ -506,11 +506,11 @@ export type RefreshCallback = (params: AxiosRequestOption & { params: IDataReque
  * 当 IndexTemplate 接收到请求的数据时，执行的回调。该回调用来处理接受的数据
  * @param {IPageData} pageData 接受的数据
  */
-export type RefreshedDataCallback = (pageData: Array<KeyStringObject>) => void;
+export type RefreshedDataCallback<T extends KeyStringObject = any> = (pageData: Array<T>) => void;
 
 /**
  * 当执行完由 {@link IOperButton} 触发的数据操作时，执行的回调。用来调整改变后的数据，以便正常更新数据的展示
- * @param {string} action 导致数据改变的操作，取自于 {@link IOperButton.type} 属性
+ * @param {string} action 导致数据改变的操作，取自于 {@link IOperButton["type"]} 属性
  * @param {KeyStringObject} data 改变后的数据
  * @param {Array<KeyStringObject>} all 改变后的当前页面的所有数据
  */

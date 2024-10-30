@@ -1,7 +1,6 @@
 <!-- @format -->
 
 <script setup lang="ts">
-	import type { DetailMenuItem } from ".";
 	import type { KeyStringObject } from "@/common/utils";
 	import type { ILoading } from "@/common/utils/Interactive";
 	import type {
@@ -11,6 +10,7 @@
 		OperbarButtonClickHandler,
 		OperColumnButtonClickHandler,
 		IEnumItem,
+		IndexTemplateProps,
 	} from "@/views/templates";
 
 	import Edit from "./Edit.vue";
@@ -19,14 +19,11 @@
 	import IndexTemplate from "@/views/templates/IndexTemplate.vue";
 
 	import { inject, ref } from "vue";
+	import { MenuType, Menu } from ".";
 	import { EmptyObject } from "@/common/utils";
 	import { TemplateUtils } from "@/views/templates";
-	import { handleMenus, MenuType, MenuTypeFields, MenuTypeNames, Menu } from ".";
 
-	const props = defineProps<{
-		url: string;
-		head: string;
-	}>();
+	const props = defineProps<IndexTemplateProps>();
 
 	const pageLoading = inject<ILoading>("pageLoading")!;
 
@@ -72,8 +69,8 @@
 		);
 	};
 
-	const onDataRefreshed: RefreshedDataCallback = function (pageData) {
-		pageData.reset(handleMenus(pageData as any));
+	const onDataRefreshed: RefreshedDataCallback<Menu> = function (pageData) {
+		pageData.reset(Menu.treeable(pageData));
 		allSortedMenus = Menu.flat(pageData as any);
 		allParentableMenus = allSortedMenus.filter((value) => value.type != MenuType.Oper);
 	};
@@ -82,6 +79,7 @@
 		const topLevelMenus = all!;
 		switch (action) {
 			case "add": {
+				Object.setPrototypeOf(data, Menu.prototype);
 				// added menu was top level
 				if (!data.pid) {
 					data.level = 1;
@@ -227,7 +225,7 @@
 		return true;
 	};
 
-	const onTableExpandChange = function (row: DetailMenuItem, expanded: boolean) {
+	const onTableExpandChange = function (row: Menu, expanded: boolean) {
 		if (expandedRows.has(row.id)) {
 			expandedRows.delete(row.id);
 		} else {
@@ -265,7 +263,7 @@
 		<template #url="{ data }">
 			<template v-if="data['url']">
 				<a
-					v-if="Menu.isExternalLink(data as any)"
+					v-if="data.isExternalLink()"
 					:href="data['url']"
 					target="__blank"
 					>{{ data["url"] }}
@@ -278,9 +276,9 @@
 		<template #type="{ data }">
 			<AoTag
 				class="type"
-				:class="MenuTypeFields[data['type']]"
-				:icon="MenuTypeFields[data['type']]"
-				:label="MenuTypeNames[data['type']] ?? ''"
+				:class="Menu.typeFieldNameOf(data['type'])"
+				:icon="Menu.typeFieldNameOf(data['type'])"
+				:label="Menu.typeNameOf(data['type'])"
 			/>
 		</template>
 

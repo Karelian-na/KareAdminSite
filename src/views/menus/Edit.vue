@@ -1,7 +1,6 @@
 <!-- @format -->
 
 <script setup lang="ts">
-	import type { DetailMenuItem } from ".";
 	import type { Nullable } from "@/common/utils";
 	import type { CollectingPostDataHandler, EditTemplateProps, IEnumItem, PreparedCallback, UpdatingFormDataHandler } from "@/views/templates";
 
@@ -11,17 +10,17 @@
 	import { ElInput, ElSelect, ElOption } from "element-plus";
 	import EditTemplate from "@/views/templates/EditTemplate.vue";
 
+	import { Menu, MenuType } from ".";
 	import { KasConfig } from "@/configs";
 	import { EmptyObject } from "@/common/utils";
 	import { ref, computed, nextTick } from "vue";
 	import { ObjectUtils } from "@/common/utils/Object";
 	import { Constants } from "@/common/utils/Constants";
-	import { MenuType, MenuTypeFields, MenuTypeNames, Menu } from ".";
 
 	const props = defineProps<
 		EditTemplateProps & {
-			rawData: DetailMenuItem;
-			parentableMenus: Array<DetailMenuItem>;
+			rawData: Menu;
+			parentableMenus: Array<Menu>;
 		}
 	>();
 
@@ -54,7 +53,7 @@
 					disabled: isParentDisabled(cur),
 					type: cur.type,
 					level: cur.level,
-					isExternalLink: Menu.isExternalLink(cur),
+					isExternalLink: cur.isExternalLink(),
 				});
 				return prev;
 			}, [] as IEnumItem[])
@@ -155,7 +154,7 @@
 
 	function isParentDisabled(menu: Nullable<Menu>) {
 		// external link
-		if (menu?.url && Menu.isExternalLink(menu)) {
+		if (menu?.url && menu.isExternalLink()) {
 			return true;
 		}
 
@@ -166,7 +165,7 @@
 			return true; // add with parent
 		}
 
-		return props.rawData.type == MenuType.Page && menu?.type == MenuType.Menu; // edit
+		return props.rawData.isPage() && menu?.isMenu(); // edit
 	}
 </script>
 
@@ -204,8 +203,8 @@
 			<p>
 				<AoTag
 					class="type"
-					:class="MenuTypeFields[formData['type']]"
-					:icon="MenuTypeFields[formData['type']]"
+					:class="Menu.typeFieldNameOf(formData['type'])"
+					:icon="Menu.typeFieldNameOf(formData['type'])"
 					:label="fieldConfig.enumItems?.find((item: any) => item.value === formData['type'])?.label ?? ''"
 				/>
 			</p>
@@ -223,8 +222,8 @@
 				>
 					<AoTag
 						class="type"
-						:class="MenuTypeFields[item.value as number]"
-						:icon="MenuTypeFields[item.value as number]"
+						:class="Menu.typeFieldNameOf(item.value as any)"
+						:icon="Menu.typeFieldNameOf(item.value as any)"
 						:label="item.label"
 					/>
 				</ElOption>
@@ -254,9 +253,9 @@
 						/>
 						<AoTag
 							class="type"
-							:class="MenuTypeFields[item['type']]"
-							:icon="MenuTypeFields[item['type']]"
-							:label="MenuTypeNames[item['type']]"
+							:class="Menu.typeFieldNameOf(formData['type'])"
+							:icon="Menu.typeFieldNameOf(formData['type'])"
+							:label="Menu.typeNameOf(item['type'])"
 						/>
 					</template>
 					<template v-else>无父权限</template>

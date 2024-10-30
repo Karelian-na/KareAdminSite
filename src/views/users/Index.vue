@@ -8,6 +8,7 @@
 		HandleEditTemplateProps,
 		PageInfoHandler,
 		OperColumnButtonClickHandler,
+		IndexTemplateProps,
 	} from "@/views/templates";
 
 	import AssignRole from "./Assign.vue";
@@ -26,10 +27,7 @@
 
 	const pageLoading = inject<ILoading>("pageLoading")!;
 
-	const props = defineProps<{
-		url: string;
-		head: string;
-	}>();
+	const props = defineProps<IndexTemplateProps>();
 
 	const userMode = props.url.includes("users");
 

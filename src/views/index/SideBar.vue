@@ -1,16 +1,16 @@
 <!-- @format -->
 
 <script setup lang="ts">
-	import type { IMenuItem } from "@/views/menus";
+	import type { Menu } from "../menus";
 
 	import NavItem from "./NavItem.vue";
 	import IconFont from "@/components/IconFont.vue";
 
 	import { inject, Ref } from "vue";
-import { KasConfig } from "@/configs";
+	import { KasConfig } from "@/configs";
 
 	defineProps<{
-		items: IMenuItem[];
+		items: Array<Menu>;
 	}>();
 
 	const shrinked = inject<Ref<boolean>>("shrinked")!;
