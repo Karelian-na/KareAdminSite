@@ -183,14 +183,14 @@
 				<span>&nbsp;{{ formData["icon"] }}</span>
 			</p>
 		</template>
-		<template #icon-input="{ fieldConfig, formData }">
+		<template #icon-input="{ field, formData }">
 			<IconSelector
 				v-model="formData['icon']"
 				:req-url="KasConfig.iconfont.libUrl"
 			>
 				<ElInput
 					v-model="formData['icon']"
-					v-bind="fieldConfig.bindProps"
+					v-bind="field.config.bindProps"
 				>
 					<template #prepend>
 						<IconFont :value="formData['icon']" />
@@ -199,23 +199,23 @@
 			</IconSelector>
 		</template>
 
-		<template #type-display="{ fieldConfig, formData }">
+		<template #type-display="{ field, formData }">
 			<p>
 				<AoTag
 					class="type"
 					:class="Menu.typeFieldNameOf(formData['type'])"
 					:icon="Menu.typeFieldNameOf(formData['type'])"
-					:label="fieldConfig.enumItems?.find((item: any) => item.value === formData['type'])?.label ?? ''"
+					:label="field.config.enumItems?.find((item: any) => item.value === formData['type'])?.label ?? ''"
 				/>
 			</p>
 		</template>
-		<template #type-input="{ fieldConfig, formData }">
+		<template #type-input="{ field, formData }">
 			<ElSelect
 				v-model="formData['type']"
-				v-bind="fieldConfig.bindProps"
+				v-bind="field.config.bindProps"
 			>
 				<ElOption
-					v-for="item in fieldConfig.enumItems"
+					v-for="item in field.config.enumItems"
 					:label="item.label"
 					:value="item.value"
 					:disabled="(item.disabled as any)"
@@ -230,17 +230,17 @@
 			</ElSelect>
 		</template>
 
-		<template #pid-display="{ fieldConfig, formData }">
+		<template #pid-display="{ field, formData }">
 			<span v-if="!formData['pid']">无父权限</span>
-			<span v-else>{{ fieldConfig.enumItems?.find((item: any) => item.value === formData["item"])?.label }}</span>
+			<span v-else>{{ field.config.enumItems?.find((item: any) => item.value === formData["item"])?.label }}</span>
 		</template>
-		<template #pid-input="{ fieldConfig, formData }">
+		<template #pid-input="{ field, formData }">
 			<ElSelect
 				v-model="formData['pid']"
-				v-bind="fieldConfig.bindProps"
+				v-bind="field.config.bindProps"
 			>
 				<ElOption
-					v-for="item in fieldConfig.enumItems"
+					v-for="item in field.config.enumItems"
 					:label="item.label"
 					:value="item.value"
 					:disabled="(item.disabled as any)"

@@ -134,13 +134,13 @@
 		</span>
 		<slot
 			v-else
+			:field="field"
 			:disabled="disabled"
-			:fieldConfig="field.config"
 		>
 			<template v-if="disabled && !['image', 'file'].includes(field.config.type!)">
 				<slot
 					name="display"
-					:fieldConfig="field.config"
+					:field="field"
 				>
 					<JsonPretty
 						v-if="field.config.type === 'json'"
@@ -160,7 +160,7 @@
 			<template v-else>
 				<slot
 					name="input"
-					:fieldConfig="field.config"
+					:field="field"
 				>
 					<ElInput
 						v-if="field.config.type == 'text'"
