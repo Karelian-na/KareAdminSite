@@ -343,8 +343,6 @@
 			}
 		}
 
-		operColumnWidth.value = 0;
-
 		pageData.value = undefined;
 		pageProps.value = undefined;
 
@@ -382,11 +380,8 @@
 				}
 			}
 		});
-		let operButtonCount = 0;
-		const fontSize = 14;
-		// padding
-		operColumnWidth.value += 36;
-		for (let idx = 0; idx < tempPageProps.info.operButtons.length; idx++) {
+
+		for (let idx = 0; idx < tempPageProps.info.operButtons?.length; idx++) {
 			const item = tempPageProps.info.operButtons[idx];
 			if (!item.oper_type) {
 				continue;
@@ -402,19 +397,25 @@
 
 			if ((item.oper_type & 0x2) !== 0) {
 				tempPageProps.operColumnButtons[item.type] = item;
-				operColumnWidth.value += fontSize;
-				// margin-left, not first child
-				if (operButtonCount !== 0) {
-					operColumnWidth.value += fontSize;
-				}
-				++operButtonCount;
 			}
+		}
+		await callTemplateBack(props.onPageInfoHandled, tempPageProps);
+
+		let operButtonCount = 0;
+		const fontSize = 14;
+		// padding
+		operColumnWidth.value = 36;
+		for (let idx = 0; idx < Object.keys(tempPageProps.operColumnButtons).length; idx++) {
+			operColumnWidth.value += fontSize;
+			// margin-left, not first child
+			if (operButtonCount !== 0) {
+				operColumnWidth.value += fontSize;
+			}
+			++operButtonCount;
 		}
 		if (operColumnWidth.value < 36 + 2 * fontSize) {
 			operColumnWidth.value = 36 + 2 * fontSize;
 		}
-
-		await callTemplateBack(props.onPageInfoHandled, tempPageProps);
 
 		pageProps.value = tempPageProps;
 		pageData.value = tempPageProps.info.pageData.data;
