@@ -292,7 +292,7 @@
 		const configs: Parameters<RefreshCallback>[0] = {
 			method: "GET",
 			url: props.url,
-			params: pagination.value || init ? { ...props.query } : {},
+			params: { ...props.query },
 			extraOptions: {
 				loading: pageLoading,
 				alwaysShowFeedbackMsg: false,
@@ -331,14 +331,16 @@
 	}
 
 	async function updateTemplate() {
-		const queryEntriesWithoutPager = Object.entries(props.query).filter((item) => !Object.keys(pageValue).includes(item[0]));
-		queriesWithoutPager.value = Object.assign(Object.fromEntries(queryEntriesWithoutPager));
+		if (props.url == router.currentRoute.value.path) {
+			const queryEntriesWithoutPager = Object.entries(props.query).filter((item) => !Object.keys(pageValue).includes(item[0]));
+			queriesWithoutPager.value = Object.assign(Object.fromEntries(queryEntriesWithoutPager));
 
-		const curUrlQueryKeys = Array.from(new URLSearchParams(window.location.search).keys());
-		if (Object.keys(props.query).some((item) => !curUrlQueryKeys.hasOwnProperty(item))) {
-			const query = { ...(props.query as any) };
-			props.query.ts = new Date().getTime();
-			router.replace({ query });
+			const curUrlQueryKeys = Array.from(new URLSearchParams(window.location.search).keys());
+			if (Object.keys(props.query).some((item) => !curUrlQueryKeys.hasOwnProperty(item))) {
+				const query = { ...(props.query as any) };
+				props.query.ts = new Date().getTime();
+				router.replace({ query });
+			}
 		}
 
 		operColumnWidth.value = 0;
@@ -439,7 +441,11 @@
 		const params = { pageIdx, pageSize, ...queriesWithoutPager.value };
 
 		const query = new URLSearchParams(params as any).toString();
-		router.push(`${props.url}?${query}`);
+		if (props.url == router.currentRoute.value.path) {
+			router.push(`${props.url}?${query}`);
+		} else {
+			Object.assign(props.query, query);
+		}
 		return false;
 	}
 
