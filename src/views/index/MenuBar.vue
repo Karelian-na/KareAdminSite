@@ -26,7 +26,7 @@
 	}
 
 	function onRefreshPage() {
-		curTab.value.key = new Date();
+		curTab.value.key = new Date().getTime();
 	}
 
 	function onPersonalTabClick() {

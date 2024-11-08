@@ -61,7 +61,7 @@ export interface ITab {
 	 * @type {number}
 	 * @memberof IInPageProps
 	 */
-	key?: Date;
+	key?: number;
 }
 
 /**

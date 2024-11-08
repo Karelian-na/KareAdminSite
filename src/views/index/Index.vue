@@ -365,13 +365,11 @@
 					>
 						<div
 							class="inpage-tab-content"
+							:key="curTab.key"
 							:class="{ active: curPage == item[0] }"
 						>
 							<KeepAlive>
-								<component
-									:key="curTab.key"
-									:is="Component"
-								/>
+								<component :is="Component" />
 							</KeepAlive>
 						</div>
 					</RouterView>
