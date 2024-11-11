@@ -652,7 +652,10 @@
 				:title="`${head}-${modalDialogProps.operLabel}`"
 				@closed="onDialogClosed"
 			>
-				<div class="wrapper">
+				<div
+					v-if="modalDialogProps.show"
+					class="wrapper"
+				>
 					<slot
 						v-if="$slots['editContent']"
 						name="editContent"
