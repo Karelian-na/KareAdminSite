@@ -689,6 +689,22 @@ export namespace TemplateUtils {
 		return res ?? {};
 	}
 
+	export async function resolveFieldsFromPageInfo(info: IPageInfo, type: string) {
+		const fieldInfo = info.extraData[type] as { fields: Array<IField>; fieldsConfig: string };
+		if (!fieldInfo) {
+			console.error(`Failed to resolve ${type}'s fields, couldn't find returns from pageInfo!`);
+			return {};
+		}
+
+		const auditFieldsInfo = await TemplateUtils.resolveFieldConfigs(fieldInfo.fieldsConfig);
+
+		return fieldInfo.fields.reduce((prev, cur) => {
+			cur.config = auditFieldsInfo[cur.field_name] ?? {};
+			prev[cur.field_name] = cur;
+			return prev;
+		}, {} as Fields);
+	}
+
 	export function mapDataValueToLabel(field: IField, value: number | string | undefined) {
 		if (value === undefined) {
 			return value;
