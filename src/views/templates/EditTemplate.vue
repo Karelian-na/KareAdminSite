@@ -27,7 +27,7 @@
 	const formIns = ref<FormInstance>(EmptyObject);
 	const editItemInses = ref<Array<InstanceType<typeof EditItem>>>([]);
 
-	const mode = computed(() => props.modalDialogProps?.mode ?? props.mode);
+	const mode = computed(() => props.mode ?? props.modalDialogProps?.mode);
 
 	provide("mode", mode);
 
