@@ -158,7 +158,7 @@
 			});
 
 		if (props.modalDialogProps && !props.modalDialogProps.width) {
-			const isSingleColumn = layouts.value.every((item) => item.length === 1);
+			const isSingleColumn = (layouts.value.length === 1 && layouts.value[0].length === 0) || layouts.value.every((item) => item.length === 1);
 			props.modalDialogProps!.width = isSingleColumn ? 550 : 700;
 		}
 	}
