@@ -161,6 +161,12 @@
 			const isSingleColumn = (layouts.value.length === 1 && layouts.value[0].length === 0) || layouts.value.every((item) => item.length === 1);
 			props.modalDialogProps!.width = isSingleColumn ? 550 : 700;
 		}
+
+		if (rules.value && Object.keys(rules.value).length) {
+			labelWidth.value += 2;
+		} else {
+			labelWidth.value += 1;
+		}
 	}
 
 	async function updateFormData(attrs?: KeyStringObject) {
@@ -326,7 +332,7 @@
 		:class="mode"
 		:rules="rules"
 		:model="formData"
-		:label-width="`${labelWidth + 2}em`"
+		:label-width="`${labelWidth}em`"
 	>
 		<template v-if="layouts.length">
 			<slot
