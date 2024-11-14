@@ -115,7 +115,7 @@
 	}
 
 	function isEmptyValue() {
-		return !props.modelValue || (Array.isArray(props.modelValue) && !props.modelValue.length);
+		return props.modelValue === undefined || (Array.isArray(props.modelValue) && !props.modelValue.length);
 	}
 </script>
 
