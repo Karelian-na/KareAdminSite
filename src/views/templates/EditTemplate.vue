@@ -51,10 +51,10 @@
 				const config = field.config;
 				if (
 					field &&
-					// 编辑模式时，字段可编辑
-					((mode.value === "edit" && field.editable) ||
-						// 添加模式，可编辑 或 不可编辑但配置指定可编辑
-						(mode.value === "add" && (field.editable || field.editable_when_add)))
+					// 添加模式，可编辑 或 不可编辑但配置指定可编辑
+					((mode.value === "add" && (field.editable || field.editable_when_add)) ||
+						// 编辑模式时，字段可编辑
+						field.editable)
 				) {
 					if (config.rule) {
 						prev[fieldName] = config.rule;
