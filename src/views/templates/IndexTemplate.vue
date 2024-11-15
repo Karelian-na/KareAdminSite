@@ -196,6 +196,9 @@
 				if (!Object.values(pageProps.value!.allFields).some((item) => item.config.layoutSpan)) {
 					return true;
 				}
+				if (window.getSelection()?.containsNode(templateRootEle.value, true)) {
+					window.getSelection()!.removeAllRanges();
+				}
 			default:
 				modalDialogProps.operLabel = button.title;
 				break;
@@ -610,7 +613,7 @@
 								class-name="oper-column"
 								:width="operColumnWidth"
 							>
-								<template #default="{ row }">
+								<template #default="{ row, $index }">
 									<slot
 										name="opers"
 										:data="row"
@@ -618,7 +621,7 @@
 										:clickHandler="operColumnButtonClick"
 									>
 										<template v-for="button in pageProps.operColumnButtons">
-											<template v-if="!button.condition || button.condition(row)">
+											<template v-if="!button.condition || button.condition(row, $index)">
 												<IconFont
 													v-if="button.icon"
 													:value="button.icon"

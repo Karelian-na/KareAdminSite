@@ -293,7 +293,7 @@ export interface IOperButton {
 	 * @author Karelian_na
 	 * @date 2024/09/25 19:15:18
 	 */
-	condition?: (data: KeyStringObject) => boolean;
+	condition?: (data: KeyStringObject, index: number) => boolean;
 }
 
 /**
