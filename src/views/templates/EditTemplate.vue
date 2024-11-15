@@ -174,7 +174,7 @@
 			Object.assign(formData.value, attrs);
 		} else {
 			const func = function (rawData: Optional<KeyStringObject>, ...ignoreFields: Array<string>) {
-				if (!rawData) {
+				if (!rawData ||Array.isArray(rawData) ) {
 					return {};
 				}
 
@@ -239,7 +239,11 @@
 			}
 
 			if (props.mode != "add" && !postData.value["ids"] && !postData.value["id"]) {
-				postData.value["id"] = props.rawData!["id"];
+				if (Array.isArray(props.rawData)) {
+					postData.value["ids"] = props.rawData.map((item) => item["id"]);
+				} else {
+					postData.value["id"] = props.rawData!["id"];
+				}
 			}
 
 			confirm(`确定要${props.title}吗?`, {
