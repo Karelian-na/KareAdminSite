@@ -558,7 +558,7 @@ export interface IDiaglogFormData<T extends KeyStringObject = KeyStringObject> {
  * @param {Ref<KeyStringObject>} postData the commit data which is difference between current formData and init formData.
  * @returns {string | void} when return type is string, the return value should be request url's query.
  */
-export type CollectingPostDataHandler = (formData: IDiaglogFormData, postData: Ref<KeyStringObject>, mode: string) => string | void;
+export type CollectingPostDataHandler = (formData: IDiaglogFormData, postData: Ref<KeyStringObject>, mode: string, buttonFlags?: any) => string | void;
 
 /**
  * 当收集表单提交数据时，不希望 EditTemplate 托管请求，返回该值并使 postData 对象为空对象，这需要自己决定请求的接受与发送

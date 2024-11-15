@@ -188,7 +188,7 @@
 		}
 	}
 
-	function onSubmit() {
+	function onSubmit(buttonFlags?: any) {
 		if (mode.value === "details") {
 			return;
 		}
@@ -220,7 +220,8 @@
 						current: formData.value,
 					},
 					postData,
-					mode.value
+					mode.value,
+					buttonFlags
 				);
 
 				if (temp === CollectEnd) {
