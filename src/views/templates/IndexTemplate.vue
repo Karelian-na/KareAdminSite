@@ -41,7 +41,6 @@
 		},
 	}) as any as IndexTemplateInsType;
 
-	const operColumnWidth = ref(0);
 	const pageProps = ref<IIndexPageProps>();
 	const pageData = ref<Array<KeyStringObject>>();
 	const queriesWithoutPager = ref<Omit<typeof props.query, keyof typeof pageValue>>({});
@@ -412,22 +411,6 @@
 		}
 		await callTemplateBack(props.onPageInfoHandled, tempPageProps);
 
-		let operButtonCount = 0;
-		const fontSize = 14;
-		// padding
-		operColumnWidth.value = 36;
-		for (let idx = 0; idx < Object.keys(tempPageProps.operColumnButtons).length; idx++) {
-			operColumnWidth.value += fontSize;
-			// margin-left, not first child
-			if (operButtonCount !== 0) {
-				operColumnWidth.value += fontSize;
-			}
-			++operButtonCount;
-		}
-		if (operColumnWidth.value < 36 + 2 * fontSize) {
-			operColumnWidth.value = 36 + 2 * fontSize;
-		}
-
 		pageProps.value = tempPageProps;
 		pageData.value = tempPageProps.info.pageData.data;
 		pageValue.pageIdx = tempPageProps.info.pageData.curPageIdx;
@@ -549,7 +532,7 @@
 						stripe
 						ref="tableIns"
 						height="100%"
-						table-layout="fixed"
+						table-layout="auto"
 						empty-text="未查询到数据"
 						:data="pageData"
 						v-bind="tableProps"
@@ -559,7 +542,6 @@
 							v-if="noSelectionColumn !== true"
 							type="selection"
 							align="center"
-							width="39px"
 							v-bind="selectionColumnProps"
 						/>
 						<ElTableColumn
@@ -569,14 +551,12 @@
 							label="序号"
 							type="index"
 							align="center"
-							width="60px"
 							:index="computeIndex"
 						/>
 						<slot name="layouts">
 							<template v-for="field in Object.values(pageProps.displayFields).sort((l, r) => l.display_order - r.display_order)">
 								<ElTableColumn
 									align="center"
-									show-overflow-tooltip
 									:prop="field.field_name"
 									:label="field.display_name"
 									:class-name="field.field_name"
@@ -611,7 +591,6 @@
 								align="center"
 								style="white-space: nowrap"
 								class-name="oper-column"
-								:width="operColumnWidth"
 							>
 								<template #default="{ row, $index }">
 									<slot
@@ -750,28 +729,22 @@
 		white-space: nowrap;
 	}
 	.el-table :deep(thead .cell) {
-		text-align: center !important;
 		font-weight: bold;
 		color: black;
 	}
 	.el-table :deep(.oper-column .cell) {
 		text-align: left;
-		text-overflow: unset;
-		padding: 0 18px;
 	}
+	.el-table :deep(.oper-column .iconfont),
 	.el-table :deep(.oper-column .ui-button) {
-		padding: 0.4em;
-		color: white;
-	}
-	.el-table :deep(.oper-column .iconfont) {
+		padding: 0;
 		cursor: pointer;
+		background-color: transparent;
 		color: var(--el-color-primary);
 	}
-	.el-table :deep(.oper-column .ui-button .iconfont) {
-		color: inherit;
-	}
-	.el-table :deep(.oper-column .iconfont:not(:first-of-type)) {
-		margin-left: 1em;
+	.el-table :deep(.oper-column .ui-button),
+	.el-table :deep(.oper-column .iconfont) {
+		margin: 0 0.3em;
 	}
 
 	.index-template :deep(.el-dialog .el-dialog__header) {

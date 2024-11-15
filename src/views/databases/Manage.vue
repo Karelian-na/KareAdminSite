@@ -183,10 +183,7 @@
 				:data="Object.values(formData.fields)"
 				table-layout="auto"
 			>
-				<ElTableColumn
-					width="36px"
-					v-if="!disabled"
-				>
+				<ElTableColumn v-if="!disabled">
 					<IconFont
 						value="movehandler"
 						@mousedown="onDragHandlerMouseDown"
