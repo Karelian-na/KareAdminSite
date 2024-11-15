@@ -125,10 +125,10 @@
 		:class="field.field_name"
 		:prop="field.field_name"
 		:label="field.config.type === 'checkbox' ? '' : field.display_name + ':'"
-		v-bind="field.config.itemBindProps"
+		v-bind="Object.assign({}, $attrs, field.config.itemBindProps)"
 	>
 		<span
-			v-if="disabled && isEmptyValue() && field.config.type !== 'image'"
+			v-if="disabled && isEmptyValue() && !['image', 'custom'].includes(field.config.type)"
 			class="readonly no-value-tip"
 			>暂未设置
 		</span>
@@ -218,9 +218,9 @@
 						@update:model-value="onInternalModelValueChanged"
 						v-bind="field.config.bindProps"
 					>
-						<template v-if="field.config.enumItems && field.config.enumItems.length">
+						<template v-if="field.config.tempEnumItems ?? field.config.enumItems">
 							<ElRadio
-								v-for="item in field.config.enumItems"
+								v-for="item in field.config.tempEnumItems ?? field.config.enumItems"
 								:label="item.value"
 								>{{ item.label }}
 							</ElRadio>
