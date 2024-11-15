@@ -346,17 +346,22 @@
 		pageData.value = undefined;
 		pageProps.value = undefined;
 
-		const result = (await refreshData(true)) as Result;
-		if (!result.success) {
-			error("alert", {
-				title: "错误!",
-				content: `请求失败!原因:${result.msg}`,
-			});
-			return;
+		let info = props.modelValue;
+		if (!info) {
+			const result = (await refreshData(true)) as Result;
+			if (!result.success) {
+				error("alert", {
+					title: "错误!",
+					content: `请求失败!原因:${result.msg}`,
+				});
+				return;
+			}
+
+			info = result.data;
 		}
 
 		const tempPageProps: IIndexPageProps = {
-			info: result.data,
+			info: info!,
 			allFields: {},
 			displayFields: {},
 			searchableFields: {},
@@ -366,11 +371,14 @@
 			},
 		};
 
-		const fieldsConfig = await TemplateUtils.resolveFieldConfigs(tempPageProps.info.fieldsConfig);
+		if (typeof tempPageProps.info.fieldsConfig === "string") {
+			const fieldsConfig = await TemplateUtils.resolveFieldConfigs(tempPageProps.info.fieldsConfig);
+			tempPageProps.info.fieldsConfig = fieldsConfig;
+		}
 
 		tempPageProps.info.fields.forEach((field) => {
 			const fieldName = field.field_name;
-			field.config = fieldsConfig[fieldName] ?? {};
+			field.config = tempPageProps.info.fieldsConfig[fieldName] ?? {};
 
 			tempPageProps.allFields[fieldName] = field;
 			if (field.display) {

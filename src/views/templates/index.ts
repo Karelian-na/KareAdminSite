@@ -351,10 +351,10 @@ export interface IPageInfo {
 	 * @description 字段配置
 	 * @author Karelian_na
 	 * @date 2024/02/20 14:00:00
-	 * @type {string}
+	 * @type {FieldsConfig}
 	 * @memberof IPageInfo
 	 */
-	fieldsConfig: string;
+	fieldsConfig: FieldsConfig;
 
 	/**
 	 * 第一页的数据
@@ -622,6 +622,7 @@ declare const indexTemplateProps: {
 	head: Prop<string>;
 	query: Prop<IIndexTemplateQueryProps>;
 
+	modelValue: OptionalProp<IPageInfo>;
 	loading: OptionalProp<ILoading>;
 	localSearch: OptionalProp<boolean>;
 	noPagination: OptionalProp<boolean>;
