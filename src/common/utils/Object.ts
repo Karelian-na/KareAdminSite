@@ -97,7 +97,7 @@ export namespace ObjectUtils {
 		Object.assign((obj as any)[key], val);
 	}
 
-	export function clone<T>(obj: T, ...ignoreFields: Array<keyof T>) {
+	export function clone<T>(obj: T, specifyflag?: boolean | keyof T, ...specifyFields: Array<keyof T>) {
 		if (!obj) {
 			return obj;
 		}
@@ -107,22 +107,23 @@ export namespace ObjectUtils {
 			return res;
 		}
 
-		const record = ignoreFields.length
-			? ignoreFields.reduce((prev, field) => {
-					if (obj.hasOwnProperty(field)) {
-						prev[field] = obj[field];
-						delete obj[field];
-					}
-					return prev;
-			  }, {} as T)
-			: null;
-
-		const res = JSON.parse(JSON.stringify(obj));
-
-		if (record) {
-			Object.assign(obj, record);
+		if (Array.isArray(obj)) {
+			return JSON.parse(JSON.stringify(obj));
 		}
 
-		return res;
+		// true 为忽略方式， false 为指定方式
+		const filterType = typeof specifyflag === "boolean" ? specifyflag : true;
+
+		if (typeof specifyflag !== "boolean" && specifyflag) {
+			specifyFields.push(specifyflag);
+		}
+		const copyFields = filterType ? (Object.keys(obj) as Array<keyof T>).filter((item) => !specifyFields.includes(item)) : specifyFields;
+
+		const record = copyFields.reduce((prev, field) => {
+			prev[field] = obj[field];
+			return prev;
+		}, {} as T);
+
+		return JSON.parse(JSON.stringify(record));
 	}
 }
