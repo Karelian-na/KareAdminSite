@@ -1,11 +1,13 @@
 /** @format */
 
 import type { IDialogProps } from "@/common";
+import type { Result } from "@/common/utils/Result";
 import type { AxiosRequestOption } from "@/common/utils/Network";
 import type { ComputedRef, ExtractPropTypes, PropType, Ref } from "vue";
 import type { AlertOptions, ILoading } from "@/common/utils/Interactive";
 import type { Arrayable, KeyStringObject, Optional, Promisable } from "@/common/utils";
 import type { ButtonInstance, ElTableColumn, FormItemInstance, FormRules, TableColumnInstance, TableInstance } from "element-plus";
+
 import type IndexTemplate from "./IndexTemplate.vue";
 
 import { error } from "@/common/utils/Interactive";
@@ -587,6 +589,11 @@ export type RenderedCallback = (formData: KeyStringObject) => void;
  */
 export type BeforeLeaveCallback = (formData: IDiaglogFormData, base: () => boolean) => Promisable<Function | boolean>;
 
+export interface IBeforeSubmitResult {
+	result: Result;
+	feedbackType?: Parameters<typeof error>[0];
+}
+
 /**
  * 在提交表单时，执行的回调。
  *
@@ -595,7 +602,7 @@ export type BeforeLeaveCallback = (formData: IDiaglogFormData, base: () => boole
  * 而该回调是用户确认提交后，在执行提交动作前的回调，一般用于执行此次提交前的某些特定提交或处理
  * @param {KeyStringObject} postData 将要提交的表单的数据
  */
-export type BeforeSubmitHandler = (postData: KeyStringObject) => Promise<boolean> | boolean;
+export type BeforeSubmitHandler = (postData: KeyStringObject) => Promisable<boolean | IBeforeSubmitResult>;
 
 export type Prop<T> = {
 	type: PropType<T>;

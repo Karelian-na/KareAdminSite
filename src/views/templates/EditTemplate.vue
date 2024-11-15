@@ -2,8 +2,9 @@
 
 <script setup lang="ts">
 	import type { Ref } from "vue";
-	import type { DataChangedCallback, EditTemplateProps } from ".";
+	import type { Result } from "@/common/utils/Result";
 	import type { FormInstance, FormRules } from "element-plus";
+	import type { DataChangedCallback, EditTemplateProps } from ".";
 	import type { KeyStringObject, Optional } from "@/common/utils";
 
 	import EditItem from "./EditItem.vue";
@@ -271,55 +272,65 @@
 						postData.value[ins.field.field_name] = res;
 					}
 
-					if (props.onBeforeSubmit && !(await props.onBeforeSubmit(postData.value))) {
+					let handledRes: Awaited<ReturnType<NonNullable<typeof props.onBeforeSubmit>>> | undefined;
+					if (props.onBeforeSubmit && !(handledRes = await props.onBeforeSubmit(postData.value))) {
 						props.modalDialogProps && (props.modalDialogProps.loading.value = false);
-						info("msg", { message: "操作在提交前被中断！" });
 						return;
 					}
 
-					adminRequest({
-						url: action,
-						method: reqMethod,
-						data: toRaw(postData.value),
-						extraOptions: {
-							loading: props.modalDialogProps?.loading,
-						},
-						callback: (result) => {
-							if (!result.success) {
-								// 字段校验错误，对应服务端错误代码
-								if (result.code & 0x6000000) {
-									const commaIdx = result.msg?.indexOf(":");
-									if (!commaIdx || commaIdx === -1) {
-										return;
-									}
-									const fieldName = result.msg!.substring(commaIdx + 1).trim();
-									const field = props.fields[fieldName];
-									if (field) {
-										result.msg = result.msg!.replace(fieldName, field.display_name);
-									}
+					let result: Result;
+					if (typeof handledRes != "object") {
+						result = await adminRequest({
+							url: action,
+							method: reqMethod,
+							data: toRaw(postData.value),
+							extraOptions: {
+								loading: props.modalDialogProps?.loading,
+								alwaysShowFeedbackMsg: false,
+							},
+						});
+					} else {
+						result = handledRes.result;
+					}
+
+					const feedbackType = typeof handledRes === "object" ? handledRes.feedbackType : undefined;
+					if (!result.success) {
+						// 字段校验错误，对应服务端错误代码
+						if (result.code & 0x6000000) {
+							const commaIdx = result.msg?.indexOf(":");
+							if (commaIdx && commaIdx !== -1) {
+								const fieldName = result.msg!.substring(commaIdx + 1).trim();
+								const field = props.fields[fieldName];
+								if (field) {
+									result.msg = result.msg!.replace(fieldName, field.display_name);
 								}
-								return false;
 							}
+						}
+						error(feedbackType ?? "msg", { message: `操作失败! ${result.msg ?? ""}` });
+						return;
+					}
 
-							success("alert", {
-								callback: () => {
-									props.modalDialogProps && (props.modalDialogProps.show = false);
-
-									let func: Optional<DataChangedCallback>;
-									if (Array.isArray(props.onUpdatedData)) {
-										func = props.onUpdatedData[props.onUpdatedData.length - 1];
-									} else {
-										func = props.onUpdatedData;
-									}
-									func?.(props.operAction ?? props.mode, result.data ?? postData.value);
-								},
-							});
-							return true;
-						},
-					});
+					if (feedbackType === "msg") {
+						success("msg");
+						onUpdatedData(postData, result);
+					} else {
+						success("alert", { callback: onUpdatedData.bind(undefined, postData, result) });
+					}
 				},
 			});
 		});
+	}
+
+	function onUpdatedData(postData: KeyStringObject, result: Result) {
+		props.modalDialogProps && (props.modalDialogProps.show = false);
+
+		let func: Optional<DataChangedCallback>;
+		if (Array.isArray(props.onUpdatedData)) {
+			func = props.onUpdatedData[props.onUpdatedData.length - 1];
+		} else {
+			func = props.onUpdatedData;
+		}
+		func?.(props.operAction ?? props.mode, result.data ?? postData.value);
 	}
 
 	function updateEditItemReferences(instance: any) {
