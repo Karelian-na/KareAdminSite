@@ -197,6 +197,11 @@
 		/* Layout */
 		width: 8.5em;
 	}
+	.ui-pagination > .el-select.page-size :deep(.el-select__wrapper) {
+		/* Layout */
+		min-height: unset;
+		height: 100%;
+	}
 
 	.pager .ui-button {
 		height: 100%;
