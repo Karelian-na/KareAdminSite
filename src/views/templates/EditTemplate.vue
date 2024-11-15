@@ -352,6 +352,13 @@
 	>
 		<template v-if="layouts.length">
 			<slot
+				name="front"
+				:fields="fields"
+				:formData="formData"
+				:references="updateEditItemReferences"
+			>
+			</slot>
+			<slot
 				name="layouts"
 				:fields="fields"
 				:formData="formData"
@@ -438,6 +445,13 @@
 					</ElRow>
 				</template>
 			</slot>
+			<slot
+				name="end"
+				:fields="fields"
+				:formData="formData"
+				:references="updateEditItemReferences"
+			>
+			</slot>
 			<div
 				class="tips"
 				v-if="mode !== 'details' && $slots['tips']"
@@ -514,7 +528,7 @@
 		margin-left: 0 !important;
 		justify-content: center;
 	}
-	.edit-template :deep(.operations .el-button) {
+	.edit-template :deep(.edit-item.operations .el-button) {
 		width: max-content;
 	}
 </style>

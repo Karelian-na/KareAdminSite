@@ -212,7 +212,7 @@
 		margin-left: 0 !important;
 		justify-content: center;
 	}
-	.edit-item.operations .el-button {
+	.el-main :deep(.edit-item.operations .el-button) {
 		width: 100%;
 		font-size: 20px;
 		height: 2em;

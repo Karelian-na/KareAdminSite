@@ -265,7 +265,7 @@
 </template>
 
 <style scoped lang="css">
-	:global(.edit-item .el-form-item__content > *:not(.ao-upload.image)) {
+	:global(.edit-item .el-form-item__content > *:first-child:not(.ao-upload.image)) {
 		width: 100%;
 		height: 100%;
 	}
