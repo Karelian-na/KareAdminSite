@@ -43,6 +43,7 @@
 		await updateFormData();
 
 		props.onPrepared?.(formData.value, props.fields, mode.value);
+		window.templateFormData = formData;
 		if (mode.value !== "details") {
 			rules.value = Object.values(props.fields).reduce((prev, field, idx) => {
 				const fieldName = field.field_name;
@@ -62,7 +63,6 @@
 			}, {} as FormRules);
 		}
 		layoutFields();
-		window.templateFormData = formData;
 		await nextTick();
 		props.onRendered?.(formData.value);
 	});
@@ -136,7 +136,7 @@
 				// 字段配置自定义显示时
 				if (config.show) {
 					// 根据当前模式决定是否布局该字段
-					if (config.show !== true && !config.show(mode.value ?? "details")) {
+					if (config.show !== true && !config.show(mode.value ?? "details", field, props)) {
 						return;
 					}
 				} else if (mode.value === "add" && !field.editable && !field.editable_when_add) {

@@ -84,7 +84,7 @@ export type Fields = Record<string, IField>;
 /**
  * 编辑、添加对话中决定字段是否显示的回调
  */
-export type FieldShowCallback = (mode: string) => boolean;
+export type FieldShowCallback = (mode: string, field: IField, props: EditTemplateProps) => boolean;
 
 /**
  * 始终不显示字段的回调
