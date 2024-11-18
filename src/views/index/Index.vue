@@ -288,6 +288,7 @@
 				const page = tabMapPage.value.get(tabProps);
 				pageMapInPageProps.value.delete(page!);
 			}
+			curInPageProps.value.tabs.forEach((item) => delete item["lastQuery"]);
 			tabMapPage.value.delete(tabProps);
 		}
 	}

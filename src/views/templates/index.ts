@@ -5,6 +5,7 @@ import type { Result } from "@/common/utils/Result";
 import type { AxiosRequestOption } from "@/common/utils/Network";
 import type { ComputedRef, ExtractPropTypes, PropType, Ref } from "vue";
 import type { AlertOptions, ILoading } from "@/common/utils/Interactive";
+import type { ICommonPaginationModelValue } from "@/components/Paginations";
 import type { Arrayable, KeyStringObject, Optional, Promisable } from "@/common/utils";
 import type { ButtonInstance, ElTableColumn, FormItemInstance, FormRules, TableColumnInstance, TableInstance } from "element-plus";
 
@@ -336,6 +337,11 @@ export interface IPageData {
 	curPageIdx: number;
 
 	/**
+	 * 页面大小
+	 */
+	pageSize: number;
+
+	/**
 	 * 该页数据
 	 * @type {KeyStringObject[]}
 	 * @memberof IPageData
@@ -494,9 +500,9 @@ export type PageInfoHandler = (pageProps: IIndexPageProps) => void;
 /**
  * 当 IndexTemplate 的页面的url检索参数更改时执行的回调，用于处理自定义搜索表单的数据的同步
  *
- * @param {IIndexTemplateQueryProps} query 页面url的参数
+ * @param {ICommonPaginationModelValue} query 页面url的参数
  */
-export type QueryChangeCallback = (query: IIndexTemplateQueryProps) => void;
+export type QueryChangeCallback = (query: ICommonPaginationModelValue) => void;
 
 /**
  * 在 IndexTemplate 请求数据前，执行的回调。用来调整相关请求参数
@@ -614,20 +620,10 @@ export type OptionalProp<T> = {
 	required: false;
 };
 
-export interface IIndexTemplateQueryProps extends Record<string, any>, Object {
-	pageIdx?: number;
-	pageSize?: number;
-
-	searchKey?: string;
-	searchField?: string;
-
-	ts: number;
-}
-
 declare const indexTemplateProps: {
 	url: Prop<string>;
 	head: Prop<string>;
-	query: Prop<IIndexTemplateQueryProps>;
+	query: Prop<ICommonPaginationModelValue>;
 
 	modelValue: OptionalProp<IPageInfo>;
 	loading: OptionalProp<ILoading>;
@@ -835,8 +831,8 @@ export namespace TemplateUtils {
 			return;
 		}
 
-		const searchField = indexTemplateIns.queriesWithoutPager.searchField ?? "";
-		const searchKey = indexTemplateIns.queriesWithoutPager.searchKey;
+		const searchField = indexTemplateIns.pageQuery.searchField ?? "";
+		const searchKey = indexTemplateIns.pageQuery.searchKey;
 		data.forEach((item, idx) => {
 			const value = item[searchField];
 			if (!searchKey || (value && String(value).includes(searchKey))) {

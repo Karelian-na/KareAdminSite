@@ -126,4 +126,17 @@ export namespace ObjectUtils {
 
 		return JSON.parse(JSON.stringify(record));
 	}
+
+	export function reset<T>(obj: T, value: T, clone?: boolean) {
+		if (!obj || typeof obj !== "object") {
+			return obj;
+		}
+
+		for (const key in obj) {
+			delete obj[key];
+		}
+
+		Object.assign(obj, clone ? ObjectUtils.clone(value) : value);
+		return obj;
+	}
 }

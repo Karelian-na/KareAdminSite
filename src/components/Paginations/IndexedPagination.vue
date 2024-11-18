@@ -1,69 +1,81 @@
 <!-- @format -->
 
 <script setup lang="ts">
+	import type { IPaginationModeValue, PaginationChangeCallback, PaginationRefreshCallback } from ".";
+
 	import IconFont from "@/components/IconFont.vue";
 	import AoButton from "@/components/AoButton.vue";
 	import { ElInputNumber, ElSelect, ElOption } from "element-plus";
 
-	import { onBeforeMount, ref } from "vue";
+	import { computed, ref } from "vue";
 	import { error, info } from "@/common/utils/Interactive";
 
 	const props = defineProps<{
-		modelValue: {
-			pageIdx: number;
-			pageSize: number;
-			dataCount: number;
-		};
+		modelValue: IPaginationModeValue;
 		pageSizes: number[];
 		maxPageAmount: number;
-		onChange(pageIdx: number, pageSize: number): boolean;
-		onChanged?(): void;
+		onChange: PaginationChangeCallback;
+		onChanged?: PaginationChangeCallback;
 	}>();
 
-	const pageAmount = ref(Math.ceil(props.modelValue.dataCount / props.modelValue.pageSize));
-	const startIdx = ref(1);
+	const dataCount = ref(0);
+	const pageAmount = computed(() => {
+		if (!dataCount.value) {
+			return 1;
+		}
+		const result = Math.ceil(dataCount.value / props.modelValue.pageSize);
+		return isNaN(result) ? 1 : result;
+	});
+	const startIdx = computed(() => {
+		if (!props.modelValue.pageIdx) {
+			return 1;
+		}
+
+		const halfMaxPageNumber = Math.floor(props.maxPageAmount / 2);
+		if (props.modelValue.pageIdx < props.maxPageAmount || pageAmount.value <= props.maxPageAmount) {
+			return 1;
+		} else if (pageAmount.value - props.modelValue.pageIdx <= halfMaxPageNumber) {
+			return pageAmount.value - props.maxPageAmount;
+		}
+		return props.modelValue.pageIdx - halfMaxPageNumber;
+	});
+	const endIdx = computed(() => {
+		if (!props.modelValue.pageIdx) {
+			return 1;
+		}
+
+		const halfMaxPageNumber = Math.floor(props.maxPageAmount / 2);
+		if (props.modelValue.pageIdx < props.maxPageAmount || pageAmount.value <= props.maxPageAmount) {
+			return pageAmount.value <= props.maxPageAmount ? pageAmount.value : props.maxPageAmount;
+		} else if (pageAmount.value - props.modelValue.pageIdx <= halfMaxPageNumber) {
+			return pageAmount.value;
+		}
+
+		return props.modelValue.pageIdx + halfMaxPageNumber;
+	});
 	const inputIdxValue = ref();
-	const endIdx = ref(pageAmount.value <= props.maxPageAmount ? pageAmount.value : props.maxPageAmount);
 
-	defineExpose({ pageAmount, refresh });
+	const refresh: PaginationRefreshCallback = function (data) {
+		dataCount.value = data.totalCount;
+		props.modelValue.pageIdx = data.curPageIdx;
+		props.modelValue.pageSize = data.pageSize;
 
-	onBeforeMount(refresh);
-
-	function refresh() {
-		pageAmount.value = Math.ceil(props.modelValue.dataCount / props.modelValue.pageSize);
 		if (props.modelValue.pageIdx > pageAmount.value) {
 			props.modelValue.pageIdx = pageAmount.value;
 		} else if (props.modelValue.pageIdx == 0) {
 			props.modelValue.pageIdx = 1;
 		}
-		if (props.modelValue.pageIdx < props.maxPageAmount || pageAmount.value <= props.maxPageAmount) {
-			startIdx.value = 1;
-			endIdx.value = pageAmount.value <= props.maxPageAmount ? pageAmount.value : props.maxPageAmount;
-		} else if (pageAmount.value - props.modelValue.pageIdx <= 3) {
-			startIdx.value = pageAmount.value - 6;
-			endIdx.value = pageAmount.value;
-		} else if (props.modelValue.pageIdx >= endIdx.value || props.modelValue.pageIdx <= startIdx.value) {
-			startIdx.value = props.modelValue.pageIdx - 3;
-			endIdx.value = props.modelValue.pageIdx + 3;
-		}
-		props.onChanged?.();
-	}
+		props.onChanged?.(props.modelValue, data);
+	};
+
+	defineExpose({ pageAmount, refresh });
 
 	async function changePage(idx: number) {
 		if (props.modelValue.pageIdx == idx) {
 			return;
 		}
 
-		const old = props.modelValue.pageIdx;
-		if (idx != -1) {
-			props.modelValue.pageIdx = idx;
-		}
-
-		if (!props.onChange || props.onChange(props.modelValue.pageIdx, props.modelValue.pageSize)) {
-			refresh();
-		} else {
-			props.modelValue.pageIdx = old;
-		}
+		props.onChange?.({ pageIdx: idx === -1 ? props.modelValue.pageIdx ?? 1 : idx, pageSize: props.modelValue.pageSize });
 	}
 
 	function jumpPage() {
@@ -82,7 +94,7 @@
 
 <template>
 	<div
-		v-show="pageAmount > 1"
+		v-if="pageAmount > 0"
 		class="ui-pagination"
 	>
 		<AoButton
@@ -90,7 +102,10 @@
 			@click="modelValue.pageIdx != 1 && changePage(1)"
 			>首页</AoButton
 		>
-		<AoButton @click="modelValue.pageIdx > 1 && changePage(modelValue.pageIdx - 1)">
+		<AoButton
+			:props="{ disabled: !modelValue.pageIdx || modelValue.pageIdx === 1 }"
+			@click="changePage(modelValue.pageIdx! - 1)"
+		>
 			<IconFont value="arrow-left" />
 		</AoButton>
 		<div class="pager">
@@ -103,7 +118,10 @@
 				>{{ idx }}</AoButton
 			>
 		</div>
-		<AoButton @click="modelValue.pageIdx < pageAmount && changePage(modelValue.pageIdx + 1)">
+		<AoButton
+			:props="{ disabled: !modelValue.pageIdx || modelValue.pageIdx === pageAmount }"
+			@click="changePage(modelValue.pageIdx! + 1)"
+		>
 			<IconFont value="arrow-right" />
 		</AoButton>
 		<AoButton
@@ -123,7 +141,7 @@
 			@click="jumpPage"
 			>跳转
 		</AoButton>
-		<span class="total">共 {{ modelValue.dataCount }} 条</span>
+		<span class="total">共 {{ dataCount }} 条</span>
 		<ElSelect
 			v-model="modelValue.pageSize"
 			class="page-size"
@@ -156,8 +174,8 @@
 		background-color: transparent;
 		transition: background-color 0.5s ease-in-out, color 0.5s ease-in-out;
 	}
-	.ui-pagination .ui-button:not(#jump):hover,
-	.ui-pagination .ui-button:not(#jump).current {
+	.ui-pagination .ui-button:not(#jump):not(:disabled):hover,
+	.ui-pagination .ui-button:not(#jump):not(:disabled).current {
 		/* Appearance */
 		opacity: 1;
 		color: white;

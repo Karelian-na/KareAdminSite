@@ -4,6 +4,7 @@
 	import type { IDialogProps } from "@/common";
 	import type { Result } from "@/common/utils/Result";
 	import type { ILoading } from "@/common/utils/Interactive";
+	import type { ComponentPublicInstance, VNodeRef } from "vue";
 	import type { Arrayable, KeyStringObject, Optional } from "@/common/utils";
 	import type {
 		DataChangedCallback,
@@ -18,17 +19,19 @@
 
 	import AoButton from "@/components/AoButton.vue";
 	import IconFont from "@/components/IconFont.vue";
-	import Pagination from "@/components/Pagination.vue";
 	import EditTemplate from "@/views/templates/EditTemplate.vue";
 	import OperationBar from "@/views/templates/OperationBar.vue";
 	import { ElDialog, ElTable, ElTableColumn, ElLoading } from "element-plus";
+	import IndexedPagination from "@/components/Paginations/IndexedPagination.vue";
 
 	import { useRouter } from "vue-router";
 	import { EmptyObject } from "@/common/utils";
 	import { detailButton, TemplateUtils } from ".";
+	import { ObjectUtils } from "@/common/utils/Object";
 	import { adminRequest } from "@/common/utils/Network";
 	import { error, confirm, success, info } from "@/common/utils/Interactive";
-	import { ref, onBeforeMount, reactive, provide, nextTick, watch, inject, getCurrentInstance, markRaw, proxyRefs } from "vue";
+	import { ICommonPaginationModelValue, IPaginationExposes, Paginations } from "@/components/Paginations";
+	import { ref, onBeforeMount, reactive, provide, watch, inject, getCurrentInstance, markRaw, proxyRefs } from "vue";
 
 	const props = defineProps<IndexTemplateProps>();
 	const router = useRouter();
@@ -43,14 +46,13 @@
 
 	const pageProps = ref<IIndexPageProps>();
 	const pageData = ref<Array<KeyStringObject>>();
-	const queriesWithoutPager = ref<Omit<typeof props.query, keyof typeof pageValue>>({});
 
 	const templateRootEle = ref<HTMLDivElement>(EmptyObject);
-	const pagination = ref<InstanceType<typeof Pagination>>();
 	const tableIns = ref<InstanceType<typeof ElTable>>(EmptyObject);
 	const operbar = ref<InstanceType<typeof OperationBar>>(EmptyObject);
+	const pagination = ref<ComponentPublicInstance<IPaginationExposes>>();
 
-	const pageValue = reactive({ pageIdx: 1, pageSize: 20, dataCount: 0 });
+	const pageQuery = reactive<ICommonPaginationModelValue>({} as any);
 	const modalDialogProps = reactive<IDialogProps>({
 		show: false,
 		mode: "",
@@ -77,11 +79,9 @@
 			const [oldPath, oldSearch] = (old ?? "").split("☆", 2);
 			const [newPath, newSearch] = (newV ?? "").split("☆", 2);
 			if (oldPath != newPath) {
-				props.onQueryChanged?.(props.query);
 				updateTemplate();
 			} else if (oldSearch != newSearch) {
 				await refreshData();
-				props.onQueryChanged?.(props.query);
 			}
 		}
 	);
@@ -106,7 +106,7 @@
 	);
 
 	defineExpose({
-		queriesWithoutPager,
+		pageQuery,
 		modalDialogProps,
 		getSelectedRows,
 		refreshData,
@@ -141,7 +141,7 @@
 	};
 
 	const operbarButtonClick: OperbarButtonClickHandler = function (button) {
-		if (button.type === "search" && !queriesWithoutPager.value.searchField) {
+		if (button.type === "search" && !pageQuery.searchField) {
 			error("msg", { message: "请选择查询字段!" });
 			return true;
 		}
@@ -156,7 +156,8 @@
 					TemplateUtils.searchByField(pageData.value as any, indexTemplateIns);
 					break;
 				}
-				onChangePage(pageValue.pageIdx, pageValue.pageSize);
+				pageQuery.ts = new Date().getTime();
+				onChangePage(pageQuery);
 				break;
 			}
 			case "refresh":
@@ -288,13 +289,44 @@
 		return true;
 	};
 
+	const paginationRefCallback: VNodeRef = function (instance) {
+		const typedIns = instance as unknown as ComponentPublicInstance<IPaginationExposes>;
+		if (pagination.value !== typedIns) {
+			pagination.value = typedIns;
+		}
+	};
+
 	provide("onUpdatedData", onUpdatedData);
 
 	async function refreshData(init?: boolean) {
+		ObjectUtils.reset(pageQuery, props.query, true);
+		props.onQueryChanged?.(pageQuery);
+
+		let query: Record<string, any> | undefined;
+		if (props.url === router.currentRoute.value.path) {
+			if (Object.keys(props.query).some((item) => !pageQuery.hasOwnProperty(item))) {
+				ObjectUtils.reset(pageQuery, props.query, true);
+				pageQuery.ts = new Date().getTime();
+				query = Object.fromEntries(new URLSearchParams(pageQuery).entries());
+				router.replace({ query });
+			}
+		}
+
+		if (!query) {
+			query = Object.fromEntries(new URLSearchParams(pageQuery).entries());
+		}
+
+		if (typeof pageQuery.pageSize === "number") {
+			pageQuery.pageSize = Math.max(pageQuery.pageSize, Paginations.defaultPageSize);
+		} else if (typeof pageQuery.pageSize === "string") {
+			const pageSize = parseInt(pageQuery.pageSize);
+			pageQuery.pageSize = isNaN(pageSize) ? Paginations.defaultPageSize : Math.max(pageSize, Paginations.defaultPageSize);
+		}
+
 		const configs: Parameters<RefreshCallback>[0] = {
 			method: "GET",
 			url: props.url,
-			params: { ...props.query },
+			params: query,
 			extraOptions: {
 				loading: pageLoading,
 				alwaysShowFeedbackMsg: false,
@@ -302,7 +334,7 @@
 		};
 
 		if (init) {
-			configs.params["initPageSize"] = pageValue.pageSize;
+			configs.params["initPageSize"] = Paginations.defaultPageSize;
 		}
 
 		if (pagination.value) {
@@ -318,11 +350,9 @@
 			success("msg", { message: "已加载数据!" });
 			const data = result.data as IPageData;
 			pageData.value = data.data;
-			pageValue.pageIdx = data.curPageIdx;
-			pageValue.dataCount = data.totalCount;
 			props.onDataRefreshed?.(pageData.value!);
 			if (pagination.value) {
-				pagination.value.refresh();
+				pagination.value.refresh(data);
 			}
 		} else {
 			pageData.value?.clear();
@@ -333,18 +363,6 @@
 	}
 
 	async function updateTemplate() {
-		if (props.url == router.currentRoute.value.path) {
-			const queryEntriesWithoutPager = Object.entries(props.query).filter((item) => !Object.keys(pageValue).includes(item[0]));
-			queriesWithoutPager.value = Object.assign(Object.fromEntries(queryEntriesWithoutPager));
-
-			const curUrlQueryKeys = Array.from(new URLSearchParams(window.location.search).keys());
-			if (Object.keys(props.query).some((item) => !curUrlQueryKeys.hasOwnProperty(item))) {
-				const query = { ...(props.query as any) };
-				props.query.ts = new Date().getTime();
-				router.replace({ query });
-			}
-		}
-
 		pageData.value = undefined;
 		pageProps.value = undefined;
 
@@ -413,49 +431,28 @@
 
 		pageProps.value = tempPageProps;
 		pageData.value = tempPageProps.info.pageData.data;
-		pageValue.pageIdx = tempPageProps.info.pageData.curPageIdx;
-		pageValue.dataCount = tempPageProps.info.pageData.totalCount;
+
 		await callTemplateBack(props.onDataRefreshed, pageData.value);
 
-		onPageChanged();
-		return true;
-	}
-
-	function computeIndex(index: number) {
-		if (pagination.value) {
-			return (pageValue.pageIdx - 1) * pageValue.pageSize + index + 1;
+		if (info?.pageData && pagination.value) {
+			pagination.value.refresh(info.pageData);
 		}
-		return index + 1;
+		return true;
 	}
 
 	function getSelectedRows() {
 		return tableIns.value.getSelectionRows() as (KeyStringObject & { id: string | number })[];
 	}
 
-	function onChangePage(pageIdx: number, pageSize: number) {
-		const params = { pageIdx, pageSize, ...queriesWithoutPager.value };
-
-		const query = new URLSearchParams(params as any).toString();
+	function onChangePage(param: ICommonPaginationModelValue) {
+		Object.assign(pageQuery, param);
+		const query = Object.fromEntries(new URLSearchParams(pageQuery).entries());
 		if (props.url == router.currentRoute.value.path) {
-			router.push(`${props.url}?${query}`);
+			router.push({ query });
 		} else {
 			Object.assign(props.query, query);
 		}
 		return false;
-	}
-
-	async function onPageChanged() {
-		await nextTick();
-
-		if (pagination.value) {
-			const wrapperElement = document.querySelector<HTMLDivElement>(".content .wrapper")!;
-			if (pagination.value.pageAmount > 1) {
-				const minWidth = pagination.value.$el.clientWidth + 40;
-				wrapperElement.style.setProperty("min-width", `${minWidth < 720 ? 720 : minWidth}px`);
-			} else {
-				wrapperElement.style.removeProperty("min-width");
-			}
-		}
 	}
 
 	async function onDialogBeforeClose(done: (cancel?: boolean) => void) {
@@ -508,7 +505,7 @@
 		<template v-if="pageProps">
 			<OperationBar
 				ref="operbar"
-				v-model="queriesWithoutPager"
+				v-model="pageQuery"
 				:oper-buttons="pageProps.operbarButtons"
 				:searchable-fields="pageProps.searchableFields"
 				@operbar-button-click="operbarButtonClick"
@@ -551,7 +548,6 @@
 							label="序号"
 							type="index"
 							align="center"
-							:index="computeIndex"
 						/>
 						<slot name="layouts">
 							<template v-for="field in Object.values(pageProps.displayFields).sort((l, r) => l.display_order - r.display_order)">
@@ -622,15 +618,19 @@
 						</slot>
 					</ElTable>
 				</div>
-				<Pagination
-					v-if="noPagination !== true && pageData"
-					ref="pagination"
-					:model-value="pageValue"
-					:max-page-amount="7"
-					:page-sizes="[20, 40, 100, 200]"
-					@change="onChangePage"
-					@changed="onPageChanged"
-				/>
+				<slot
+					name="pagination"
+					v-bind="{ pageQuery, references: paginationRefCallback, onChange: onChangePage }"
+				>
+					<IndexedPagination
+						v-if="noPagination !== true && pageData"
+						ref="pagination"
+						:model-value="pageQuery"
+						:max-page-amount="7"
+						:page-sizes="[20, 40, 100, 200]"
+						@change="onChangePage"
+					/>
+				</slot>
 			</div>
 			<ElDialog
 				draggable
