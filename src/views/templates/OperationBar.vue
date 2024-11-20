@@ -7,6 +7,7 @@
 	import { ElForm, ElFormItem, ElInput, ElSelect, ElOption } from "element-plus";
 
 	import { searchButton } from ".";
+	import { onBeforeMount, onUpdated } from "vue";
 
 	interface ISearchProps extends Record<string, any> {
 		searchKey?: string;
@@ -22,9 +23,30 @@
 		onOperbarButtonClick?: OperbarButtonClickHandler;
 	}>();
 
-	defineEmits<{
-		(e: "update:model-value", v: string): void;
-	}>();
+	onBeforeMount(regularSearchKey);
+	onUpdated(regularSearchKey);
+
+	function onSearchFieldChange(newValue: any) {
+		props.modelValue.searchKey = "";
+	}
+
+	function regularSearchKey() {
+		if (!props.modelValue.searchField || !props.modelValue.searchKey) {
+			return;
+		}
+
+		const fieldConfig = props.searchableFields[props.modelValue.searchField]?.config;
+		if (!fieldConfig) {
+			return;
+		}
+
+		if (["enum", "radio"].includes(fieldConfig.type)) {
+			const item = fieldConfig.enumItems?.find((item) => item.value == props.modelValue.searchKey);
+			if (item) {
+				props.modelValue.searchKey = item.value as any;
+			}
+		}
+	}
 </script>
 
 <template>
@@ -33,19 +55,37 @@
 			<slot v-bind="{ ...props }">
 				<template v-if="Object.entries(searchableFields).length != 0">
 					<ElFormItem label="查询内容:">
+						<ElSelect
+							v-if="modelValue.searchField && ['enum', 'radio'].includes(searchableFields[modelValue.searchField].config.type)"
+							v-model="modelValue.searchKey"
+							placeholder="请选择查询内容"
+						>
+							<ElOption
+								label="[选择查询内容]"
+								value=""
+							/>
+							<template v-if="searchableFields[modelValue.searchField].config.enumItems">
+								<ElOption
+									v-for="item in searchableFields[modelValue.searchField].config.enumItems"
+									:key="(item.value as any)"
+									:value="item.value"
+									:label="item.label"
+								/>
+							</template>
+						</ElSelect>
 						<ElInput
+							v-else
 							placeholder="输入查询内容"
-							:model-value="modelValue.searchKey"
-							@update:model-value="(v) => (modelValue.searchKey = v)"
+							v-model="modelValue.searchKey"
 							@keyup.enter="onOperbarButtonClick?.(searchButton, operButtons)"
 						>
 						</ElInput>
 					</ElFormItem>
 					<ElFormItem label="查询字段:">
 						<ElSelect
-							:model-value="modelValue.searchField"
-							@update:model-value="(v) => (modelValue.searchField = v)"
+							v-model="modelValue.searchField"
 							placeholder="选择查询字段"
+							@change="onSearchFieldChange"
 						>
 							<ElOption
 								value=""
