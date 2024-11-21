@@ -41,7 +41,6 @@
 		"databases/index": () => import("@/views/databases/Index.vue"),
 		"menus/index": () => import("@/views/menus/Index.vue"),
 		"permissions/index": () => import("@/views/permissions/Index.vue"),
-
 	};
 
 	const userInfo = ref<IUserInfo>();
@@ -59,7 +58,7 @@
 
 	const navigate: Parameters<typeof router.beforeEach>[0] = async function (to, _from, next) {
 		// 跳过不需要登陆验证的路由
-		if (["retrieve"].includes(to.name as string)) {
+		if (["retrieve", "login"].includes(to.name as string)) {
 			next();
 			return;
 		}
@@ -90,6 +89,7 @@
 
 		if (!result.success) {
 			error("alert", { content: result.msg ?? "菜单获取失败!" });
+			next({ name: "login" });
 			return true;
 		}
 
