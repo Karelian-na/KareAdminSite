@@ -11,6 +11,7 @@ declare global {
 		remove(idx: number): T;
 		reset(other: Array<T>): void;
 		insert(idx: number, ...vals: Array<T>): void;
+		partitionBy<V extends keyof T, R>(field: V, predict: (value: T[V], idx: number) => R): Map<R, Array<T>>;
 	}
 
 	interface Map<K, V> {
@@ -39,6 +40,34 @@ Array.prototype.insert = function (idx, ...vals) {
 	} else {
 		this.splice(idx, 0, ...vals);
 	}
+};
+Array.prototype.partitionBy = function (field, predict) {
+	if (!field || !predict) {
+		throw new Error("Invalid argument of `field` or `predict`!");
+	}
+
+	if (this.length !== 0) {
+		if (typeof this[0] !== "object") {
+			throw new Error("Partitioning target type must be an object!");
+		}
+	}
+
+	const res: Map<ReturnType<typeof predict>, Array<any>> = new Map();
+	if (this.length === 0) {
+		return res;
+	}
+
+	this.forEach((item, idx) => {
+		const result = predict(item[field], idx);
+
+		if (!res.has(result)) {
+			res.set(result, []);
+		}
+		const partitioned = res.get(result)!;
+		partitioned.push(item);
+	});
+
+	return res;
 };
 
 Map.prototype.getByValue = function (searchValue, predict) {

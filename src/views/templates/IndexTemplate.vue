@@ -64,6 +64,8 @@
 		},
 	});
 
+	var initPageData = new Array<KeyStringObject>();
+
 	var loading: ReturnType<typeof ElLoading.service>;
 
 	onBeforeMount(updateTemplate);
@@ -274,6 +276,9 @@
 							} else {
 								const idx = pageData.value!.indexOf(param!);
 								idx != -1 && pageData.value!.remove(idx);
+
+								const initIdx = initPageData.indexOf(param!);
+								initPageData.remove(initIdx);
 							}
 
 							return false;
@@ -350,6 +355,7 @@
 			success("msg", { message: "已加载数据!" });
 			const data = result.data as IPageData;
 			pageData.value = data.data;
+			initPageData = [...data.data];
 			props.onDataRefreshed?.(pageData.value!);
 			if (pagination.value) {
 				pagination.value.refresh(data);
@@ -431,6 +437,7 @@
 
 		pageProps.value = tempPageProps;
 		pageData.value = tempPageProps.info.pageData.data;
+		initPageData = [...tempPageProps.info.pageData.data];
 
 		await callTemplateBack(props.onDataRefreshed, pageData.value);
 
@@ -495,6 +502,29 @@
 	function getTableRowElements(): Array<HTMLTableRowElement> {
 		return Array.from(templateRootEle.value.querySelectorAll(".data .table .el-table__row"));
 	}
+
+	function onSortChange(data: { column: any; prop: string; order: any }) {
+		if (!data.prop || !pageData.value?.length) {
+			return;
+		}
+
+		if (data.order === null) {
+			pageData.value = initPageData;
+			return;
+		}
+
+		const field = data.prop;
+		const isAscending = data.order === "ascending";
+		const partitionedEmptyDataMap = pageData.value.partitionBy(data.prop, (item) => item === null || item === undefined);
+
+		const nonEmptyData = partitionedEmptyDataMap.get(false) ?? [];
+		nonEmptyData.sort(isAscending ? (l, r) => l[field] - r[field] : (l, r) => r[field] - l[field]);
+
+		const emptyData = partitionedEmptyDataMap.get(true) ?? [];
+		nonEmptyData.unshift(...emptyData);
+
+		pageData.value = nonEmptyData;
+	}
 </script>
 
 <template>
@@ -533,6 +563,7 @@
 						empty-text="未查询到数据"
 						:data="pageData"
 						v-bind="tableProps"
+						@sort-change="onSortChange"
 						@row-dblclick="(row: Object) => operColumnButtonClick(detailButton, row, null as any)"
 					>
 						<ElTableColumn
