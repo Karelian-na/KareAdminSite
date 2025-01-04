@@ -5,6 +5,18 @@ import type { ILoading } from "@/common/utils/Interactive";
 import type { BeforeLeaveCallback, DataOperAction } from "@/views/templates";
 
 /**
+ * a back-end record interface
+ *
+ * @author Karelian_na
+ * @date 2025/01/04 15:07:00
+ * @export
+ * @interface IRecord
+ */
+export interface IRecord extends KeyStringObject {
+	id: number;
+};
+
+/**
  * @description 用户简要信息接口
  * @author Karelian_na
  * @date 2023/09/14 09:24:25

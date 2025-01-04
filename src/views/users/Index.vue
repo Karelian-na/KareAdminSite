@@ -231,7 +231,7 @@
 			/>
 		</template>
 
-		<template #dialogContent="attrs">
+		<template #commonContent="attrs">
 			<Authorize
 				v-if="attrs.mode == 'authorize'"
 				:kind="userMode ? 'user' : 'role'"

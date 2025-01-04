@@ -665,6 +665,7 @@
 			</div>
 			<ElDialog
 				draggable
+				destroy-on-close
 				v-model="modalDialogProps.show"
 				:align-center="true"
 				:close-on-click-modal="false"
@@ -673,10 +674,14 @@
 				:title="`${head}-${modalDialogProps.operLabel}`"
 				@closed="onDialogClosed"
 			>
-				<div class="wrapper">
+				<div
+					class="wrapper"
+					v-if="modalDialogProps.show"
+				>
+					<!-- all dialog content slot, if defined, all modes' dialog will use defined slot to render -->
 					<slot
-						v-if="$slots['editContent']"
-						name="editContent"
+						v-if="$slots['dialogContent']"
+						name="dialogContent"
 						v-bind="{
 							mode: modalDialogProps.mode,
 							rawData: modalDialogProps.data,
@@ -687,9 +692,22 @@
 						}"
 					>
 					</slot>
-					<template v-else>
+					<!-- `edit`, `add`, `details` slot, if not defined, use default template to render -->
+					<template v-else-if="['edit', 'add', 'details'].includes(modalDialogProps.mode)">
+						<slot
+							v-if="$slots['editContent']"
+							name="editContent"
+							v-bind="{
+								mode: modalDialogProps.mode,
+								rawData: modalDialogProps.data,
+								fields: pageProps.allFields,
+								title: modalDialogProps.operLabel,
+								modalDialogProps,
+								onUpdatedData,
+							}"
+						></slot>
 						<EditTemplate
-							v-if="['edit', 'add', 'details'].includes(modalDialogProps.mode)"
+							v-else
 							:mode="modalDialogProps.mode"
 							:raw-data="modalDialogProps.data"
 							:fields="pageProps.allFields"
@@ -699,8 +717,10 @@
 							@prepared="onEditTemplatePrepared"
 						/>
 					</template>
+					<!-- other common slot, modes except `edit`, `add`, `details` will use this slot to render-->
 					<slot
-						name="dialogContent"
+						v-else
+						name="commonContent"
 						v-bind="{
 							mode: modalDialogProps.mode,
 							rawData: modalDialogProps.data,
