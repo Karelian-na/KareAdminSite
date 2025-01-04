@@ -496,7 +496,7 @@
 			return;
 		}
 
-		prop.call(undefined, ...args);
+		await prop.call(undefined, ...args);
 	}
 
 	function getTableRowElements(): Array<HTMLTableRowElement> {
@@ -673,10 +673,7 @@
 				:title="`${head}-${modalDialogProps.operLabel}`"
 				@closed="onDialogClosed"
 			>
-				<div
-					v-if="modalDialogProps.show"
-					class="wrapper"
-				>
+				<div class="wrapper">
 					<slot
 						v-if="$slots['editContent']"
 						name="editContent"
