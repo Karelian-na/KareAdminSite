@@ -126,14 +126,28 @@ export namespace ObjectUtils {
 		Object.assign((obj as any)[key], val);
 	}
 
-	export function clone<T>(obj: T, specifyflag?: boolean | keyof T, ...specifyFields: Array<keyof T>) {
-		if (!obj) {
+	/**
+	 * 深拷贝对象
+	 * @param obj 将要拷贝的对象
+	 */
+	export function clone<T>(obj: T): T;
+	/**
+	 * 深拷贝对象，忽略指定字段
+	 * @param obj 将要拷贝的对象
+	 * @param specifyFields 指定忽略的字段
+	 */
+	export function clone<T, K extends keyof T>(obj: T, ...specifyFields: Array<K>): Omit<T, K>;
+	/**
+	 * 深拷贝对象，指定拷贝字段
+	 * @param obj 将要拷贝的对象
+	 * @param flag 固定为 false
+	 * @param specifyFields 指定拷贝的字段
+	 */
+	export function clone<T, K extends keyof T>(obj: T, flag: false, ...specifyFields: Array<K>): Pick<T, K>;
+	export function clone<T, K extends keyof T, F extends undefined | boolean | K>(obj: T, specifyflag?: F, ...specifyFields: Array<K>) {
+		if (!obj || !(obj instanceof Object)) {
+			console.warn("Invalid object type, only support object type!");
 			return obj;
-		}
-
-		if (!(obj instanceof Object)) {
-			const res = obj;
-			return res;
 		}
 
 		if (Array.isArray(obj)) {
@@ -143,10 +157,10 @@ export namespace ObjectUtils {
 		// true 为忽略方式， false 为指定方式
 		const filterType = typeof specifyflag === "boolean" ? specifyflag : true;
 
-		if (typeof specifyflag !== "boolean" && specifyflag) {
-			specifyFields.push(specifyflag);
+		if (specifyflag && typeof specifyflag !== "boolean") {
+			specifyFields.push(specifyflag as K);
 		}
-		const copyFields = filterType ? (Object.keys(obj) as Array<keyof T>).filter((item) => !specifyFields.includes(item)) : specifyFields;
+		const copyFields = filterType ? (Object.keys(obj) as Array<K>).filter((item) => !specifyFields.includes(item)) : specifyFields;
 
 		const record = copyFields.reduce((prev, field) => {
 			prev[field] = obj[field];
