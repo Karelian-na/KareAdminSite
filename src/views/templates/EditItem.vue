@@ -19,6 +19,7 @@
 		ElSwitch,
 		ElTimeSelect,
 		ElCheckbox,
+		ElSlider,
 	} from "element-plus";
 	import JsonPretty from "vue-json-pretty";
 
@@ -254,6 +255,13 @@
 						:type="field.config.type"
 						:model-value="internalModelValue"
 						:image-prev-dialog-props="previewDialogProps"
+						@update:model-value="onInternalModelValueChanged"
+						v-bind="field.config.bindProps"
+					/>
+					<ElSlider
+						v-else-if="field.config.type == 'slider'"
+						:model-value="internalModelValue"
+						:disabled="disabled"
 						@update:model-value="onInternalModelValueChanged"
 						v-bind="field.config.bindProps"
 					/>

@@ -667,7 +667,7 @@ export type EditTemplateProps = ExtractPropTypes<typeof editTemplateProps>;
 
 export type HandleEditTemplateProps = (props: EditTemplateProps) => EditTemplateProps;
 
-export type EditItemType = "text" | "number" | "date" | "time" | "enum" | "image" | "file" | "radio" | "switch" | "custom" | "checkbox" | "json";
+export type EditItemType = "text" | "number" | "date" | "time" | "enum" | "image" | "file" | "radio" | "switch" | "custom" | "checkbox" | "json" | "slider";
 
 export namespace TemplateUtils {
 	export async function resolveFieldConfigs(content: string): Promise<FieldsConfig> {
@@ -701,6 +701,7 @@ export namespace TemplateUtils {
 		}
 
 		const auditFieldsInfo = await TemplateUtils.resolveFieldConfigs(fieldInfo.fieldsConfig);
+		fieldInfo.fieldsConfig = auditFieldsInfo as any;
 
 		return fieldInfo.fields.reduce((prev, cur) => {
 			cur.config = auditFieldsInfo[cur.field_name] ?? {};
