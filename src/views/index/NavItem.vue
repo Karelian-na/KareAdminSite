@@ -14,6 +14,7 @@
 	}>();
 
 	const expanded = ref(false);
+	const selected = ref(false);
 	const curTab = inject<Ref<ITab>>("curTab")!;
 	const shrinked = inject<Ref<boolean>>("shrinked")!;
 	const curNavItem = inject<Ref<number>>("curNavItem")!;
@@ -21,11 +22,14 @@
 	const switchPage = inject<SwitchPageFunction>("switchPage")!;
 	const itemMapTab = inject<Ref<ItemTabMapType>>("itemMapTab")!;
 
+	defineExpose({ selected });
+
 	function onNavItemClick(nav: Menu) {
 		if (nav.url != "#" && !nav.url.startsWith("/")) {
 			window.open(nav.url);
 		} else {
 			const navId = nav.id;
+
 			if (curNavItem.value != props.navItem.id) {
 				let findedTab = itemMapTab.value.get(navId);
 				if (!findedTab) {
@@ -60,7 +64,7 @@
 		<li
 			v-if="navItem.children && navItem.children.length != 0"
 			class="nav-directory"
-			:class="{ expanded: expanded }"
+			:class="{ expanded: expanded, selected: selected }"
 		>
 			<div
 				class="trigger"
@@ -153,7 +157,8 @@
 		color: #999999;
 		background-color: #11101c;
 	}
-	.nav-directory:not(.pseudo):hover::before {
+	.nav-directory:not(.pseudo):hover::before,
+	.nav-directory:not(.pseudo).selected::before {
 		/* Content Generater */
 		content: "";
 

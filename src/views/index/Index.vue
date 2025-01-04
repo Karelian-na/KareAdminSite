@@ -2,6 +2,7 @@
 
 <script setup lang="ts">
 	import type { TabPaneName } from "element-plus";
+	import type { ComponentInternalInstance } from "vue";
 	import type { ITab, ItemTabMapType, TabPageMapType, PageInPageTabMapType, IInPageProps, SpecialTabName } from ".";
 
 	import TabBar from "./TabBar.vue";
@@ -16,7 +17,7 @@
 	import { error } from "@/common/utils/Interactive";
 	import { RouterView, useRouter } from "vue-router";
 	import { specialTabs, specialInPageProps } from ".";
-	import { Nullable, Optional } from "@/common/utils";
+	import { EmptyObject, Nullable, Optional } from "@/common/utils";
 	import { onBeforeMount, provide, ref, nextTick, inject, shallowRef, reactive, watch, toRaw } from "vue";
 
 	const rawItems = inject<Array<Menu>>("rawItems")!;
@@ -27,7 +28,7 @@
 
 	const tabMapPage = ref<TabPageMapType>(new Map());
 	const itemMapTab = ref<ItemTabMapType>(new Map());
-	const sidebar = ref<InstanceType<typeof SideBar>>();
+	const sidebar = ref<InstanceType<typeof SideBar>>(EmptyObject);
 	const autoShrink = ref(cookieStore.get("autoShrink") ?? true);
 	const pageMapInPageProps = shallowRef<PageInPageTabMapType>(new Map());
 	const shrinked = ref(cookieStore.get("shrinked") ?? document.body.clientWidth <= 1000);
@@ -148,9 +149,6 @@
 		);
 		let tab = entry ? tabMapPage.value.getByValue(entry[0]) : undefined;
 
-		if (!tab) {
-		}
-
 		// 标签已关闭的情况，重新创建标签
 		if (!tab) {
 			const navItem = getNavItem(route);
@@ -186,13 +184,23 @@
 			curNavItem.value = itemMapTab.value.getByValue(curTab.value, (l, r) => l.name == r.name);
 			nextTick(() => {
 				if (!itemClick && curNavItem.value) {
-					sidebar.value!.onLocateCurNavItem();
+					sidebar.value.onLocateCurNavItem();
 				}
 				setTimeout(() => {
 					curTab.value.element?.scrollIntoView({
 						behavior: "smooth",
 					});
 				}, 100);
+
+				// add selected class to curTab's parents' which has class nav-directory
+				const tempEle = sidebar.value.$el.querySelector(".nav-item.selected") as any;
+				let navItemComponentIns: Nullable<ComponentInternalInstance> = tempEle?.__vueParentComponent;
+				while (navItemComponentIns && (navItemComponentIns = navItemComponentIns.parent)) {
+					if (!navItemComponentIns.exposed || !navItemComponentIns.exposed.selected) {
+						break;
+					}
+					navItemComponentIns.exposed.selected.value = true;
+				}
 			});
 			curPage.value = tabMapPage.value.get(toRaw(curTab.value))!;
 			curInPageProps.value = pageMapInPageProps.value.get(curPage.value)!;
@@ -200,7 +208,7 @@
 
 		curTab.value.url = route;
 		curInPageProps.value.curTab = curInPageProps.value.tabs.find((item) => item.url === route)!.id;
-		sidebar.value?.onLocateCurNavItem();
+		sidebar.value?.onLocateCurNavItem?.();
 	}
 
 	function getNavItem(id?: number | string) {
@@ -297,6 +305,16 @@
 		if (tabProps === curTab.value) {
 			sidebar.value?.onLocateCurNavItem();
 			return true;
+		}
+
+		// add selected class to curTab's parents' which has class nav-directory
+		const tempEle = sidebar.value.$el.querySelector(".nav-item.selected") as any;
+		let navItemComponentIns: Nullable<ComponentInternalInstance> = tempEle?.__vueParentComponent;
+		while (navItemComponentIns && (navItemComponentIns = navItemComponentIns.parent)) {
+			if (!navItemComponentIns.exposed || !navItemComponentIns.exposed.selected) {
+				break;
+			}
+			navItemComponentIns.exposed.selected.value = false;
 		}
 
 		const url = tabProps.lastRecordUrl ?? tabProps.url;
