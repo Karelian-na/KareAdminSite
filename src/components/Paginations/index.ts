@@ -1,6 +1,6 @@
 /** @format */
 
-import type { IPageData } from "@/views/templates";
+import type { IPageData } from "@/views/$frames/templates";
 
 export interface ICommonPaginationModelValue extends Record<string, any>, Object {
 	pageSize: number;

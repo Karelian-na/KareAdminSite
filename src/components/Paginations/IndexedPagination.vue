@@ -4,7 +4,7 @@
 	import type { IPaginationModeValue, PaginationChangeCallback, PaginationRefreshCallback } from ".";
 
 	import IconFont from "@/components/IconFont.vue";
-	import AoButton from "@/components/AoButton.vue";
+	import KButton from "@/components/KButton.vue";
 	import { ElInputNumber, ElSelect, ElOption } from "element-plus";
 
 	import { computed, ref } from "vue";
@@ -97,38 +97,38 @@
 		v-if="pageAmount > 0"
 		class="ui-pagination"
 	>
-		<AoButton
+		<KButton
 			v-if="startIdx != 1"
 			@click="modelValue.pageIdx != 1 && changePage(1)"
-			>首页</AoButton
+			>首页</KButton
 		>
-		<AoButton
+		<KButton
 			:props="{ disabled: !modelValue.pageIdx || modelValue.pageIdx === 1 }"
 			@click="changePage(modelValue.pageIdx! - 1)"
 		>
 			<IconFont value="arrow-left" />
-		</AoButton>
+		</KButton>
 		<div class="pager">
-			<AoButton
+			<KButton
 				v-for="idx in new Array(endIdx - startIdx + 1).fill(0).map((value, index) => startIdx + index)"
 				class="page-index"
 				:key="idx"
 				:class="{ current: idx == modelValue.pageIdx }"
 				@click="changePage(idx)"
-				>{{ idx }}</AoButton
+				>{{ idx }}</KButton
 			>
 		</div>
-		<AoButton
+		<KButton
 			:props="{ disabled: !modelValue.pageIdx || modelValue.pageIdx === pageAmount }"
 			@click="changePage(modelValue.pageIdx! + 1)"
 		>
 			<IconFont value="arrow-right" />
-		</AoButton>
-		<AoButton
+		</KButton>
+		<KButton
 			v-if="endIdx != pageAmount"
 			@click="modelValue.pageIdx != pageAmount && changePage(pageAmount)"
 			>尾页
-		</AoButton>
+		</KButton>
 		<ElInputNumber
 			class="page-number"
 			v-model="inputIdxValue"
@@ -136,11 +136,11 @@
 			:controls="false"
 			:min="1"
 		/>
-		<AoButton
+		<KButton
 			id="jump"
 			@click="jumpPage"
 			>跳转
-		</AoButton>
+		</KButton>
 		<span class="total">共 {{ dataCount }} 条</span>
 		<ElSelect
 			v-model="modelValue.pageSize"

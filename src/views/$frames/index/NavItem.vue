@@ -1,7 +1,7 @@
 <!-- @format -->
 
 <script setup lang="ts">
-	import type { Menu } from "@/views/menus";
+	import type { Menu } from "@/views/$frames/menus";
 	import type { CreateTabFunction, ITab, ItemTabMapType, SwitchPageFunction } from ".";
 
 	import IconFont from "@/components/IconFont.vue";

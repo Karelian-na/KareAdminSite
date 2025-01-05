@@ -11,17 +11,17 @@
 		OperColumnButtonClickHandler,
 		IEnumItem,
 		IndexTemplateProps,
-	} from "@/views/templates";
+	} from "@/views/$frames/templates";
 
 	import Edit from "./Edit.vue";
-	import AoTag from "@/components/AoTag.vue";
+	import KTag from "@/components/KTag.vue";
 	import IconFont from "@/components/IconFont.vue";
-	import IndexTemplate from "@/views/templates/IndexTemplate.vue";
+	import IndexTemplate from "@/views/$frames/templates/IndexTemplate.vue";
 
 	import { inject, ref } from "vue";
 	import { MenuType, Menu } from ".";
 	import { EmptyObject } from "@/common/utils";
-	import { TemplateUtils } from "@/views/templates";
+	import { TemplateUtils } from "@/views/$frames/templates";
 
 	const props = defineProps<IndexTemplateProps>();
 
@@ -274,7 +274,7 @@
 		</template>
 
 		<template #type="{ data }">
-			<AoTag
+			<KTag
 				class="type"
 				:class="Menu.typeFieldNameOf(data['type'])"
 				:icon="Menu.typeFieldNameOf(data['type'])"
@@ -283,7 +283,7 @@
 		</template>
 
 		<template #status="{ data }">
-			<AoTag
+			<KTag
 				class="status"
 				:class="data['status'] ? 'on' : 'off'"
 				:label="data['status'] ? '启用' : '禁用'"

@@ -2,7 +2,7 @@
 
 import type { FormRules } from "element-plus";
 import type { SecurityOption } from "@/common/utils";
-import type { Fields } from "@/views/templates";
+import type { Fields } from "@/views/$frames/templates";
 
 import { requiredRule } from "@/common/utils";
 

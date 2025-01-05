@@ -12,7 +12,7 @@
 	import { onBeforeMount, ref, useAttrs, watch } from "vue";
 	import { AxiosRequestOption, uploadFile } from "@/common/utils/Network";
 
-	type AoUploadFileItem =
+	type KUploadFileItem =
 		| UploadUserFile
 		| {
 				name: string;
@@ -179,9 +179,9 @@
 		return urls.concat(uploadedFiles);
 	}
 
-	function mapInternalModelValue(): Array<AoUploadFileItem> {
+	function mapInternalModelValue(): Array<KUploadFileItem> {
 		const value = Array.isArray(props.modelValue) ? props.modelValue : props.modelValue ? [props.modelValue] : [];
-		const uploadedFiles: Array<AoUploadFileItem> = value
+		const uploadedFiles: Array<KUploadFileItem> = value
 			.filter((item) => !item.startsWith("__"))
 			.map((item) => ({
 				name: item.substring(item.lastIndexOf("/") + 1),

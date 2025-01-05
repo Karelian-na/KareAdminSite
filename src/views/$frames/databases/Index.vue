@@ -4,7 +4,7 @@
 	import type { IndexTemplateProps, OperbarButtonClickHandler, OperColumnButtonClickHandler } from "../templates";
 
 	import TpManage from "./Manage.vue";
-	import IndexTemplate from "@/views/templates/IndexTemplate.vue";
+	import IndexTemplate from "@/views/$frames/templates/IndexTemplate.vue";
 
 	import { ref } from "vue";
 	import { EmptyObject } from "@/common/utils";

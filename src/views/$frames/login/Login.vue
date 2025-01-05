@@ -7,8 +7,8 @@
 	import type { CollectingPostDataHandler } from "../templates";
 
 	import IconFont from "@/components/IconFont.vue";
-	import EditItem from "@/views/templates/EditItem.vue";
-	import EditTemplate from "@/views/templates/EditTemplate.vue";
+	import EditItem from "@/views/$frames/templates/EditItem.vue";
+	import EditTemplate from "@/views/$frames/templates/EditTemplate.vue";
 	import { ElContainer, ElHeader, ElMain, ElButton } from "element-plus";
 
 	import Store from "store";

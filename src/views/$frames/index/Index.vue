@@ -13,7 +13,7 @@
 
 	import Store from "store";
 
-	import { Menu } from "@/views/menus";
+	import { Menu } from "@/views/$frames/menus";
 	import { error } from "@/common/utils/Interactive";
 	import { RouterView, useRouter } from "vue-router";
 	import { specialTabs, specialInPageProps } from ".";

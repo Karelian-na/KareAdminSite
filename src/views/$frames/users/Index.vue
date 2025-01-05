@@ -9,18 +9,18 @@
 		PageInfoHandler,
 		OperColumnButtonClickHandler,
 		IndexTemplateProps,
-	} from "@/views/templates";
+	} from "@/views/$frames/templates";
 
 	import AssignRole from "./Assign.vue";
-	import AoTag from "@/components/AoTag.vue";
-	import Authorize from "@/views/menus/Authorize.vue";
+	import KTag from "@/components/KTag.vue";
+	import Authorize from "@/views/$frames/menus/Authorize.vue";
 	import { ElAvatar, ElRow, TableProps } from "element-plus";
-	import IndexTemplate from "@/views/templates/IndexTemplate.vue";
+	import IndexTemplate from "@/views/$frames/templates/IndexTemplate.vue";
 
 	import { inject, ref } from "vue";
 	import { KasConfig } from "@/configs";
 	import { EmptyObject } from "@/common/utils";
-	import { TemplateUtils } from "@/views/templates";
+	import { TemplateUtils } from "@/views/$frames/templates";
 	import { ObjectUtils } from "@/common/utils/Object";
 	import { adminRequest } from "@/common/utils/Network";
 	import { confirm, error } from "@/common/utils/Interactive";
@@ -225,7 +225,7 @@
 			v-if="userMode"
 			#delete_type="{ value, field }"
 		>
-			<AoTag
+			<KTag
 				class="delete"
 				:label="String(TemplateUtils.mapDataValueToLabel(field, value))"
 			/>

@@ -7,7 +7,7 @@ export const router = createRouter({
 		{
 			path: "/login",
 			name: "login",
-			component: () => import("@/views/login/Login.vue"),
+			component: () => import("@/views/$frames/login/Login.vue"),
 		},
 		{
 			path: "/index",
@@ -17,7 +17,7 @@ export const router = createRouter({
 		{
 			path: "/retrieve",
 			name: "retrieve",
-			component: () => import("@/views/home/Revisepwd.vue"),
+			component: () => import("@/views/$frames/home/Revisepwd.vue"),
 			props: (route) => ({
 				mode: "retrieve",
 				account: route.query.account,
@@ -26,21 +26,21 @@ export const router = createRouter({
 		{
 			path: "/",
 			name: "admin",
-			component: () => import("@/views/index/Index.vue"),
+			component: () => import("@/views/$frames/index/Index.vue"),
 			redirect: "/home",
 			children: [
 				{
 					path: "/home",
 					name: "home",
 					components: {
-						home: () => import("@/views/home/Home.vue"),
+						home: () => import("@/views/$frames/home/Home.vue"),
 					},
 				},
 				{
 					path: "/personal",
 					name: "personal",
 					components: {
-						personal: () => import("@/views/home/Personal.vue"),
+						personal: () => import("@/views/$frames/home/Personal.vue"),
 					},
 				},
 			],
@@ -48,7 +48,7 @@ export const router = createRouter({
 		{
 			path: "/:path(.*)",
 			name: "404",
-			component: () => import("@/views/error/404.vue"),
+			component: () => import("@/views/$frames/error/404.vue"),
 		},
 	],
 	history: createWebHistory(),

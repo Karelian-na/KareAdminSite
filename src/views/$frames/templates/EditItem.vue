@@ -6,7 +6,7 @@
 	import type { UploadUserFile } from "element-plus";
 	import type { IPreviewDialogProps } from "@/common";
 
-	import AoUpload from "@/components/AoUpload.vue";
+	import KUpload from "@/components/KUpload.vue";
 	import {
 		ElFormItem,
 		ElInput,
@@ -58,7 +58,7 @@
 	});
 
 	const internalModelValue = ref<EditItemValueType>(props.modelValue!);
-	const uploadIns = ref<InstanceType<typeof AoUpload>>();
+	const uploadIns = ref<InstanceType<typeof KUpload>>();
 
 	defineExpose({ uploadIns, field: props.field });
 
@@ -248,7 +248,7 @@
 						@update:model-value="onInternalModelValueChanged"
 						v-bind="field.config.bindProps"
 					/>
-					<AoUpload
+					<KUpload
 						v-else-if="field.config.type == 'image' || field.config.type == 'file'"
 						ref="uploadIns"
 						:disabled="disabled"

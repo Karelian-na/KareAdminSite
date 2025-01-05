@@ -2,7 +2,7 @@
 
 import type { KeyStringObject } from "@/common/utils";
 import type { ILoading } from "@/common/utils/Interactive";
-import type { BeforeLeaveCallback, DataOperAction } from "@/views/templates";
+import type { BeforeLeaveCallback, DataOperAction } from "@/views/$frames/templates";
 
 /**
  * a back-end record interface

@@ -9,10 +9,10 @@
 		IField,
 		RenderedCallback,
 		UpdatingFormDataHandler,
-	} from "@/views/templates";
+	} from "@/views/$frames/templates";
 
 	import IconFont from "@/components/IconFont.vue";
-	import EditTemplate from "@/views/templates/EditTemplate.vue";
+	import EditTemplate from "@/views/$frames/templates/EditTemplate.vue";
 	import { ElTable, ElTableColumn, ElCheckbox, ElInput } from "element-plus";
 
 	import { error } from "@/common/utils/Interactive";

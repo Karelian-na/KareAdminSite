@@ -1,10 +1,10 @@
 <!-- @format -->
 
 <script setup lang="ts">
-	import type { IndexTemplateProps, OperColumnButtonClickHandler, PageInfoHandler } from "@/views/templates";
+	import type { IndexTemplateProps, OperColumnButtonClickHandler, PageInfoHandler } from "@/views/$frames/templates";
 
-	import AoTag from "@/components/AoTag.vue";
-	import IndexTemplate from "@/views/templates/IndexTemplate.vue";
+	import KTag from "@/components/KTag.vue";
+	import IndexTemplate from "@/views/$frames/templates/IndexTemplate.vue";
 
 	import { ref } from "vue";
 	import { EmptyObject } from "@/common/utils";
@@ -35,17 +35,17 @@
 		@oper-column-button-click="onOperColumnButtonClick"
 	>
 		<template #status="{ data }">
-			<AoTag :label="data['status'] ? '启用' : '禁用'"></AoTag>
+			<KTag :label="data['status'] ? '启用' : '禁用'"></KTag>
 		</template>
 
 		<template #oper_type="{ data }">
 			<template v-if="Number.isInteger(data['oper_type'])">
-				<AoTag
+				<KTag
 					v-if="data['oper_type'] & 1"
 					label="批量操作"
 					class="batch"
 				/>
-				<AoTag
+				<KTag
 					v-if="data['oper_type'] & 2"
 					label="单一操作"
 					class="single"

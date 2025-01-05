@@ -2,10 +2,10 @@
 
 <script setup lang="ts">
 	import type { KeyStringObject } from "@/common/utils";
-	import type { EditTemplateProps, CollectingPostDataHandler, UpdatingFormDataHandler } from "@/views/templates";
+	import type { EditTemplateProps, CollectingPostDataHandler, UpdatingFormDataHandler } from "@/views/$frames/templates";
 
 	import { ElTransfer } from "element-plus";
-	import EditTemplate from "@/views/templates/EditTemplate.vue";
+	import EditTemplate from "@/views/$frames/templates/EditTemplate.vue";
 
 	import { ref } from "vue";
 	import { KasConfig } from "@/configs";

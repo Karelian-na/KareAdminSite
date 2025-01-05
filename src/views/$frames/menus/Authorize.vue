@@ -3,11 +3,11 @@
 <script setup lang="ts">
 	import type { KeyStringObject } from "@/common/utils";
 	import type Node from "element-plus/es/components/tree/src/model/node";
-	import type { BeforeLeaveCallback, CollectingPostDataHandler, EditTemplateProps, UpdatingFormDataHandler } from "@/views/templates";
+	import type { BeforeLeaveCallback, CollectingPostDataHandler, EditTemplateProps, UpdatingFormDataHandler } from "@/views/$frames/templates";
 
 	import IconFont from "@/components/IconFont.vue";
 	import { ElTree, ElRow, ElCol } from "element-plus";
-	import EditTemplate from "@/views/templates/EditTemplate.vue";
+	import EditTemplate from "@/views/$frames/templates/EditTemplate.vue";
 
 	import { Menu } from ".";
 	import { ref } from "vue";

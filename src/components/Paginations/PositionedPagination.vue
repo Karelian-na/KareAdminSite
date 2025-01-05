@@ -3,7 +3,7 @@
 <script setup lang="ts">
 	import type { IPositionedPageModelValue, PaginationChangeCallback, PaginationRefreshCallback } from ".";
 
-	import AoButton from "@/components/AoButton.vue";
+	import KButton from "@/components/KButton.vue";
 	import { ElSelect, ElOption } from "element-plus";
 
 	import { ref } from "vue";
@@ -51,22 +51,22 @@
 
 <template>
 	<div class="ui-pagination">
-		<AoButton
+		<KButton
 			:props="{ disabled: !modelValue.page_pos }"
 			@click="changePage()"
 			>首页
-		</AoButton>
-		<AoButton
+		</KButton>
+		<KButton
 			:props="{ disabled: !modelValue.page_pos }"
 			@click="changePage(PageDirection.PREV)"
 			>上一页
-		</AoButton>
-		<AoButton
+		</KButton>
+		<KButton
 			:props="{ disabled: dataCount < modelValue.pageSize }"
 			@click="changePage(PageDirection.NEXT)"
 		>
 			下一页
-		</AoButton>
+		</KButton>
 		<span class="total">本页 {{ dataCount }} 条</span>
 		<ElSelect
 			v-model="modelValue.pageSize"

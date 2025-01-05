@@ -2,13 +2,13 @@
 
 <script setup lang="ts">
 	import type { Nullable } from "@/common/utils";
-	import type { CollectingPostDataHandler, EditTemplateProps, IEnumItem, PreparedCallback, UpdatingFormDataHandler } from "@/views/templates";
+	import type { CollectingPostDataHandler, EditTemplateProps, IEnumItem, PreparedCallback, UpdatingFormDataHandler } from "@/views/$frames/templates";
 
-	import AoTag from "@/components/AoTag.vue";
+	import KTag from "@/components/KTag.vue";
 	import IconFont from "@/components/IconFont.vue";
 	import IconSelector from "@/components/IconSelector.vue";
 	import { ElInput, ElSelect, ElOption } from "element-plus";
-	import EditTemplate from "@/views/templates/EditTemplate.vue";
+	import EditTemplate from "@/views/$frames/templates/EditTemplate.vue";
 
 	import { Menu, MenuType } from ".";
 	import { KasConfig } from "@/configs";
@@ -201,7 +201,7 @@
 
 		<template #type-display="{ field, formData }">
 			<p>
-				<AoTag
+				<KTag
 					class="type"
 					:class="Menu.typeFieldNameOf(formData['type'])"
 					:icon="Menu.typeFieldNameOf(formData['type'])"
@@ -220,7 +220,7 @@
 					:value="item.value"
 					:disabled="(item.disabled as any)"
 				>
-					<AoTag
+					<KTag
 						class="type"
 						:class="Menu.typeFieldNameOf(item.value as any)"
 						:icon="Menu.typeFieldNameOf(item.value as any)"
@@ -251,7 +251,7 @@
 							v-if="item['isExternalLink']"
 							value="external-link"
 						/>
-						<AoTag
+						<KTag
 							class="type"
 							:class="Menu.typeFieldNameOf(formData['type'])"
 							:icon="Menu.typeFieldNameOf(formData['type'])"

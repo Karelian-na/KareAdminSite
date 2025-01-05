@@ -2,7 +2,7 @@
 
 import { KasConfig } from "@/configs";
 import { Constants } from "@/common/utils/Constants";
-import type { Fields, IField } from "@/views/templates";
+import type { Fields, IField } from "@/views/$frames/templates";
 
 export const loginFields: Fields = {
 	account: {

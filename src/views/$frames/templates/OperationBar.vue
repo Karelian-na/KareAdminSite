@@ -1,9 +1,9 @@
 <!-- @format -->
 
 <script setup lang="ts">
-	import type { Fields, IOperButton, OperbarButtonClickHandler } from "../templates";
+	import type { Fields, IOperButton, OperbarButtonClickHandler } from ".";
 
-	import AoButton from "@/components/AoButton.vue";
+	import KButton from "@/components/KButton.vue";
 	import { ElForm, ElFormItem, ElInput, ElSelect, ElOption } from "element-plus";
 
 	import { searchButton } from ".";
@@ -101,23 +101,23 @@
 						</ElSelect>
 					</ElFormItem>
 					<ElFormItem>
-						<AoButton
+						<KButton
 							:class="searchButton.type"
 							:icon="searchButton.icon"
 							@click="onOperbarButtonClick!(searchButton, operButtons)"
 							>{{ searchButton.title }}
-						</AoButton>
+						</KButton>
 					</ElFormItem>
 				</template>
 			</slot>
 			<ElFormItem v-for="button in operButtons">
-				<AoButton
+				<KButton
 					:class="button.type"
 					:icon="button.icon"
 					:props="button.props"
 					@click="onOperbarButtonClick!(button, operButtons)"
 					>{{ button.title }}
-				</AoButton>
+				</KButton>
 			</ElFormItem>
 		</ElForm>
 	</div>

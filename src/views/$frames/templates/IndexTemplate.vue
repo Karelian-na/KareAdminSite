@@ -17,10 +17,10 @@
 		RefreshCallback,
 	} from ".";
 
-	import AoButton from "@/components/AoButton.vue";
+	import KButton from "@/components/KButton.vue";
 	import IconFont from "@/components/IconFont.vue";
-	import EditTemplate from "@/views/templates/EditTemplate.vue";
-	import OperationBar from "@/views/templates/OperationBar.vue";
+	import EditTemplate from "@/views/$frames/templates/EditTemplate.vue";
+	import OperationBar from "@/views/$frames/templates/OperationBar.vue";
 	import { ElDialog, ElTable, ElTableColumn, ElLoading } from "element-plus";
 	import IndexedPagination from "@/components/Paginations/IndexedPagination.vue";
 
@@ -635,12 +635,12 @@
 													:title="button.title"
 													@click="operColumnButtonClick(button, row, null as any)"
 												/>
-												<AoButton
+												<KButton
 													v-else
 													:class="button.icon"
 													@click="operColumnButtonClick(button, row, null as any)"
 													>{{ button.title }}
-												</AoButton>
+												</KButton>
 											</template>
 										</template>
 									</slot>
@@ -753,6 +753,7 @@
 		display: flex;
 		flex-direction: column;
 		overflow: hidden;
+		width: 100%;
 	}
 	.index-template :deep(.el-dialog) {
 		max-height: 80%;

@@ -7,13 +7,13 @@
 
 	import Store from "store";
 
-	import { Menu } from "@/views/menus";
 	import { useRouter } from "vue-router";
+	import { Menu } from "@/views/$frames/menus";
 	import { zhCn } from "element-plus/es/locale";
 	import { error } from "@/common/utils/Interactive";
 	import { adminRequest } from "@/common/utils/Network";
-	import { IndexTemplateProps } from "./views/templates";
 	import { onBeforeMount, provide, reactive, ref } from "vue";
+	import { IndexTemplateProps } from "@/views/$frames/templates";
 	import { ElConfigProvider, vLoading, ElDialog } from "element-plus";
 
 	const router = useRouter();
@@ -33,14 +33,14 @@
 	});
 
 	const ComponentsMapping: Record<string, any> = {
-		Common: () => import("@/views/templates/IndexTemplate.vue"),
+		Common: () => import("@/views/$frames/templates/IndexTemplate.vue"),
 
-		"roles/index": () => import("@/views/users/Index.vue"),
-		"users/index": () => import("@/views/users/Index.vue"),
-		"users/admin/deleted/index": () => import("@/views/users/Index.vue"),
-		"databases/index": () => import("@/views/databases/Index.vue"),
-		"menus/index": () => import("@/views/menus/Index.vue"),
-		"permissions/index": () => import("@/views/permissions/Index.vue"),
+		"roles/index": () => import("@/views/$frames/users/Index.vue"),
+		"users/index": () => import("@/views/$frames/users/Index.vue"),
+		"users/admin/deleted/index": () => import("@/views/$frames/users/Index.vue"),
+		"databases/index": () => import("@/views/$frames/databases/Index.vue"),
+		"menus/index": () => import("@/views/$frames/menus/Index.vue"),
+		"permissions/index": () => import("@/views/$frames/permissions/Index.vue"),
 	};
 
 	const userInfo = ref<IUserInfo>();
