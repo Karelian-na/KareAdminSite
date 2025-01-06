@@ -4,8 +4,8 @@
 	import type { Ref } from "vue";
 	import type { Result } from "@/common/utils/Result";
 	import type { FormInstance, FormRules } from "element-plus";
-	import type { DataChangedCallback, EditTemplateProps } from ".";
 	import type { KeyStringObject, Optional } from "@/common/utils";
+	import type { DataChangedCallback, EditTemplateProps, IField } from ".";
 
 	import EditItem from "./EditItem.vue";
 	import { ElForm, ElButton, ElRow, ElCol, ElFormItem } from "element-plus";
@@ -175,7 +175,7 @@
 			Object.assign(formData.value, attrs);
 		} else {
 			const func = function (rawData: Optional<KeyStringObject>, ...ignoreFields: Array<string>) {
-				if (!rawData ||Array.isArray(rawData) ) {
+				if (!rawData || Array.isArray(rawData)) {
 					return {};
 				}
 
@@ -338,6 +338,14 @@
 			editItemInses.value.push(instance);
 		}
 	}
+
+	function customFieldRegister(field: IField) {
+		if (field.config.rule) {
+			rules.value![field.field_name] = field.config.rule;
+		}
+
+		return field;
+	}
 </script>
 
 <template>
@@ -377,7 +385,7 @@
 							>
 								<slot
 									:name="names[0]"
-									v-bind="{ formData, ...scope, value: formData[names[0]] }"
+									v-bind="{ formData, ...scope, value: formData[names[0]], customFieldRegister }"
 								></slot>
 							</template>
 							<template
@@ -395,7 +403,7 @@
 							>
 								<slot
 									:name="`${names[0]}-input`"
-									v-bind="{ formData, ...scope }"
+									v-bind="{ formData, ...scope, customFieldRegister }"
 								></slot>
 							</template>
 						</EditItem>
@@ -419,7 +427,7 @@
 								>
 									<slot
 										:name="names[0]"
-										v-bind="{ formData, ...scope, value: formData[names[0]] }"
+										v-bind="{ formData, ...scope, value: formData[names[0]], customFieldRegister }"
 									></slot>
 								</template>
 								<template
@@ -437,7 +445,7 @@
 								>
 									<slot
 										:name="`${name}-input`"
-										v-bind="{ formData, ...scope }"
+										v-bind="{ formData, ...scope, customFieldRegister }"
 									></slot>
 								</template>
 							</EditItem>
