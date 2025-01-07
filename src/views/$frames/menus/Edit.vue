@@ -2,7 +2,7 @@
 
 <script setup lang="ts">
 	import type { Nullable } from "@/common/utils";
-	import type { CollectingPostDataHandler, EditTemplateProps, IEnumItem, PreparedCallback, UpdatingFormDataHandler } from "@/views/$frames/templates";
+	import type { EditTemplateProps, IEnumItem, PreparedCallback, UpdatingFormDataHandler } from "@/views/$frames/templates";
 
 	import KTag from "@/components/KTag.vue";
 	import IconFont from "@/components/IconFont.vue";
@@ -20,6 +20,7 @@
 	const props = defineProps<
 		EditTemplateProps & {
 			rawData: Menu;
+			topLevelMenus: Array<Menu>;
 			parentableMenus: Array<Menu>;
 		}
 	>();
@@ -29,6 +30,21 @@
 	const editTemplate = ref<InstanceType<typeof EditTemplate>>(EmptyObject);
 
 	const onTemplatePrepared: PreparedCallback = function (formData, fields) {
+		fields["pid"].config.enumItems = props.parentableMenus.reduce(
+			(prev, cur) => {
+				prev.push({
+					value: cur.id,
+					label: cur.name,
+					disabled: isParentDisabled(cur),
+					type: cur.type,
+					level: cur.level,
+					isExternalLink: cur.isExternalLink(),
+				});
+				return prev;
+			},
+			[{ value: 0, label: "无父菜单", disabled: isParentDisabled(null) }] as IEnumItem[]
+		);
+
 		if (props.modalDialogProps!.mode === "details") {
 			return;
 		}
@@ -39,25 +55,6 @@
 
 		fields["pid"].config.bindProps.onChange = onParentChange;
 		fields["pid"].config.bindProps.disabled = Boolean(!props.rawData.id && props.rawData.pid);
-		fields["pid"].config.enumItems = [
-			{
-				value: 0,
-				label: "无父菜单",
-				disabled: isParentDisabled(null),
-			} as IEnumItem,
-		].concat(
-			props.parentableMenus.reduce((prev, cur) => {
-				prev.push({
-					value: cur.id,
-					label: cur.name,
-					disabled: isParentDisabled(cur),
-					type: cur.type,
-					level: cur.level,
-					isExternalLink: cur.isExternalLink(),
-				});
-				return prev;
-			}, [] as IEnumItem[])
-		);
 
 		ObjectUtils.mergeAttributes(fields["oper_type"].config, "bindProps", {
 			disabled: computed(() => formData["type"] != MenuType.Oper),
@@ -96,18 +93,14 @@
 			formData["type"] = pType + 1;
 		}
 
+		if (formData["ref_id"]) {
+			const refMenu = Menu.find(formData["ref_id"], props.topLevelMenus);
+			if (refMenu) {
+				formData["url"] = refMenu.url;
+			}
+		}
+
 		return formData;
-	};
-
-	const onCollectingPostData: CollectingPostDataHandler = function (formData, postData) {
-		if (!Object.keys(postData.value).length) {
-			return;
-		}
-
-		if ("edit" == props.modalDialogProps!.mode) {
-			postData.value["pid"] === undefined && (postData.value["pid"] = props.rawData.pid);
-			postData.value["id"] = props.rawData.id;
-		}
 	};
 
 	function isTypeDisabled(type: number) {
@@ -128,28 +121,30 @@
 	}
 
 	function onParentChange(pid: number) {
-		if (!props.rawData.id) {
-			let newUrl = "#";
-			if (pid) {
-				const permi = props.parentableMenus.find((val) => val.id == pid)!;
-				if (permi.type != pType) {
-					pType = permi.type;
-				}
-				newUrl = permi.url;
-			} else {
-				pType = 0;
-			}
-			props.fields["type"].config.enumItems?.forEach((item, idx) => {
-				(item as IEnumItem).disabled = isTypeDisabled(idx + 1);
-			});
-
-			nextTick(() => {
-				editTemplate.value.updateFormData({
-					url: newUrl,
-					type: pType + 1,
-				});
-			});
+		if (props.rawData.id) {
+			return;
 		}
+
+		let newUrl = "#";
+		if (pid) {
+			const permi = props.parentableMenus.find((val) => val.id == pid)!;
+			if (permi.type != pType) {
+				pType = permi.type;
+			}
+			newUrl = permi.url;
+		} else {
+			pType = 0;
+		}
+		props.fields["type"].config.enumItems?.forEach((item, idx) => {
+			(item as IEnumItem).disabled = isTypeDisabled(idx + 1);
+		});
+
+		nextTick(() => {
+			editTemplate.value.updateFormData({
+				url: newUrl,
+				type: pType + 1,
+			});
+		});
 	}
 
 	function isParentDisabled(menu: Nullable<Menu>) {
@@ -158,11 +153,17 @@
 			return true;
 		}
 
-		if (!props.rawData.id) {
-			if (!props.rawData.pid) {
+		if (!props.rawData["id"]) {
+			if (!props.rawData["pid"]) {
 				return false; // add
 			}
-			return true; // add with parent
+			return true; // add with parent, not effect, because of pid is disabled
+		}
+
+		// if the parent option is null, means the current menu is a top-level menu, only `Menu` and `Item`'s parent can be null
+		if (!menu) {
+			const formData = editTemplate.value?.formData;
+			return formData?.["type"] >= MenuType.Page;
 		}
 
 		return props.rawData.isPage() && menu?.isMenu(); // edit
@@ -175,10 +176,9 @@
 		v-bind="props"
 		@prepared="onTemplatePrepared"
 		@updating-form-data="onUpdatingFormData"
-		@collecting-post-data="onCollectingPostData"
 	>
 		<template #icon-display="{ formData }">
-			<p>
+			<p class="detail-icon">
 				<IconFont :value="formData['icon']" />
 				<span>&nbsp;{{ formData["icon"] }}</span>
 			</p>
@@ -230,9 +230,9 @@
 			</ElSelect>
 		</template>
 
-		<template #pid-display="{ field, formData }">
-			<span v-if="!formData['pid']">无父权限</span>
-			<span v-else>{{ field.config.enumItems?.find((item: any) => item.value === formData["item"])?.label }}</span>
+		<template #pid-display="{ field, value }">
+			<span v-if="!value">无父菜单</span>
+			<span v-else>{{ field.config.enumItems?.find((item) => item.value === value)?.label }}</span>
 		</template>
 		<template #pid-input="{ field, formData }">
 			<ElSelect
@@ -246,19 +246,19 @@
 					:disabled="(item.disabled as any)"
 				>
 					<template v-if="item.value != 0">
-						<span :style="`margin-left: ${23 * (item['level'] - 1)}px`">{{ `|—${item["label"]}` }}</span>
+						<span :style="`margin-left: ${23 * (item['level'] - 1)}px`">{{ `|— ${item["label"]}` }}</span>
 						<IconFont
 							v-if="item['isExternalLink']"
 							value="external-link"
 						/>
 						<KTag
 							class="type"
-							:class="Menu.typeFieldNameOf(formData['type'])"
-							:icon="Menu.typeFieldNameOf(formData['type'])"
+							:class="Menu.typeFieldNameOf(item['type'])"
+							:icon="Menu.typeFieldNameOf(item['type'])"
 							:label="Menu.typeNameOf(item['type'])"
 						/>
 					</template>
-					<template v-else>无父权限</template>
+					<template v-else>无父菜单</template>
 				</ElOption>
 			</ElSelect>
 		</template>
@@ -287,6 +287,12 @@
 </template>
 
 <style scoped lang="css">
+	.detail-icon {
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
 	.el-form-item :deep(.el-input-group__prepend .iconfont) {
 		line-height: 1em;
 	}
@@ -294,7 +300,6 @@
 	.el-select.type {
 		width: 8.5em;
 	}
-
 	.el-select .ao-tag.type {
 		margin-left: 1em;
 	}

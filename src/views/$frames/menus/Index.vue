@@ -60,12 +60,7 @@
 
 				return prev;
 			},
-			[
-				{
-					label: "不关联权限",
-					value: 0,
-				},
-			] as Array<IEnumItem>
+			[{ label: "不关联权限", value: 0 }] as Array<IEnumItem>
 		);
 	};
 
@@ -100,9 +95,9 @@
 			}
 			case "edit": {
 				const oldValue = Menu.find(data.id, topLevelMenus)!;
-				if (data.pid !== oldValue.pid) {
+				if (data.pid !== undefined && data.pid !== oldValue.pid) {
 					Menu.delete(oldValue.id, topLevelMenus);
-					if (data.pid != null) {
+					if (data.pid) {
 						const newParent = Menu.find(data.pid, topLevelMenus)!;
 						if (!newParent.children) {
 							newParent.children = [];
@@ -186,11 +181,16 @@
 	const operColumnButtonClick: OperColumnButtonClickHandler = function (button, param) {
 		const modalDialogProps = indexTemplateIns.value.modalDialogProps!;
 		switch (button.type) {
-			case "add":
+			case "add": {
 				modalDialogProps.data = new Menu();
 				modalDialogProps.data.pid = param?.["id"];
 				parentableMenus.value = allParentableMenus;
 				return false;
+			}
+			case "details": {
+				parentableMenus.value = allParentableMenus;
+				return false;
+			}
 			case "edit": {
 				let temp = new Array<Menu>();
 				switch (param!["type"]) {
@@ -292,8 +292,8 @@
 
 		<template #editContent="attrs">
 			<Edit
-				v-if="['edit', 'add', 'details'].includes(attrs.mode)"
 				v-bind="(attrs as any)"
+				:top-level-menus="indexTemplateIns.pageData"
 				:parentable-menus="parentableMenus"
 			/>
 		</template>

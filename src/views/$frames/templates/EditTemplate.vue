@@ -410,7 +410,7 @@
 					</template>
 					<ElRow
 						v-else
-						:gutter="40"
+						:gutter="10"
 					>
 						<ElCol
 							v-for="name in names"
@@ -511,9 +511,6 @@
 	.edit-template :deep(.el-row),
 	.edit-template .edit-item {
 		margin-bottom: 1.2em;
-	}
-	.edit-template > :deep(.el-row > .el-col) {
-		min-width: min-content;
 	}
 	.edit-template :deep(.el-row .edit-item),
 	.edit-template.details :deep(.el-row),
