@@ -68,7 +68,7 @@
 		props.onRendered?.(formData.value);
 	});
 
-	defineExpose({ updateFormData, formData, submit: onSubmit, formIns, askIfNeedToLeave });
+	defineExpose({ updateFormData, formData, initFormData, submit: onSubmit, formIns, askIfNeedToLeave });
 	watch(() => props.rawData, updateFormData.bind(null, undefined));
 	watch(() => props.fields, layoutFields);
 

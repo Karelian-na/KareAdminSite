@@ -421,10 +421,6 @@
 				continue;
 			}
 
-			if (item.action) {
-				item.type = item.action.substring(item.action.lastIndexOf("/") + 1);
-			}
-
 			if (item.oper_type & 0x1) {
 				tempPageProps.operbarButtons[item.type] = item;
 			}

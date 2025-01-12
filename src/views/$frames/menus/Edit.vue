@@ -62,10 +62,20 @@
 
 		ObjectUtils.mergeAttributes(fields["pmid"].config, "bindProps", {
 			disabled: computed(() => formData["type"] == MenuType.Menu),
+			onChange: (val: number) => {
+				const initFormData = editTemplate.value.initFormData;
+				if (val) {
+					formData["oper_id"] = initFormData["oper_id"];
+					formData["oper_type"] = initFormData["oper_type"];
+				} else if (undefined === initFormData["pmid"]) {
+					delete formData["pmid"];
+				}
+			},
 		});
 
-		ObjectUtils.mergeAttributes(fields["oper_type"].config, "bindProps", {
-			disabled: computed(() => Boolean(formData["type"] != MenuType.Oper || formData["pmid"])),
+		const operAttrsEditable = computed(() => formData["type"] !== MenuType.Oper || !!formData["pmid"]);
+		["oper_type", "oper_id"].forEach((item) => {
+			ObjectUtils.mergeAttributes(fields[item].config, "bindProps", { disabled: operAttrsEditable });
 		});
 
 		ObjectUtils.mergeAttributes(fields["url"].config, "bindProps", {
@@ -83,6 +93,7 @@
 		const formData = modalDialogProps!.mode !== "add" ? base(rawData, "children", "parent") : rawData;
 
 		formData["oper_type"] = rawData.oper_type ?? 0;
+		formData["oper_id"] = rawData.oper_id ?? "";
 		formData["pid"] = rawData.pid ?? 0;
 		formData["type"] = rawData.type;
 
@@ -227,6 +238,14 @@
 						:label="item.label"
 					/>
 				</ElOption>
+				<template #label="{ value }">
+					<KTag
+						class="type"
+						:class="Menu.typeFieldNameOf(value)"
+						:icon="Menu.typeFieldNameOf(value)"
+						:label="Menu.typeNameOf(value)"
+					/>
+				</template>
 			</ElSelect>
 		</template>
 
@@ -260,6 +279,16 @@
 					</template>
 					<template v-else>无父菜单</template>
 				</ElOption>
+				<template #label="{ value, label, parent = props.parentableMenus.find((val) => val.id === value) }">
+					<span>{{ label }}</span>
+					<KTag
+						v-if="parent"
+						class="type"
+						:class="Menu.typeFieldNameOf(parent.type)"
+						:icon="Menu.typeFieldNameOf(parent.type)"
+						:label="Menu.typeNameOf(parent.type)"
+					/>
+				</template>
 			</ElSelect>
 		</template>
 
@@ -297,10 +326,7 @@
 		line-height: 1em;
 	}
 
-	.el-select.type {
-		width: 8.5em;
-	}
-	.el-select .ao-tag.type {
+	.edit-template :deep(.pid) .ao-tag {
 		margin-left: 1em;
 	}
 

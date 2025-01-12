@@ -54,8 +54,9 @@
 		pageProps.allFields["pmid"].config.enumItems = permissions.reduce(
 			(prev, cur) => {
 				prev.push({
-					label: `${cur.guid} (${cur.name})`,
+					label: `${cur.name}`,
 					value: cur.id,
+					oper_id: cur.oper_id
 				});
 
 				return prev;
