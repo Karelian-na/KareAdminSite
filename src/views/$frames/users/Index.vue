@@ -1,6 +1,7 @@
 <!-- @format -->
 
 <script setup lang="ts">
+	import type { KeyStringObject } from "@/common/utils";
 	import type { ILoading } from "@/common/utils/Interactive";
 	import type {
 		OperbarButtonClickHandler,
@@ -9,20 +10,22 @@
 		PageInfoHandler,
 		OperColumnButtonClickHandler,
 		IndexTemplateProps,
+		BeforeSubmitHandler,
 	} from "@/views/$frames/templates";
 
 	import AssignRole from "./Assign.vue";
 	import KTag from "@/components/KTag.vue";
-	import Authorize from "@/views/$frames/menus/Authorize.vue";
 	import { ElAvatar, ElRow, TableProps } from "element-plus";
+	import Authorize from "@/views/$frames/menus/Authorize.vue";
+	import EditTemplate from "@/views/$frames/templates/EditTemplate.vue";
 	import IndexTemplate from "@/views/$frames/templates/IndexTemplate.vue";
 
 	import { inject, ref } from "vue";
 	import { KasConfig } from "@/configs";
 	import { EmptyObject } from "@/common/utils";
-	import { TemplateUtils } from "@/views/$frames/templates";
 	import { ObjectUtils } from "@/common/utils/Object";
 	import { adminRequest } from "@/common/utils/Network";
+	import { TemplateUtils } from "@/views/$frames/templates";
 	import { confirm, error } from "@/common/utils/Interactive";
 
 	const pageLoading = inject<ILoading>("pageLoading")!;
@@ -40,6 +43,14 @@
 	const pageInfoAccepted: PageInfoHandler = function (pageProps) {
 		if (userMode) {
 			pageProps.allFields["avatar"].config!.itemBindProps = undefined;
+
+			const assignableRoles = pageProps.info.extraData?.["assignableRoles"] as Array<KeyStringObject>;
+			if (assignableRoles && assignableRoles.length > 0) {
+				pageProps.allFields["roles_id"].config!.enumItems = assignableRoles.map((value) => ({
+					value: value["id"],
+					label: value["name"],
+				}));
+			}
 		} else {
 			["edit", "delete"].forEach((field) => {
 				if (!pageProps.operColumnButtons[field]) {
@@ -194,6 +205,13 @@
 		}
 		return attrs;
 	};
+
+	const editBeforeSubmitHandler: BeforeSubmitHandler = function (postData) {
+		if (postData["avatar"] && postData["avatar"].length > 0) {
+			postData["avatar"] = postData["avatar"][0];
+		}
+		return true;
+	};
 </script>
 <template>
 	<IndexTemplate
@@ -231,6 +249,12 @@
 			/>
 		</template>
 
+		<template #editContent="attrs">
+			<EditTemplate
+				v-bind="handleEditTemplateProps(attrs)"
+				@before-submit="editBeforeSubmitHandler"
+			/>
+		</template>
 		<template #commonContent="attrs">
 			<Authorize
 				v-if="attrs.mode == 'authorize'"
