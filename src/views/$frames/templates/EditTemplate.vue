@@ -68,7 +68,7 @@
 		props.onRendered?.(formData.value);
 	});
 
-	defineExpose({ updateFormData, formData, initFormData, submit: onSubmit, formIns, askIfNeedToLeave });
+	defineExpose({ updateFormData, formData, initFormData, submit: onSubmit, formIns, askIfNeedToLeave, getItemInstance });
 	watch(() => props.rawData, updateFormData.bind(null, undefined));
 	watch(() => props.fields, layoutFields);
 
@@ -345,6 +345,10 @@
 		}
 
 		return field;
+	}
+
+	function getItemInstance(fieldName: string) {
+		return editItemInses.value.find((item) => item.field.field_name === fieldName);
 	}
 </script>
 

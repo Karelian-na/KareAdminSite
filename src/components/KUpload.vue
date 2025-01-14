@@ -64,13 +64,13 @@
 	);
 
 	const onUploadExceed: UploadProps["onExceed"] = function (files: File[], uploadFiles: UploadUserFile[]) {
-		if (uploadIns.value.limit === 1 || props.type === "image") {
+		if (uploadIns.value.$props.limit === 1 || props.type === "image") {
 			uploadIns.value.clearFiles();
 			const file = files[0] as unknown as UploadUserFile;
 			file.uid = genFileId();
 			uploadIns.value.handleStart(file as any);
-		} else if (uploadIns.value.limit) {
-			error("msg", { message: `最多只能上传${uploadIns.value.limit}个附件!` });
+		} else if (uploadIns.value.$props.limit) {
+			error("msg", { message: `最多只能上传${uploadIns.value.$props.limit}个附件!` });
 		}
 	};
 

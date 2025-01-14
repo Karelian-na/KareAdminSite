@@ -9,6 +9,8 @@ import type { ICommonPaginationModelValue } from "@/components/Paginations";
 import type { Arrayable, KeyStringObject, Optional, Promisable } from "@/common/utils";
 import type { ButtonInstance, ElTableColumn, FormItemInstance, FormRules, TableColumnInstance, TableInstance } from "element-plus";
 
+import type EditItem from "./EditItem.vue";
+import type EditTemplate from "./EditTemplate.vue";
 import type IndexTemplate from "./IndexTemplate.vue";
 
 import { error } from "@/common/utils/Interactive";
@@ -664,6 +666,8 @@ declare const editTemplateProps: {
 	onCollectingPostData: OptionalProp<CollectingPostDataHandler>;
 };
 export type EditTemplateProps = ExtractPropTypes<typeof editTemplateProps>;
+export type EditItemInsType = InstanceType<typeof EditItem>;
+export type EditTemplateInsType = InstanceType<typeof EditTemplate>;
 
 export type HandleEditTemplateProps = (props: EditTemplateProps) => EditTemplateProps;
 
