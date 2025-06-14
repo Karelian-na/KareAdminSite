@@ -360,7 +360,7 @@
 		:class="mode"
 		:rules="rules"
 		:model="formData"
-		:label-width="`${labelWidth}em`"
+		:label-width="`${labelWidth + 0.5}em`"
 	>
 		<template v-if="layouts.length">
 			<slot
@@ -377,48 +377,10 @@
 				:references="updateEditItemReferences"
 			>
 				<template v-for="names in layouts">
-					<template v-if="names.length == 1">
-						<EditItem
-							ref="editItemInses"
-							v-model="formData[names[0]]"
-							:field="fields[names[0]]"
-						>
-							<template
-								v-if="$slots[names[0]]"
-								#default="scope"
-							>
-								<slot
-									:name="names[0]"
-									v-bind="{ formData, ...scope, value: formData[names[0]], customFieldRegister }"
-								></slot>
-							</template>
-							<template
-								#display="scope"
-								v-if="$slots[`${names[0]}-display`]"
-							>
-								<slot
-									:name="`${names[0]}-display`"
-									v-bind="{ formData, ...scope, value: formData[names[0]] }"
-								></slot>
-							</template>
-							<template
-								v-if="$slots[`${names[0]}-input`]"
-								#input="scope"
-							>
-								<slot
-									:name="`${names[0]}-input`"
-									v-bind="{ formData, ...scope, customFieldRegister }"
-								></slot>
-							</template>
-						</EditItem>
-					</template>
-					<ElRow
-						v-else
-						:gutter="10"
-					>
+					<ElRow :gutter="names.length == 1 ? void 0 : 10">
 						<ElCol
 							v-for="name in names"
-							:span="fields[name].config.layoutSpan"
+							:span="names.length == 1 ? void 0 : fields[name].config.layoutSpan"
 						>
 							<EditItem
 								ref="editItemInses"
@@ -426,12 +388,12 @@
 								:field="fields[name]"
 							>
 								<template
-									v-if="$slots[names[0]]"
+									v-if="$slots[name]"
 									#default="scope"
 								>
 									<slot
-										:name="names[0]"
-										v-bind="{ formData, ...scope, value: formData[names[0]], customFieldRegister }"
+										:name="name"
+										v-bind="{ formData, ...scope, value: formData[name], customFieldRegister }"
 									></slot>
 								</template>
 								<template
@@ -440,7 +402,7 @@
 								>
 									<slot
 										:name="`${name}-display`"
-										v-bind="{ formData, ...scope, value: formData[names[0]] }"
+										v-bind="{ formData, ...scope, value: formData[name] }"
 									></slot>
 								</template>
 								<template
@@ -512,13 +474,11 @@
 		justify-content: center;
 	}
 
-	.edit-template :deep(.el-row),
-	.edit-template .edit-item {
+	.edit-template :deep(.el-row) {
 		margin-bottom: 1.2em;
 	}
 	.edit-template :deep(.el-row .edit-item),
-	.edit-template.details :deep(.el-row),
-	.edit-template.details :deep(.edit-item) {
+	.edit-template.details :deep(.el-row) {
 		margin-bottom: 0;
 	}
 
