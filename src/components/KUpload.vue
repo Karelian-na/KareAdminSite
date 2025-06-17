@@ -22,6 +22,7 @@
 	const props = defineProps<{
 		type: "file" | "image";
 		disabled?: boolean;
+		autoUploadWhenSubmit?: boolean;
 		modelValue: Arrayable<string>;
 		imagePrevDialogProps?: IPreviewDialogProps;
 	}>();
@@ -208,6 +209,7 @@
 		:class="type"
 		v-model:file-list="internalModelValue"
 		:disabled="disabled"
+		:auto-upload="false"
 		:http-request="onUpload"
 		@change="onUploadChange"
 		@exceed="onUploadExceed"
@@ -298,6 +300,7 @@
 		justify-self: flex-start;
 		align-items: flex-start;
 	}
+	:global(.ao-upload.file .el-upload.is-disabled),
 	:global(.details .ao-upload.file .el-upload) {
 		display: none;
 	}

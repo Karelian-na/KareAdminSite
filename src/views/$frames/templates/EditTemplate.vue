@@ -253,7 +253,7 @@
 
 					for (let idx = 0; idx < editItemInses.value.length; idx++) {
 						const ins = editItemInses.value[idx];
-						if (!ins.uploadIns) {
+						if (!ins.uploadIns || false === ins.uploadIns.$props.autoUploadWhenSubmit) {
 							continue;
 						}
 
