@@ -2,6 +2,7 @@
 
 <script setup lang="ts">
 	import type { Ref } from "vue";
+	import type KUpload from "@/components/KUpload.vue";
 	import type { Result } from "@/common/utils/Result";
 	import type { FormInstance, FormRules } from "element-plus";
 	import type { KeyStringObject, Optional } from "@/common/utils";
@@ -252,12 +253,18 @@
 					if (dialogAction != "confirm") return;
 
 					for (let idx = 0; idx < editItemInses.value.length; idx++) {
-						const ins = editItemInses.value[idx];
-						if (!ins.uploadIns || false === ins.uploadIns.$props.autoUploadWhenSubmit) {
+						const editItemIns = editItemInses.value[idx];
+
+						if (!editItemIns.isFileUpload()) {
 							continue;
 						}
 
-						const res = await ins.uploadIns.upload({
+						const uploadContrlIns = editItemIns.controlIns as InstanceType<typeof KUpload>;
+						if (false === uploadContrlIns.$props.autoUploadWhenSubmit) {
+							continue;
+						}
+
+						const res = await uploadContrlIns.upload({
 							alwaysShowFeedbackMsg: false,
 							loading: props.modalDialogProps?.loading,
 						});
@@ -266,10 +273,10 @@
 						}
 
 						if (!res) {
-							error("msg", { message: `上传 ${ins.field.display_name} 失败！` });
+							error("msg", { message: `上传 ${editItemIns.field.display_name} 失败！` });
 							return;
 						}
-						postData.value[ins.field.field_name] = res;
+						postData.value[editItemIns.field.field_name] = res;
 					}
 
 					let handledRes: Awaited<ReturnType<NonNullable<typeof props.onBeforeSubmit>>> | undefined;

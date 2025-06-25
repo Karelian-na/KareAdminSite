@@ -58,9 +58,9 @@
 	});
 
 	const internalModelValue = ref<EditItemValueType>(props.modelValue!);
-	const uploadIns = ref<InstanceType<typeof KUpload>>();
+	const controlIns = ref<any>();
 
-	defineExpose({ uploadIns, field: props.field });
+	defineExpose({ controlIns, field: props.field, isFileUpload });
 
 	watch(
 		() => props.modelValue,
@@ -118,6 +118,10 @@
 	function isEmptyValue() {
 		return props.modelValue === undefined || (Array.isArray(props.modelValue) && !props.modelValue.length);
 	}
+
+	function isFileUpload() {
+		return props.field.config.type == "image" || props.field.config.type == "file";
+	}
 </script>
 
 <template>
@@ -165,6 +169,7 @@
 				>
 					<ElInput
 						v-if="field.config.type == 'text'"
+						ref="controlIns"
 						:model-value="internalModelValue"
 						:disabled="disabled"
 						@update:model-value="onInternalModelValueChanged"
@@ -179,6 +184,7 @@
 					</ElInput>
 					<ElInputNumber
 						v-else-if="field.config.type == 'number'"
+						ref="controlIns"
 						:model-value="internalModelValue"
 						:disabled="disabled"
 						@update:model-value="onInternalModelValueChanged"
@@ -186,6 +192,7 @@
 					/>
 					<ElCheckbox
 						v-else-if="field.config.type == 'checkbox'"
+						ref="controlIns"
 						:model-value="internalModelValue"
 						:disabled="disabled"
 						@update:model-value="onInternalModelValueChanged"
@@ -193,6 +200,7 @@
 					/>
 					<ElSelect
 						v-else-if="field.config.type == 'enum'"
+						ref="controlIns"
 						:model-value="internalModelValue"
 						:disabled="disabled"
 						@update:model-value="onInternalModelValueChanged"
@@ -214,6 +222,7 @@
 					</ElSelect>
 					<ElRadioGroup
 						v-else-if="field.config.type == 'radio'"
+						ref="controlIns"
 						:model-value="internalModelValue"
 						:disabled="disabled"
 						@update:model-value="onInternalModelValueChanged"
@@ -229,6 +238,7 @@
 					</ElRadioGroup>
 					<ElSwitch
 						v-else-if="field.config.type == 'switch'"
+						ref="controlIns"
 						:model-value="internalModelValue"
 						:disabled="disabled"
 						@update:model-value="onInternalModelValueChanged"
@@ -236,6 +246,7 @@
 					/>
 					<ElDatePicker
 						v-else-if="field.config.type == 'date'"
+						ref="controlIns"
 						:model-value="internalModelValue"
 						:disabled="disabled"
 						@update:model-value="onInternalModelValueChanged"
@@ -243,14 +254,15 @@
 					/>
 					<ElTimeSelect
 						v-else-if="field.config.type == 'time'"
+						ref="controlIns"
 						:model-value="internalModelValue"
 						:disabled="disabled"
 						@update:model-value="onInternalModelValueChanged"
 						v-bind="field.config.bindProps"
 					/>
 					<KUpload
-						v-else-if="field.config.type == 'image' || field.config.type == 'file'"
-						ref="uploadIns"
+						v-else-if="isFileUpload()"
+						ref="controlIns"
 						:disabled="disabled"
 						:type="field.config.type"
 						:model-value="internalModelValue"
@@ -260,6 +272,7 @@
 					/>
 					<ElSlider
 						v-else-if="field.config.type == 'slider'"
+						ref="controlIns"
 						:model-value="internalModelValue"
 						:disabled="disabled"
 						@update:model-value="onInternalModelValueChanged"

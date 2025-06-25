@@ -19,13 +19,19 @@
 				url: string;
 		  };
 
-	const props = defineProps<{
-		type: "file" | "image";
-		disabled?: boolean;
-		autoUploadWhenSubmit?: boolean;
-		modelValue: Arrayable<string>;
-		imagePrevDialogProps?: IPreviewDialogProps;
-	}>();
+	const props = withDefaults(
+		defineProps<{
+			type: "file" | "image";
+			disabled?: boolean;
+			autoUploadWhenSubmit?: boolean;
+			modelValue: Arrayable<string>;
+			imagePrevDialogProps?: IPreviewDialogProps;
+			onChange?: UploadProps["onChange"];
+		}>(),
+		{
+			autoUploadWhenSubmit: void 0,
+		}
+	);
 	const $attrs = useAttrs();
 
 	const emits = defineEmits<{
@@ -40,7 +46,7 @@
 
 	const uploadIns = ref<InstanceType<typeof ElUpload>>(EmptyObject);
 
-	defineExpose({ upload: uploadFiles });
+	defineExpose({ upload: uploadFiles, fileList });
 
 	onBeforeMount(() => {
 		if (props.type === "image") {
@@ -112,6 +118,8 @@
 			default:
 				break;
 		}
+
+		props.onChange?.(uploadFile, uploadFiles);
 	};
 
 	const onUpload: UploadRequestHandler = function (options) {

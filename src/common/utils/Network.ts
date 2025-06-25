@@ -81,6 +81,11 @@ export async function uploadFile(files: Arrayable<UploadUserFile>, extraOptions?
 	const targets = Array.isArray(files) ? files : [files];
 	Object.values(targets).forEach((file) => {
 		if (!uploadedFilePaths[file.uid!]) {
+			if (!file.raw || !(file.raw instanceof File)) {
+				error("msg", { message: `文件上传失败：文件数据异常！` });
+				return;
+			}
+
 			formData.append("files", new Blob([file.raw as File]), file.name);
 			unUploadFiles.push(file);
 		} else {
