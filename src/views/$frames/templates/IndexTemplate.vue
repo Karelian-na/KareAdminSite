@@ -66,7 +66,7 @@
 
 	var initPageData = new Array<KeyStringObject>();
 
-	var loading: ReturnType<typeof ElLoading.service>;
+	var loading: Optional<ReturnType<typeof ElLoading.service>>;
 
 	onBeforeMount(updateTemplate);
 
@@ -90,16 +90,15 @@
 	watch(
 		() => modalDialogProps.loading.value,
 		(newVal) => {
-			if (!loading) {
+			if (newVal) {
 				loading = ElLoading.service({
 					target: templateRootEle.value.querySelector(":scope > .el-overlay .el-dialog__body") as HTMLElement,
-					text: "加载中...",
-					visible: modalDialogProps.loading.value,
+					text: "处理中...",
 				});
-			} else {
-				loading.setText("处理中...");
+			} else if (loading) {
+				loading.close();
+				loading = void 0;
 			}
-			loading.visible.value = newVal;
 		}
 	);
 	watch(
