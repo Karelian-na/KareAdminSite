@@ -148,6 +148,9 @@
 		}
 
 		if (props.onOperbarButtonClick?.(button, pageProps.value!.operbarButtons, modalDialogProps)) {
+			if (modalDialogProps.show && !modalDialogProps.operLabel) {
+				modalDialogProps.operLabel = button.title;
+			}
 			return true;
 		}
 
