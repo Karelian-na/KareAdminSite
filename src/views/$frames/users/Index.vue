@@ -193,15 +193,13 @@
 	const handleEditTemplateProps: HandleEditTemplateProps = function (attrs) {
 		if (attrs.mode === "assign") {
 			attrs.title = "修改";
-			attrs.mode = "assign";
+			attrs.modalDialogProps!.width = "auto";
+			attrs.fields = ObjectUtils.clone(attrs.fields, false, "roles_id");
 
-			attrs.fields = { roles: ObjectUtils.clone(attrs.fields["roles"]) };
-			attrs.fields["roles"].editable = true;
-			ObjectUtils.mergeAttributes(attrs.fields["roles"].config, "itemBindProps", {
+			ObjectUtils.mergeAttributes(attrs.fields["roles_id"].config, "itemBindProps", {
 				labelWidth: "0",
 				label: "",
 			});
-			attrs.modalDialogProps!.width = "auto";
 		}
 		return attrs;
 	};

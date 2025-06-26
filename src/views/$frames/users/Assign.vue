@@ -37,13 +37,13 @@
 				if (!result.success) {
 				}
 
-				roles.value = (result.data.roles as Array<KeyStringObject>).map((item) => ({
+				roles.value = (result.data["roles"] as Array<KeyStringObject>).map((item) => ({
 					key: item["id"],
 					label: item["name"],
 					disabled: [KasConfig.commonUserRole].includes(item["id"]),
 				}));
-				assignedRoles.value = result.data.common;
-				formData["roles"] = ObjectUtils.clone(result.data.common);
+				assignedRoles.value = result.data["common"];
+				formData["roles_id"] = ObjectUtils.clone(assignedRoles.value);
 			},
 		});
 
@@ -55,7 +55,7 @@
 			ids: Array.isArray(props.rawData) ? props.rawData.map((item) => item.id) : [props.rawData!["id"]],
 			auths: {} as KeyStringObject,
 		};
-		const data = postData.value["roles"] as Array<number>;
+		const data = postData.value["roles_id"] as Array<number>;
 		assignedRoles.value.forEach((item) => {
 			const idx = data.indexOf(item);
 			if (idx === -1) {
@@ -78,9 +78,9 @@
 		@updating-form-data="onUpdatingFormData"
 		@collecting-post-data="onCollectingPostData"
 	>
-		<template #roles="{ formData }">
+		<template #roles_id="{ formData }">
 			<ElTransfer
-				v-model="formData['roles']"
+				v-model="formData['roles_id']"
 				:data="roles"
 				:titles="['角色列表', '已赋予的角色']"
 			/>
