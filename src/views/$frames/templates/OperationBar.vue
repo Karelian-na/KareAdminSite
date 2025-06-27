@@ -58,6 +58,8 @@
 						<ElSelect
 							v-if="modelValue.searchField && ['enum', 'radio'].includes(searchableFields[modelValue.searchField].config.type)"
 							v-model="modelValue.searchKey"
+							:filterable="true"
+							:allow-create="true"
 							placeholder="请选择查询内容"
 						>
 							<ElOption
