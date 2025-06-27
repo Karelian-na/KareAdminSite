@@ -267,15 +267,22 @@
 		width: 100%;
 	}
 
+	.edit-template .edit-item {
+		margin-bottom: 0.5em;
+	}
+	.edit-template .base .edit-item {
+		margin-bottom: 0em;
+	}
+	.edit-template.edit .base .edit-item.name {
+		margin-bottom: 0.5em;
+	}
+
 	/* base card, avatar and base info */
 	.edit-template .base :deep(.el-card__body) {
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		flex-direction: row;
-	}
-	.edit-template .base .edit-item:not(.name) {
-		margin-bottom: 0;
 	}
 	.edit-template .base .avatar :deep(.ao-upload) {
 		height: 200px;
