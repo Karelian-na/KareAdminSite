@@ -198,6 +198,7 @@
 				break;
 			case "details":
 				if (!Object.values(pageProps.value!.allFields).some((item) => item.config.layoutSpan)) {
+					info("msg", { message: "暂无布局配置！" });
 					return true;
 				}
 				if (window.getSelection()?.containsNode(templateRootEle.value, true)) {
@@ -406,7 +407,7 @@
 
 		tempPageProps.info.fields.forEach((field) => {
 			const fieldName = field.field_name;
-			field.config = tempPageProps.info.fieldsConfig[fieldName] ?? {};
+			field.config = tempPageProps.info.fieldsConfig?.[fieldName] ?? {};
 
 			tempPageProps.allFields[fieldName] = field;
 			if (field.display) {
