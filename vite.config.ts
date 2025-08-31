@@ -7,7 +7,7 @@ import Vue from "@vitejs/plugin-vue";
 
 const config: UserConfig = {
 	root: "./src",
-	base: "/",
+	base: "/admin",
 	plugins: [Vue()],
 	server: {
 		host: "0.0.0.0",

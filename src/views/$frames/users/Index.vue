@@ -86,7 +86,7 @@
 
 						adminRequest({
 							method: "PUT",
-							url: `/users/reset`,
+							url: button.action,
 							data: ids,
 							extraOptions: {
 								loading: pageLoading,

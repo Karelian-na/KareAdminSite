@@ -8,7 +8,7 @@ export namespace KasConfig {
 	export const commonUserRole = 9;
 
 	export const sysTitle = "Kas 后台管理系统";
-	export const sysIcon = "/assets/imgs/favicon.png";
+	export const sysIcon = "/admin/assets/imgs/favicon.png";
 
 	export const axios = {
 		serverHost: "//kas.karelian.cn:800/api",

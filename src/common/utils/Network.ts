@@ -134,7 +134,11 @@ export async function uploadFile(files: Arrayable<UploadUserFile>, extraOptions?
 
 export async function adminRequest(config: AxiosRequestOption) {
 	if (!config.baseURL) {
-		config.baseURL = `${KasConfig.axios.serverHost}`;
+		if (!config.url || !config.url.startsWith("/admin")) {
+			config.baseURL = `${KasConfig.axios.serverHost}/admin`;
+		} else {
+			config.baseURL = `${KasConfig.axios.serverHost}`;
+		}
 	}
 
 	const oldCallback = config.callback;

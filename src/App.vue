@@ -11,7 +11,7 @@
 	import { Menu } from "@/views/$frames/menus";
 	import { zhCn } from "element-plus/es/locale";
 	import { error } from "@/common/utils/Interactive";
-	import { adminRequest } from "@/common/utils/Network";
+	import { axiosRequest } from "@/common/utils/Network";
 	import { onBeforeMount, provide, reactive, ref } from "vue";
 	import { IndexTemplateProps } from "@/views/$frames/templates";
 	import { ElConfigProvider, vLoading, ElDialog } from "element-plus";
@@ -35,12 +35,12 @@
 	const ComponentsMapping: Record<string, any> = {
 		Common: () => import("@/views/$frames/templates/IndexTemplate.vue"),
 
-		"roles/index": () => import("@/views/$frames/users/Index.vue"),
-		"users/index": () => import("@/views/$frames/users/Index.vue"),
-		"users/admin/deleted/index": () => import("@/views/$frames/users/Index.vue"),
-		"databases/index": () => import("@/views/$frames/databases/Index.vue"),
-		"menus/index": () => import("@/views/$frames/menus/Index.vue"),
-		"permissions/index": () => import("@/views/$frames/permissions/Index.vue"),
+		"/admin/roles/index": () => import("@/views/$frames/users/Index.vue"),
+		"/admin/users/index": () => import("@/views/$frames/users/Index.vue"),
+		"/admin/users/deleted/index": () => import("@/views/$frames/users/Index.vue"),
+		"/admin/databases/index": () => import("@/views/$frames/databases/Index.vue"),
+		"/admin/menus/index": () => import("@/views/$frames/menus/Index.vue"),
+		"/admin/permissions/index": () => import("@/views/$frames/permissions/Index.vue"),
 	};
 
 	const userInfo = ref<IUserInfo>();
@@ -78,7 +78,7 @@
 		}
 
 		// 已登陆情况，关闭网页后再次打开或刷新网页
-		const result = await adminRequest({
+		const result = await axiosRequest({
 			method: "GET",
 			url: "/index",
 			extraOptions: {
@@ -126,7 +126,7 @@
 
 			route.name = `r${item.id}`;
 			if (item.url[0] == "/") {
-				route.path = item.url.substring("/".length);
+				route.path = item.url;
 				let idx = route.path.indexOf("?");
 				if (idx != -1) {
 					route.path = route.path.substring(0, idx);

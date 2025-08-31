@@ -12,7 +12,7 @@
 	import { specialTabs } from ".";
 	import { inject, Ref } from "vue";
 	import { useRouter } from "vue-router";
-	import { adminRequest } from "@/common/utils/Network";
+	import { axiosRequest } from "@/common/utils/Network";
 	import { confirm, success } from "@/common/utils/Interactive";
 
 	const router = useRouter();
@@ -41,7 +41,7 @@
 			callback: (action, _ins) => {
 				if (action != "confirm") return;
 
-				adminRequest({
+				axiosRequest({
 					method: "POST",
 					url: "/logout",
 					callback: () => {

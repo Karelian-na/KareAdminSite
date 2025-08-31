@@ -2,20 +2,31 @@
 
 import { createWebHistory, createRouter } from "vue-router";
 
+export const specialRoute = {
+	home: {
+		name: "home",
+		url: "/admin/home",
+	},
+	personal: {
+		name: "personal",
+		url: "/admin/personal",
+	},
+};
+
 export const router = createRouter({
 	routes: [
 		{
-			path: "/login",
+			path: "/admin/login",
 			name: "login",
 			component: () => import("@/views/$frames/login/Login.vue"),
 		},
 		{
-			path: "/index",
+			path: "/admin/index",
 			name: "index",
-			redirect: "/",
+			redirect: "/admin",
 		},
 		{
-			path: "/retrieve",
+			path: "/admin/retrieve",
 			name: "retrieve",
 			component: () => import("@/views/$frames/home/Revisepwd.vue"),
 			props: (route) => ({
@@ -24,21 +35,21 @@ export const router = createRouter({
 			}),
 		},
 		{
-			path: "/",
+			path: "/admin",
 			name: "admin",
 			component: () => import("@/views/$frames/index/Index.vue"),
-			redirect: "/home",
+			redirect: specialRoute.home.url,
 			children: [
 				{
-					path: "/home",
-					name: "home",
+					path: specialRoute.home.url,
+					name: specialRoute.home.name,
 					components: {
 						home: () => import("@/views/$frames/home/Home.vue"),
 					},
 				},
 				{
-					path: "/personal",
-					name: "personal",
+					path: specialRoute.personal.url,
+					name: specialRoute.personal.name,
 					components: {
 						personal: () => import("@/views/$frames/home/Personal.vue"),
 					},

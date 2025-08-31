@@ -2,6 +2,8 @@
 
 import type { Menu } from "../menus";
 
+import { specialRoute } from "@/router";
+
 /**
  * @description 主页的标签属性
  * @author Karelian_na
@@ -182,20 +184,18 @@ export type SwitchPageFunction = (tabProps: ITab, itemClick: boolean, replaceRou
 /**
  * 主页下特殊的标签名
  */
-export type SpecialTabName = "home" | "personal";
+export type SpecialTabName = keyof typeof specialRoute;
 
 /**
  * 主页下特殊标签属性
  */
 export const specialTabs: Record<SpecialTabName, ITab> = {
 	home: {
-		name: "home",
-		url: "/home",
+		...specialRoute.home,
 		title: "主页",
 	},
 	personal: {
-		name: "personal",
-		url: "/personal",
+		...specialRoute.personal,
 		title: "个人中心",
 	},
 };
@@ -208,8 +208,7 @@ export const specialInPageProps: Record<SpecialTabName, IInPageProps> = {
 		tabs: [
 			{
 				id: 0,
-				name: specialTabs.home.name,
-				url: specialTabs.home.url,
+				...specialRoute.home,
 			},
 		],
 		curTab: 0,
@@ -218,8 +217,7 @@ export const specialInPageProps: Record<SpecialTabName, IInPageProps> = {
 		tabs: [
 			{
 				id: 0,
-				name: specialTabs.personal.name,
-				url: specialTabs.personal.url,
+				...specialRoute.personal,
 			},
 		],
 		curTab: 0,

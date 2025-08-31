@@ -18,7 +18,7 @@
 	import { useRouter } from "vue-router";
 	import { CollectEnd } from "../templates";
 	import { EmptyObject } from "@/common/utils";
-	import { adminRequest } from "@/common/utils/Network";
+	import { axiosRequest } from "@/common/utils/Network";
 	import { inject, onBeforeMount, reactive, ref } from "vue";
 	import { error, success } from "@/common/utils/Interactive";
 
@@ -51,7 +51,7 @@
 			const pwd = data["pwd"];
 			data["pwd"] = sha256(pwd);
 
-			const result = await adminRequest({
+			const result = await axiosRequest({
 				method: "POST",
 				url: "/login",
 				data: data,
