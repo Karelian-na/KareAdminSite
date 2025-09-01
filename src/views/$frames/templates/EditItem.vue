@@ -83,7 +83,13 @@
 				internalModelValue.value = !!props.modelValue;
 				break;
 			case "json":
-				internalModelValue.value = JSON.parse(props.modelValue as string);
+				if (props.modelValue) {
+					try {
+						internalModelValue.value = JSON.parse(props.modelValue as string);
+					} catch (error) {
+						internalModelValue.value = `${props.modelValue}`;
+					}
+				}
 				break;
 			default:
 				break;

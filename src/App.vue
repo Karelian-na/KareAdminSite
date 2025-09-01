@@ -41,6 +41,7 @@
 		"/admin/databases/index": () => import("@/views/$frames/databases/Index.vue"),
 		"/admin/menus/index": () => import("@/views/$frames/menus/Index.vue"),
 		"/admin/permissions/index": () => import("@/views/$frames/permissions/Index.vue"),
+		"/admin/logs/index": () => import("@/views/$frames/logs/Index.vue"),
 	};
 
 	const userInfo = ref<IUserInfo>();
