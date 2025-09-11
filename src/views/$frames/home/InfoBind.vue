@@ -2,6 +2,8 @@
 
 <script setup lang="ts">
 	import type { IDialogProps } from "@/common";
+	import type { Result } from "@/common/utils/Result";
+	import type { KeyStringObject } from "@/common/utils";
 	import type { FormInstance, FormRules } from "element-plus";
 
 	import Verify from "@/components/Verify.vue";
@@ -48,37 +50,36 @@
 						return;
 					}
 
-					let result;
+					let url, serial;
 					if (step.value === 0) {
-						result = await axiosRequest({
-							method: "POST",
-							url: "/users/bind/verify",
-							data: {
-								code: formData.code,
-								serial: formData["old"],
-								pageTraceId: formData.traceId,
-							},
-						});
+						url = "/self/binded/verify";
+						serial = formData.old;
 					} else if (step.value === 1) {
-						result = await axiosRequest({
-							method: "POST",
-							url: "/users/bind",
-							data: {
-								code: formData.code,
-								serial: formData["new"],
-								pageTraceId: formData.traceId,
-								type: securityOptions[props.type].type,
-							},
-						});
-						if (result.success) {
-							emits("update:secretSerial", formData["new"].replace(formData["new"].substring(3, 7), "****"));
-						}
+						url = "/self/bind";
+						serial = formData.new;
 					} else {
 						callback();
 						return;
 					}
 
+					const result = await axiosRequest({
+						method: "PUT",
+						url: url,
+						data: {
+							traceId: formData.traceId,
+							code: formData.code,
+							serial: serial,
+							type: securityOptions[props.type].type,
+						},
+						extraOptions: {
+							alwaysShowFeedbackMsg: false,
+						},
+					});
+
 					if (result.success) {
+						if (step.value === 1) {
+							emits("update:secretSerial", formData.new.replace(formData.new.substring(3, 7), "****"));
+						}
 						callback();
 					} else {
 						callback(result.msg);
@@ -100,9 +101,21 @@
 			if (!isValid) {
 				return;
 			}
-			formIns.value.resetFields();
+			formData.code = "";
 			++step.value;
 		});
+	}
+
+	function onRebindSend(data: KeyStringObject) {
+		loading.value = true;
+
+		if (formData.traceId) {
+			data["verification"] = {
+				traceId: formData.traceId,
+				type: securityOptions[props.type].type,
+				serial: formData.old,
+			};
+		}
 	}
 
 	function onUnbindSerial() {
@@ -111,11 +124,17 @@
 				if (action != "confirm") return;
 
 				const result = await axiosRequest({
-					method: "POST",
-					url: "/users/bind",
+					method: "PUT",
+					url: "/self/bind",
 					data: {
-						pageTraceId: formData.traceId,
+						traceId: formData.traceId,
+						code: formData.code,
+						serial: formData.old,
+						action: 1,
 						type: securityOptions[props.type].type,
+					},
+					extraOptions: {
+						alwaysShowFeedbackMsg: false,
 					},
 				});
 				if (result.success) {
@@ -126,6 +145,13 @@
 				}
 			},
 		});
+	}
+
+	function onVerifyCodeSent(result: Result) {
+		loading.value = false;
+		if (result.success) {
+			formData.traceId = result.data;
+		}
 	}
 </script>
 
@@ -164,12 +190,12 @@
 			>
 				<template v-if="step === 0">
 					<Verify
-						url="/users/bind/verify/send"
+						url="/self/binded/send"
 						:form-data="formData"
 						:prop="['old', 'code']"
 						:option="securityOptions[type]"
 						@sending="loading = true"
-						@sent="(v) => ((loading = false), (formData.traceId = v))"
+						@sent="onVerifyCodeSent"
 					>
 						<template #front>
 							<p class="descrip">
@@ -182,12 +208,12 @@
 				</template>
 				<template v-else-if="step === 1">
 					<Verify
-						url="/users/bind/send"
+						url="/self/bind/send"
 						:form-data="formData"
 						:prop="['new', 'code']"
 						:option="securityOptions[type]"
-						@sending="loading = true"
-						@sent="(v) => ((loading = false), (formData.traceId = v))"
+						@sending="onRebindSend"
+						@sent="onVerifyCodeSent"
 					>
 						<template
 							v-if="props.secretSerial"

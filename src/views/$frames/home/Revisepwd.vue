@@ -1,6 +1,9 @@
 <!-- @format -->
 
 <script setup lang="ts">
+	import type { Result } from "@/common/utils/Result";
+	import type { KeyStringObject } from "@/common/utils";
+
 	import Verify from "@/components/Verify.vue";
 	import IconFont from "@/components/IconFont.vue";
 	import {
@@ -22,17 +25,24 @@
 	import { sha256 } from "js-sha256";
 	import { securityOptions } from ".";
 	import { useRouter } from "vue-router";
-	import { onMounted, reactive, ref } from "vue";
 	import { axiosRequest } from "@/common/utils/Network";
 	import { EmptyObject, requiredRule } from "@/common/utils";
 	import { error, success } from "@/common/utils/Interactive";
+	import { Component, h, onMounted, reactive, ref } from "vue";
 
 	const props = defineProps<{
 		account?: string;
 		mode: "retrieve" | "revise";
 	}>();
 
-	const step = ref(0);
+	enum RevisepwdStep {
+		INPUT_ACCOUNT,
+		VERIFY_IDENTITY,
+		REVISE_PWD,
+		SUCCESS,
+	}
+
+	const step = ref(RevisepwdStep.INPUT_ACCOUNT);
 	const serial = ref("");
 	const loading = ref(false);
 	const formData = reactive({
@@ -76,9 +86,6 @@
 						if (Object.keys(result.data).length === 0) {
 							if (props.mode === "revise") {
 								callback();
-								setTimeout(() => {
-									step.value = 2;
-								}, 1);
 							} else {
 								callback("账号未包含安全验证! 请登录后更改密码或联系管理员!");
 							}
@@ -123,7 +130,7 @@
 		],
 		code: [
 			requiredRule,
-			{ min: 6, max: 6, message: "请输入正确格式的验证码" },
+			{ min: 4, max: 6, message: "请输入正确格式的验证码" },
 			{
 				async asyncValidator(rule, value, callback, source, options) {
 					if (!loading.value) {
@@ -131,13 +138,28 @@
 						return;
 					}
 
+					if (!formData.traceId) {
+						callback("请先获取验证码!");
+						return;
+					}
+
+					const data = {
+						traceId: formData.traceId,
+						type: securityOptions[verifyMethod.value].type,
+						serial: formData.serial,
+						code: formData.code,
+					} as KeyStringObject;
+
+					if (props.mode === "retrieve") {
+						data["account"] = props.account;
+					}
+
 					const result = await axiosRequest({
-						method: "POST",
-						url: "/users/revisepwd/verify",
-						data: {
-							pageTraceId: formData.traceId,
-							serial: formData.serial,
-							code: formData.code,
+						method: "PUT",
+						url: "/self/revisepwd/verify",
+						data: data,
+						extraOptions: {
+							alwaysShowFeedbackMsg: false,
 						},
 					});
 
@@ -155,7 +177,7 @@
 		confirm: [
 			requiredRule,
 			{
-				async asyncValidator(rule, value, callback, source, options) {
+				validator(rule, value, callback, source, options) {
 					if (value !== formData.pwd) {
 						callback("密码输入不一致!");
 						return;
@@ -166,36 +188,7 @@
 						return;
 					}
 
-					if (!loading.value) {
-						callback();
-						return;
-					}
-
-					const result = await axiosRequest({
-						method: "PUT",
-						url: "/users/revisepwd",
-						data: Object.assign(
-							{ pwd: sha256(formData.pwd) },
-							props.mode === "retrieve"
-								? {
-										account: props.account,
-										pageTraceId: formData.traceId,
-								  }
-								: { old: sha256(formData.old) }
-						),
-						extraOptions: { alwaysShowFeedbackMsg: false },
-					});
-
-					if (result.success) {
-						await new Promise((resolve, reject) => {
-							setTimeout(() => resolve(0), 1000);
-						});
-						success("msg", { content: "修改成功！" });
-						callback();
-					} else {
-						error("alert", { content: "修改失败！" + result.msg });
-						callback("");
-					}
+					callback();
 				},
 			},
 		],
@@ -210,22 +203,120 @@
 	function onSelectVerifyMethod(method: string) {
 		verifyMethod.value = method;
 		serial.value = verifyMethodsInfo.value[method];
+		formData.serial = "";
 	}
 
 	async function onNextStep() {
-		if (step.value == 3) {
+		if (step.value == RevisepwdStep.SUCCESS) {
 			router.push({ name: "login" });
 			return;
 		}
 		loading.value = true;
-		formIns.value.validate((isValid, error) => {
+
+		let res = false;
+		try {
+			res = await formIns.value.validate();
+		} catch (e) {}
+
+		// validate failed
+		if (!res) {
 			loading.value = false;
-			if (!isValid) {
-				return;
+			return;
+		}
+
+		// if logined in and user hasn't any verify methods, using old password to verify
+		if (
+			step.value === RevisepwdStep.INPUT_ACCOUNT && //
+			props.mode === "revise" && //
+			!Object.keys(verifyMethodsInfo.value).length
+		) {
+			loading.value = false;
+			step.value = RevisepwdStep.REVISE_PWD;
+			return;
+		}
+
+		// post the revise api
+		if (step.value === RevisepwdStep.REVISE_PWD) {
+			const data = {
+				pwd: sha256(formData.pwd),
+			} as KeyStringObject;
+
+			if (formData.traceId) {
+				data["verification"] = {
+					traceId: formData.traceId,
+					serial: formData.serial,
+					type: securityOptions[verifyMethod.value].type,
+				};
 			}
-			++step.value;
-		});
+
+			if (props.mode === "retrieve") {
+				data["account"] = props.account;
+			} else if (!formData.traceId) {
+				data["old"] = sha256(formData.old);
+			}
+
+			const result = await axiosRequest({
+				method: "PUT",
+				url: "/self/revisepwd",
+				data: data,
+				extraOptions: {
+					alwaysShowFeedbackMsg: false,
+				},
+			});
+
+			if (result.success) {
+				await new Promise((resolve, reject) => {
+					setTimeout(() => resolve(0), 1000);
+				});
+				success("msg", { content: "修改成功！" });
+				++step.value;
+			} else {
+				error("alert", { content: "修改失败！" + result.msg });
+			}
+			loading.value = false;
+			return;
+		}
+
+		loading.value = false;
+		++step.value;
 	}
+
+	function onSendingVerifyCode(data: KeyStringObject) {
+		loading.value = true;
+		if (props.mode === "retrieve") {
+			data["account"] = props.account!;
+		}
+	}
+
+	function onVerifyCodeSent(result: Result) {
+		loading.value = false;
+		if (result.success) {
+			formData.traceId = result.data;
+		}
+	}
+
+	// define a inner temp component to render operations
+	const Operation: Component = {
+		props: {
+			label: {
+				type: String,
+				required: true,
+			},
+		},
+		render() {
+			return h(ElFormItem, { class: "operations" }, () => [
+				h(
+					ElButton,
+					{
+						type: "primary",
+						loading: loading.value,
+						onClick: onNextStep,
+					},
+					() => this.$props.label
+				),
+			]);
+		},
+	};
 </script>
 
 <template>
@@ -274,49 +365,54 @@
 					>
 						<ElInput v-model="formData.account" />
 					</ElFormItem>
+					<Operation label="下一步" />
 				</template>
 				<template v-if="step === 1">
-					<Transition name="slide-fade">
-						<div
-							v-if="!verifyMethod"
-							class="method-container"
-						>
-							<ElCard
-								class="method"
-								v-for="(value, key) in verifyMethodsInfo"
-								@click="onSelectVerifyMethod(key)"
+					<div class="switch-container">
+						<Transition name="slide-fade">
+							<div
+								v-if="!verifyMethod"
+								class="method-container"
 							>
-								<ElContainer>
-									<ElAside>
-										<IconFont :value="securityOptions[key].icon" />
-									</ElAside>
-									<ElMain>
-										<p class="title">{{ securityOptions[key].title }}验证</p>
-										<p class="descrip">通过发送验证码至{{ value }}进行验证</p>
-									</ElMain>
-								</ElContainer>
-							</ElCard>
-						</div>
-						<Verify
-							v-else
-							url="/users/revisepwd/verify/send"
-							:formData="formData"
-							:secret-serial="serial"
-							:prop="['serial', 'code']"
-							:option="securityOptions[verifyMethod]"
-							@sending="loading = true"
-							@sent="(v) => ((formData.traceId = v), (loading = false))"
-						>
-							<template #front>
-								<p
-									class="switch-method"
-									@click="verifyMethod = ''"
+								<ElCard
+									class="method"
+									v-for="(value, key) in verifyMethodsInfo"
+									@click="onSelectVerifyMethod(key)"
 								>
-									切换验证方式
-								</p>
-							</template>
-						</Verify>
-					</Transition>
+									<ElContainer>
+										<ElAside>
+											<IconFont :value="securityOptions[key].icon" />
+										</ElAside>
+										<ElMain>
+											<p class="title">{{ securityOptions[key].title }}验证</p>
+											<p class="descrip">通过发送验证码至{{ value }}进行验证</p>
+										</ElMain>
+									</ElContainer>
+								</ElCard>
+							</div>
+							<div v-else>
+								<Verify
+									url="/self/revisepwd/send"
+									:formData="formData"
+									:secret-serial="serial"
+									:prop="['serial', 'code']"
+									:option="securityOptions[verifyMethod]"
+									@sending="onSendingVerifyCode"
+									@sent="onVerifyCodeSent"
+								>
+									<template #front>
+										<p
+											class="switch-method"
+											@click="verifyMethod = ''"
+										>
+											切换验证方式
+										</p>
+									</template>
+								</Verify>
+								<Operation label="下一步" />
+							</div>
+						</Transition>
+					</div>
 				</template>
 				<template v-else-if="step === 2">
 					<ElFormItem
@@ -349,18 +445,12 @@
 							v-model="formData.confirm"
 						/>
 					</ElFormItem>
+					<Operation label="下一步" />
 				</template>
-				<ElFormItem
-					v-if="step !== 1 || verifyMethod !== ''"
-					class="operations"
-				>
-					<ElButton
-						type="primary"
-						:loading="loading"
-						@click="onNextStep"
-						>{{ step === 3 ? "去登陆" : step === 2 ? "立即修改" : "下一步" }}
-					</ElButton>
-				</ElFormItem>
+				<Operation
+					v-else-if="step === 3"
+					label="去登陆"
+				/>
 			</ElForm>
 		</ElMain>
 	</ElContainer>
@@ -391,18 +481,18 @@
 		margin-bottom: 1em;
 	}
 	.el-card.method .el-aside {
-		padding: 20px;
+		padding: 1.2em;
 		display: flex;
 		align-items: center;
 		width: max-content;
 		padding-right: 0;
 	}
 	.el-card.method .el-aside :deep(.iconfont) {
-		font-size: 72px;
+		font-size: 4.5em;
 	}
 	.el-card.method .el-main .title {
-		font-size: 25px;
-		margin-bottom: 10px;
+		font-size: 1.5em;
+		margin-bottom: 0.5em;
 	}
 	.el-card.method .el-main .descrip {
 		word-break: break-all;
@@ -411,6 +501,14 @@
 
 	.el-input :deep(input) {
 		height: 2em;
+	}
+
+	.switch-container {
+		width: 100%;
+		display: grid;
+	}
+	.switch-container > * {
+		grid-area: 1 / 1;
 	}
 
 	.verify .switch-method {
@@ -425,14 +523,14 @@
 	}
 
 	.slide-fade-enter-active {
-		transition: all 0.3s ease-out;
+		transition: all var(--transition-duration) ease-out;
 	}
 	.slide-fade-leave-active {
-		transition: all 0.3s cubic-bezier(1, 0.5, 0.8, 1);
+		transition: all var(--transition-duration) ease-in-out;
 	}
 	.slide-fade-enter-from,
 	.slide-fade-leave-to {
-		transform: translateX(20px);
+		transform: translateX(2em);
 		opacity: 0;
 	}
 </style>

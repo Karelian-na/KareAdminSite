@@ -1,6 +1,7 @@
 /** @format */
 
 import type { Ref } from "vue";
+import type { Result } from "./Result";
 import type { Router } from "vue-router";
 
 declare global {
@@ -29,8 +30,8 @@ export type SecurityOption = {
 };
 
 // 验证相关
-export type VerifyCodeSendingHandler = () => void;
-export type VerifyCodeSentCallback = (pageTraceId: string) => void;
+export type VerifyCodeSendingHandler = (data: KeyStringObject) => void;
+export type VerifyCodeSentCallback = (result: Result) => void;
 
 export const EmptyObject = {} as any;
 export const requiredRule = { required: true, message: "必填项不能为空!", trigger: "blur" };

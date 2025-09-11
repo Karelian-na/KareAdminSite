@@ -4,13 +4,13 @@
 	import type { KeyStringObject, SecurityOption, VerifyCodeSendingHandler, VerifyCodeSentCallback } from "@/common/utils";
 
 	import { ref, watch } from "vue";
-	import { sha256 } from "js-sha256";
 	import { EmptyObject } from "@/common/utils";
 	import { axiosRequest } from "@/common/utils/Network";
 	import { ElFormItem, ElInput, ElButton, FormItemInstance } from "element-plus";
 
 	const props = defineProps<{
 		url: string;
+		method?: "POST";
 		secretSerial?: string;
 		option: SecurityOption;
 		prop: [string, string];
@@ -42,45 +42,46 @@
 		}
 	);
 
-	function onSendVerifyCode() {
-		if (countDown.value === 0) {
-			countDown.value = 61;
-
-			formItemSerialIns.value.validate("blur", async (isValid) => {
-				if (isValid) {
-					props.onSending?.();
-
-					sending.value = true;
-					const traceId = sha256(window.location.pathname);
-					let result = await axiosRequest({
-						method: "POST",
-						url: props.url,
-						data: {
-							pageTraceId: traceId,
-							type: props.option.type,
-							serial: props.formData[props.prop[0]],
-						},
-					});
-					if (result.success) {
-						props.onSent?.(traceId);
-						countDown.value = 60;
-						const id = window.setInterval(() => {
-							--countDown.value;
-							if (countDown.value <= 0) {
-								window.clearInterval(id);
-							}
-						}, 1000);
-					} else {
-						props.onSent?.("");
-						formItemSerialIns.value.validateState = "error";
-						formItemSerialIns.value.validateMessage = result.msg!;
-					}
-					sending.value = false;
-				} else {
-					countDown.value = 0;
-				}
-			});
+	async function onSendVerifyCode() {
+		if (countDown.value !== 0) {
+			return;
 		}
+
+		countDown.value = 61;
+		const res = await formItemSerialIns.value.validate("blur");
+		if (!res) {
+			countDown.value = 0;
+		}
+
+		const data = {
+			type: props.option.type,
+			serial: props.formData[props.prop[0]],
+		};
+		props.onSending?.(data);
+
+		sending.value = true;
+		let result = await axiosRequest({
+			method: props.method ?? "POST",
+			url: props.url,
+			data: data,
+			extraOptions: {
+				alwaysShowFeedbackMsg: false,
+			},
+		});
+		if (result.success) {
+			countDown.value = 60;
+			const id = window.setInterval(() => {
+				--countDown.value;
+				if (countDown.value <= 0) {
+					window.clearInterval(id);
+				}
+			}, 1000);
+		} else {
+			formItemSerialIns.value.validateState = "error";
+			formItemSerialIns.value.validateMessage = result.msg!;
+		}
+		props.onSent?.(result);
+		sending.value = false;
 	}
 </script>
 
@@ -98,9 +99,12 @@
 		<ElFormItem
 			ref="formItemSerialIns"
 			:prop="prop[0]"
+			class="serial"
 		>
-			<ElInput v-model="formData[prop[0]]">
-				<template #prepend>输入{{ option.title }}</template>
+			<ElInput
+				v-model="formData[prop[0]]"
+				:placeholder="`填写您的完整${option.title}`"
+			>
 			</ElInput>
 		</ElFormItem>
 		<ElFormItem
@@ -127,6 +131,10 @@
 <style scoped lang="css">
 	.verify .el-form-item {
 		margin-bottom: 2em;
+	}
+
+	.verify :deep(.el-input__inner) {
+		height: 2.5em;
 	}
 
 	.verify :deep(.descrip) {

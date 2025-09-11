@@ -17,6 +17,6 @@ export namespace KasConfig {
 	export const iconfont = {
 		prefix: "icon-",
 		valueRegex: /^[\w-]+$/,
-		libUrl: "//at.alicdn.com/t/c/font_4677547_r4t1w2xvv5.json",
+		libUrl: "//at.alicdn.com/t/c/font_4677547_4a667hs1wgs.json",
 	};
 }
