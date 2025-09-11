@@ -7,6 +7,7 @@
 	import KButton from "@/components/KButton.vue";
 	import { ElInputNumber, ElSelect, ElOption } from "element-plus";
 
+	import { Paginations } from ".";
 	import { computed, ref } from "vue";
 	import { error, info } from "@/common/utils/Interactive";
 
@@ -23,13 +24,13 @@
 		if (!dataCount.value) {
 			return 1;
 		}
-		const result = Math.ceil(dataCount.value / props.modelValue.pageSize);
+
+		const pageSize = props.modelValue.pageSize ?? props.pageSizes?.[0] ?? Paginations.defaultPageSize;
+		const result = Math.ceil(dataCount.value / pageSize);
 		return isNaN(result) ? 1 : result;
 	});
 	const startIdx = computed(() => {
-		if (!props.modelValue.pageIdx) {
-			return 1;
-		}
+		props.modelValue.pageIdx = regularizePageIdx();
 
 		const halfMaxPageNumber = Math.floor(props.maxPageAmount / 2);
 		if (props.modelValue.pageIdx < props.maxPageAmount || pageAmount.value <= props.maxPageAmount) {
@@ -40,9 +41,7 @@
 		return props.modelValue.pageIdx - halfMaxPageNumber;
 	});
 	const endIdx = computed(() => {
-		if (!props.modelValue.pageIdx) {
-			return 1;
-		}
+		props.modelValue.pageIdx = regularizePageIdx();
 
 		const halfMaxPageNumber = Math.floor(props.maxPageAmount / 2);
 		if (props.modelValue.pageIdx < props.maxPageAmount || pageAmount.value <= props.maxPageAmount) {
@@ -89,6 +88,20 @@
 		} else {
 			changePage(idx);
 		}
+	}
+
+	function regularizePageIdx() {
+		if (!props.modelValue.pageIdx) {
+			return 1;
+		} else if (typeof props.modelValue.pageIdx === "string") {
+			const idx = parseInt(props.modelValue.pageIdx);
+			if (isNaN(idx) || idx < 1) {
+				return 1;
+			} else {
+				return idx;
+			}
+		}
+		return props.modelValue.pageIdx;
 	}
 </script>
 
