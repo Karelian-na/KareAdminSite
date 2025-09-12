@@ -1,12 +1,13 @@
 <!-- @format -->
 
 <script setup lang="ts">
+	import type { Ref } from "vue";
 	import type { Menu } from "@/views/$frames/menus";
 	import type { CreateTabFunction, ITab, ItemTabMapType, SwitchPageFunction } from ".";
 
 	import IconFont from "@/components/IconFont.vue";
 
-	import { ref, inject, Ref } from "vue";
+	import { ref, inject } from "vue";
 	import { Animation } from "@/common/utils/Animation";
 
 	const props = defineProps<{
@@ -22,7 +23,27 @@
 	const switchPage = inject<SwitchPageFunction>("switchPage")!;
 	const itemMapTab = inject<Ref<ItemTabMapType>>("itemMapTab")!;
 
+	const subMenuContainer = ref<HTMLUListElement | null>(null);
+
 	defineExpose({ selected });
+
+	function onNavDirectoryEnter() {
+		if (!shrinked.value || !subMenuContainer.value) {
+			return;
+		}
+
+		subMenuContainer.value.style.display = "block";
+		subMenuContainer.value.style.width = `calc(${subMenuContainer.value.clientWidth}px + 3em)`;
+		subMenuContainer.value.style.display = "";
+	}
+
+	function onNavDirectoryLeave() {
+		if (!shrinked.value || !subMenuContainer.value) {
+			return;
+		}
+
+		subMenuContainer.value.style.width = "";
+	}
 
 	function onNavItemClick(nav: Menu) {
 		if (nav.url != "#" && !nav.url.startsWith("/")) {
@@ -65,6 +86,8 @@
 			v-if="navItem.children && navItem.children.length != 0"
 			class="nav-directory"
 			:class="{ expanded: expanded, selected: selected }"
+			@mouseenter="onNavDirectoryEnter"
+			@mouseleave="onNavDirectoryLeave"
 		>
 			<div
 				class="trigger"
@@ -87,7 +110,7 @@
 					class="right"
 				/>
 			</div>
-			<ul>
+			<ul ref="subMenuContainer">
 				<NavItem
 					v-for="item in navItem.children"
 					:key="item.id"
@@ -100,13 +123,15 @@
 		v-else-if="!navItem.pid"
 		class="nav-directory pseudo trigger"
 		:class="{ selected: navItem.id == curNavItem }"
+		@mouseenter="onNavDirectoryEnter"
+		@mouseleave="onNavDirectoryLeave"
 	>
 		<IconFont
 			v-if="navItem.icon"
 			class="left"
 			:value="navItem.icon"
 		/>
-		<ul>
+		<ul ref="subMenuContainer">
 			<li
 				class="nav-item"
 				:id="`item-${navItem.id}`"
@@ -328,7 +353,6 @@
 		top: 0;
 		left: 100%;
 		z-index: 10;
-		width: 280px;
 		padding-left: 5px;
 		position: absolute;
 
