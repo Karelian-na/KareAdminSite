@@ -6,6 +6,7 @@
  */
 
 @import "./reset.css";
+@import "./theme.css";
 @import "./element.css";
 @import url("//at.alicdn.com/t/c/font_4677547_4a667hs1wgs.css");
 
@@ -33,15 +34,10 @@
 	clear: both;
 }
 
-.iconfont {
-	font-size: inherit;
-	color: inherit;
-}
-
 a {
 	color: inherit;
 }
 
-.ui-button.export {
-	background-color: chocolate;
+.popup {
+	background-color: var(--background-color);
 }

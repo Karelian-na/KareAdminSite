@@ -297,21 +297,20 @@
 		height: 100%;
 	}
 
-	.edit-item :deep(.el-form-item__content > span) {
-		white-space: nowrap;
-	}
-
 	.edit-item :deep(.vjs-tree) {
 		padding-top: 0.5em;
+	}
+	.edit-item :deep(.vjs-key) {
+		white-space: nowrap;
 	}
 
 	.edit-item :deep(.el-form-item__content > span.readonly) {
 		white-space: pre-wrap;
 		max-height: 20em;
-		width: 100%;
-		overflow-y: auto;
+		line-height: 2em;
+		overflow: auto;
 	}
 	.edit-item .no-value-tip {
-		color: gray;
+		color: var(--disabled-text-color);
 	}
 </style>

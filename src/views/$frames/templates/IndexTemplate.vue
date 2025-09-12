@@ -550,118 +550,116 @@
 					</slot>
 				</template>
 			</OperationBar>
-			<div class="data">
-				<div class="table">
-					<ElTable
-						v-if="pageData"
-						border
-						stripe
-						ref="tableIns"
-						height="100%"
-						table-layout="auto"
-						empty-text="未查询到数据"
-						:data="pageData"
-						v-bind="tableProps"
-						@sort-change="onSortChange"
-						@row-dblclick="(row: Object) => operColumnButtonClick(detailButton, row, null as any)"
-					>
-						<ElTableColumn
-							v-if="noSelectionColumn !== true"
-							type="selection"
-							align="center"
-							v-bind="selectionColumnProps"
-						/>
-						<ElTableColumn
-							v-if="showIndexColumn"
-							sortable
-							fixed="left"
-							label="序号"
-							type="index"
-							align="center"
-						/>
-						<slot name="layouts">
-							<template v-for="field in Object.values(pageProps.displayFields).sort((l, r) => l.display_order - r.display_order)">
-								<ElTableColumn
-									align="center"
-									:prop="field.field_name"
-									:label="field.display_name"
-									:class-name="field.field_name"
-									v-bind="field.config.columnBindProps"
+			<div class="table">
+				<ElTable
+					v-if="pageData"
+					border
+					stripe
+					ref="tableIns"
+					height="100%"
+					table-layout="auto"
+					empty-text="未查询到数据"
+					:data="pageData"
+					v-bind="tableProps"
+					@sort-change="onSortChange"
+					@row-dblclick="(row: Object) => operColumnButtonClick(detailButton, row, null as any)"
+				>
+					<ElTableColumn
+						v-if="noSelectionColumn !== true"
+						type="selection"
+						align="center"
+						v-bind="selectionColumnProps"
+					/>
+					<ElTableColumn
+						v-if="showIndexColumn"
+						sortable
+						fixed="left"
+						label="序号"
+						type="index"
+						align="center"
+					/>
+					<slot name="layouts">
+						<template v-for="field in Object.values(pageProps.displayFields).sort((l, r) => l.display_order - r.display_order)">
+							<ElTableColumn
+								align="center"
+								:prop="field.field_name"
+								:label="field.display_name"
+								:class-name="field.field_name"
+								v-bind="field.config.columnBindProps"
+							>
+								<template
+									#default="{ row }"
+									v-if="$slots[field.field_name]"
 								>
-									<template
-										#default="{ row }"
-										v-if="$slots[field.field_name]"
-									>
-										<slot
-											:name="field.field_name"
-											v-bind="{
+									<slot
+										:name="field.field_name"
+										v-bind="{
 												data: row as KeyStringObject, 
 												field: field, 
 												value: row[field.field_name],
 												clickHandler: operColumnButtonClick 
 											}"
-										></slot>
-									</template>
-									<template
-										v-else-if="['enum', 'radio', 'switch'].includes(field.config.type ?? '')"
-										#default="{ row }"
-										>{{ TemplateUtils.mapDataValueToLabel(field, row[field.field_name]) }}
-									</template>
-								</ElTableColumn>
-							</template>
-							<ElTableColumn
-								v-if="Object.keys(pageProps.operColumnButtons).length || $slots['opers']"
-								fixed="right"
-								label="操作"
-								prop="operation"
-								align="center"
-								style="white-space: nowrap"
-								class-name="oper-column"
-							>
-								<template #default="{ row, $index }">
-									<slot
-										name="opers"
-										:data="row"
-										:buttons="pageProps.operColumnButtons"
-										:clickHandler="operColumnButtonClick"
-									>
-										<template v-for="button in pageProps.operColumnButtons">
-											<template v-if="!button.condition || button.condition(row, $index)">
-												<IconFont
-													v-if="button.icon"
-													:value="button.icon"
-													:class="button.icon"
-													:title="button.title"
-													@click="operColumnButtonClick(button, row, null as any)"
-												/>
-												<KButton
-													v-else
-													:class="button.icon"
-													@click="operColumnButtonClick(button, row, null as any)"
-													>{{ button.title }}
-												</KButton>
-											</template>
-										</template>
-									</slot>
+									></slot>
+								</template>
+								<template
+									v-else-if="['enum', 'radio', 'switch'].includes(field.config.type ?? '')"
+									#default="{ row }"
+									>{{ TemplateUtils.mapDataValueToLabel(field, row[field.field_name]) }}
 								</template>
 							</ElTableColumn>
-						</slot>
-					</ElTable>
-				</div>
-				<slot
-					name="pagination"
-					v-bind="{ pageQuery, references: paginationRefCallback, onChange: onChangePage }"
-				>
-					<IndexedPagination
-						v-if="noPagination !== true && pageData"
-						ref="pagination"
-						:model-value="pageQuery"
-						:max-page-amount="7"
-						:page-sizes="[20, 40, 100, 200]"
-						@change="onChangePage"
-					/>
-				</slot>
+						</template>
+						<ElTableColumn
+							v-if="Object.keys(pageProps.operColumnButtons).length || $slots['opers']"
+							fixed="right"
+							label="操作"
+							prop="operation"
+							align="left"
+							style="white-space: nowrap"
+							class-name="oper-column"
+						>
+							<template #default="{ row, $index }">
+								<slot
+									name="opers"
+									:data="row"
+									:buttons="pageProps.operColumnButtons"
+									:clickHandler="operColumnButtonClick"
+								>
+									<template v-for="button in pageProps.operColumnButtons">
+										<template v-if="!button.condition || button.condition(row, $index)">
+											<IconFont
+												v-if="button.icon"
+												:value="button.icon"
+												:class="button.icon"
+												:title="button.title"
+												@click="operColumnButtonClick(button, row, null as any)"
+											/>
+											<KButton
+												v-else
+												:class="button.icon"
+												@click="operColumnButtonClick(button, row, null as any)"
+												>{{ button.title }}
+											</KButton>
+										</template>
+									</template>
+								</slot>
+							</template>
+						</ElTableColumn>
+					</slot>
+				</ElTable>
 			</div>
+			<slot
+				name="pagination"
+				v-bind="{ pageQuery, references: paginationRefCallback, onChange: onChangePage }"
+			>
+				<IndexedPagination
+					v-if="noPagination !== true && pageData"
+					ref="pagination"
+					:model-value="pageQuery"
+					:max-page-amount="7"
+					:page-sizes="[20, 40, 100, 200]"
+					@change="onChangePage"
+				/>
+			</slot>
 			<ElDialog
 				draggable
 				destroy-on-close
@@ -738,66 +736,50 @@
 <style scoped lang="css">
 	.index-template {
 		/* Layout */
-		width: 100%;
 		height: 100%;
 		display: flex;
 		flex-direction: column;
-		padding: 20px;
-		padding-top: 0;
+		padding: 0 1.3em 0.8em;
 		box-sizing: border-box;
+		background: inherit;
+		min-width: 100%;
 	}
 
-	.index-template .data {
-		flex-grow: 1;
-		display: flex;
-		flex-direction: column;
-		overflow: hidden;
-		width: 100%;
-	}
 	.index-template :deep(.el-dialog) {
 		max-height: 80%;
 		display: flex;
 		flex-direction: column;
-		transition: all 0.3s cubic-bezier(0.075, 0.82, 0.165, 1);
+		transition: all var(--transition-duration) cubic-bezier(0.075, 0.82, 0.165, 1);
 	}
 
-	.data > .table {
+	.index-template :deep(.el-form-item__label) {
+		padding: 0.5em 0;
+		padding-right: 0.5em;
+	}
+
+	.table {
 		flex-grow: 1;
 		overflow: auto;
-		color: black;
-	}
-	.data .ui-pagination {
-		margin-top: 10px;
+		width: 100%;
 	}
 
-	.el-table :deep(.el-table__cell) {
-		line-height: 1;
-	}
 	.el-table :deep(.cell) {
 		white-space: nowrap;
 	}
 	.el-table :deep(thead .cell) {
 		font-weight: bold;
-		color: black;
-	}
-	.el-table :deep(.oper-column .cell) {
-		text-align: left;
+		color: var(--hover-text-color);
 	}
 	.el-table :deep(.oper-column .iconfont),
 	.el-table :deep(.oper-column .ui-button) {
-		padding: 0;
 		cursor: pointer;
-		background-color: transparent;
-		color: var(--el-color-primary);
+		color: var(--primary-color);
 	}
 	.el-table :deep(.oper-column .ui-button),
 	.el-table :deep(.oper-column .iconfont) {
 		margin: 0 0.3em;
 	}
 
-	.index-template :deep(.el-dialog .el-dialog__header) {
-		padding-bottom: 0;
-	}
 	.index-template :deep(.el-dialog .el-dialog__body) {
 		flex-grow: 1;
 		overflow: hidden;

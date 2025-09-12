@@ -56,7 +56,7 @@
 				prev.push({
 					label: `${cur.name}`,
 					value: cur.id,
-					oper_id: cur.oper_id
+					oper_id: cur.oper_id,
 				});
 
 				return prev;
@@ -311,20 +311,6 @@
 		white-space: nowrap;
 	}
 
-	.menu :deep(.ui-tag) {
-		font-size: inherit;
-	}
-
-	.menu :deep(span.type),
-	.menu :deep(span.status) {
-		display: inline-block;
-		padding: 0 5px;
-		line-height: 1.7em;
-		border-radius: 5px;
-		color: white;
-		vertical-align: baseline;
-	}
-
 	.menu :deep(span.type.menu) {
 		background-color: chocolate;
 	}
@@ -346,7 +332,7 @@
 	}
 
 	.menu :deep(span.status.on) {
-		background-color: var(--el-color-primary);
+		background-color: var(--primary-color);
 	}
 
 	:global(.url a[href]) {

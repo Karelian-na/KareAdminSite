@@ -211,14 +211,14 @@
 		</template>
 
 		<template #type-display="{ field, formData }">
-			<p>
+			<div class="placeholder">
 				<KTag
 					class="type"
 					:class="Menu.typeFieldNameOf(formData['type'])"
 					:icon="Menu.typeFieldNameOf(formData['type'])"
 					:label="field.config.enumItems?.find((item: any) => item.value === formData['type'])?.label ?? ''"
 				/>
-			</p>
+			</div>
 		</template>
 		<template #type-input="{ field, formData }">
 			<ElSelect
@@ -322,10 +322,6 @@
 		text-overflow: ellipsis;
 	}
 
-	.el-form-item :deep(.el-input-group__prepend .iconfont) {
-		line-height: 1em;
-	}
-
 	.edit-template :deep(.pid) .ao-tag {
 		margin-left: 1em;
 	}
@@ -333,5 +329,10 @@
 	.el-select :deep(.iconfont.icon-external-link) {
 		vertical-align: bottom;
 		margin-left: 5px;
+	}
+
+	.placeholder {
+		display: flex;
+		align-items: center;
 	}
 </style>

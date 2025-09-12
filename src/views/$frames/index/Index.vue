@@ -348,51 +348,49 @@
 			:class="{ shrinked: shrinked }"
 		/>
 		<div class="content">
-			<div class="wrapper">
-				<MenuBar />
-				<TabBar />
-				<ElTabs
-					v-if="curInPageProps.tabs.length > 1"
-					v-model="curInPageProps.curTab"
-					@tab-change="onInPageTabChange"
+			<MenuBar />
+			<TabBar />
+			<ElTabs
+				v-if="curInPageProps.tabs.length > 1"
+				v-model="curInPageProps.curTab"
+				@tab-change="onInPageTabChange"
+			>
+				<ElTabPane
+					v-for="tab in curInPageProps.tabs"
+					:key="tab.id"
+					:label="tab.name"
+					:name="tab.id"
 				>
-					<ElTabPane
-						v-for="tab in curInPageProps.tabs"
-						:key="tab.id"
-						:label="tab.name"
-						:name="tab.id"
-					>
-						<template #label>
-							<IconFont
-								v-if="tab.icon"
-								:value="tab.icon"
-							/>
-							<span>{{ tab.name }}</span>
-						</template>
-					</ElTabPane>
-				</ElTabs>
-				<div
-					class="page"
-					id="page-loading"
-					v-loading="pageLoading.value"
-					element-loading-text="处理中..."
+					<template #label>
+						<IconFont
+							v-if="tab.icon"
+							:value="tab.icon"
+						/>
+						<span>{{ tab.name }}</span>
+					</template>
+				</ElTabPane>
+			</ElTabs>
+			<div
+				class="page"
+				id="page-loading"
+				v-loading="pageLoading.value"
+				element-loading-text="处理中..."
+			>
+				<RouterView
+					v-for="item in pageMapInPageProps"
+					:name="item[0]"
+					v-slot="{ Component }"
 				>
-					<RouterView
-						v-for="item in pageMapInPageProps"
-						:name="item[0]"
-						v-slot="{ Component }"
+					<div
+						class="inpage-tab-content"
+						:key="curTab.key"
+						:class="{ active: curPage == item[0] }"
 					>
-						<div
-							class="inpage-tab-content"
-							:key="curTab.key"
-							:class="{ active: curPage == item[0] }"
-						>
-							<KeepAlive>
-								<component :is="Component" />
-							</KeepAlive>
-						</div>
-					</RouterView>
-				</div>
+						<KeepAlive>
+							<component :is="Component" />
+						</KeepAlive>
+					</div>
+				</RouterView>
 			</div>
 		</div>
 	</div>
@@ -408,7 +406,7 @@
 	.sidebar {
 		/* Layout */
 		width: 20em;
-		display: inline-flex;
+		display: flex;
 		flex-direction: column;
 		flex-shrink: 0;
 
@@ -416,7 +414,7 @@
 		line-height: 3em;
 
 		/* Appearance */
-		background-color: #11101c;
+		background-color: var(--background-color-1);
 
 		/* Animation */
 		transition: width 0.3s ease-in-out;
@@ -428,35 +426,18 @@
 	.content {
 		/* Layout */
 		flex-grow: 1;
-		overflow: auto;
 
-		/* Appearance */
-		color: #595959;
-		background-color: white;
-
-		/* Animation */
-		transition: width 0.3s ease-in-out;
-	}
-
-	.content .wrapper {
-		/* Text */
-		display: inline-flex;
+		display: flex;
 		flex-direction: column;
 		overflow: hidden;
-		width: 100%;
-		height: 100%;
-		min-width: 680px;
 	}
 
-	.wrapper .menubar,
-	.wrapper .tabbar,
-	.wrapper .page {
-		line-height: 2.5em;
+	.content .menubar,
+	.content .tabbar {
+		height: 2.5em;
+		width: 100%;
 	}
-	.wrapper .menubar {
-		vertical-align: top;
-	}
-	.wrapper .page {
+	.content .page {
 		/* Layout */
 		flex-grow: 1;
 		overflow: hidden;
@@ -464,21 +445,8 @@
 		position: relative;
 		flex-direction: column;
 	}
-	.wrapper .el-tabs {
+	.content .el-tabs {
 		padding: 0 20px;
-	}
-
-	.menubar :deep(.iconfont),
-	.tabbar :deep(.iconfont) {
-		width: 2.5em;
-		cursor: pointer;
-		vertical-align: top;
-		transition: color 0.3s ease-in-out;
-	}
-	.menubar :deep(.iconfont:hover),
-	.tabbar :deep(.iconfont:hover) {
-		color: black;
-		font-weight: bold;
 	}
 
 	.el-tabs :deep(.iconfont) {
@@ -497,5 +465,11 @@
 	.page .inpage-tab-content.active {
 		height: 100%;
 		display: initial;
+	}
+	.page .inpage-tab-content::-webkit-scrollbar {
+		height: 4px;
+	}
+	.page .inpage-tab-content::-webkit-scrollbar-thumb {
+		background-color: var(--border-color);
 	}
 </style>

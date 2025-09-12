@@ -515,7 +515,7 @@
 		cursor: pointer;
 		margin-bottom: 10px;
 		text-decoration: underline;
-		color: var(--el-color-primary);
+		color: var(--primary-color);
 	}
 	.el-form-item.operations :deep(.el-form-item__content) .el-button {
 		width: 100%;

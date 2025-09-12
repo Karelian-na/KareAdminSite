@@ -15,33 +15,53 @@
 		v-bind="props.props"
 		class="ui-button"
 	>
-		<template
-			v-if="icon"
-			#icon
-		>
-			<IconFont :value="icon" />
+		<template #default>
+			<IconFont
+				v-if="icon"
+				:value="icon"
+			/>
+			<slot></slot>
 		</template>
-		<slot></slot>
 	</ElButton>
 </template>
 
-<style scoped lang="css">
-	:global(.ui-button) {
-		--el-button-hover-text-color: white;
-		--el-button-hover-bg-color: var(--el-color-primary);
-
-		border: none;
-		color: white;
-		padding: 10px;
-		background-color: var(--el-color-primary);
+<style lang="css">
+	.ui-button {
+		color: var(--contrasted-text-color);
+		background-color: var(--primary-color);
+		transition: opacity var(--transition-color) ease-in-out;
+	}
+	.ui-button:hover {
+		background-color: var(--primary-color);
+		color: var(--contrasted-text-color);
+		opacity: 0.8;
 	}
 
-	:global(.ui-button.delete),
-	:global(.ui-button.bulkdelete) {
-		background-color: darkred;
+	.ui-button.delete,
+	.ui-button.bulkdelete {
+		background-color: var(--danger-color);
 	}
-	:global(.ui-button.add),
-	:global(.ui-button.edit) {
+	.ui-button.add,
+	.ui-button.edit {
 		background-color: chocolate;
+	}
+
+	.ui-button.export {
+		background-color: chocolate;
+	}
+
+	.ui-button.exit,
+	.ui-button.cancel,
+	.ui-button.close {
+		background-color: var(--danger-color);
+	}
+
+	.ui-button.transparent {
+		color: var(--text-color);
+		background-color: transparent;
+	}
+
+	.ui-button .iconfont {
+		margin-right: 5px;
 	}
 </style>

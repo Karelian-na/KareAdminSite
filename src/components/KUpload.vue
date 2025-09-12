@@ -291,17 +291,19 @@
 	}
 
 	.ao-upload.image :deep(.el-upload) {
-		border: 1px dashed var(--el-border-color);
+		border: 1px dashed var(--border-color);
 		border-radius: 6px;
 		cursor: pointer;
 		position: relative;
 		overflow: hidden;
 		width: 100%;
 		height: 100%;
-		transition: var(--el-transition-duration-fast);
 	}
 	.ao-upload.image :deep(.el-upload:hover) {
-		border-color: var(--el-color-primary);
+		border-color: var(--primary-color);
+	}
+	.ao-upload.image :deep(.el-upload:focus) {
+		color: inherit;
 	}
 	.ao-upload.file :deep(.el-upload) {
 		flex-direction: column;
@@ -332,9 +334,7 @@
 	}
 
 	.ao-upload :deep(.icon-add) {
-		font-size: 25px;
-		color: #8c939d;
-		text-align: center;
+		font-size: 1.5em;
 	}
 
 	.ao-upload .actions {
@@ -347,11 +347,11 @@
 		display: inline-flex;
 		justify-content: space-evenly;
 		align-items: center;
-		color: #fff;
 		opacity: 0;
-		font-size: 20px;
-		background-color: var(--el-overlay-color-lighter);
-		transition: opacity var(--el-transition-duration);
+		font-size: 1.3em;
+		color: var(--hover-contrasted-text-color);
+		background-color: var(--overlay-color);
+		transition: opacity var(--transition-duration) ease-in-out;
 	}
 	.ao-upload .actions:hover {
 		opacity: 1;
@@ -359,6 +359,11 @@
 
 	.ao-upload .actions :deep(.iconfont) {
 		cursor: pointer;
+		transition: color var(--transition-duration) ease-in-out;
+	}
+
+	.ao-upload .actions :deep(.iconfont:hover) {
+		color: var(--contrasted-text-color);
 	}
 
 	.ao-upload img {

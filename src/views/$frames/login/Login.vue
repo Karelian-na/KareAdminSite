@@ -171,7 +171,6 @@
 		background-repeat: no-repeat;
 		background-size: cover;
 		background-position: center;
-		min-width: 450px;
 		position: relative;
 		min-width: 45em;
 		width: 100%;
@@ -180,22 +179,22 @@
 
 	.el-container {
 		position: absolute;
-		width: 450px;
+		width: max-content;
+		min-width: 28em;
 		height: max-content;
 
-		padding: 30px 40px;
-		background-color: white;
-		box-shadow: 0 0 20px #16b4f2;
+		padding: 2em 2.5em;
+		background-color: var(--background-color);
+		box-shadow: 0 0 1em var(--primary-color);
 
-		border-radius: 20px;
+		border-radius: 1em;
 	}
 
 	.el-header {
 		font-size: 1.5em;
 		text-align: center;
-		color: #595959;
-		margin-top: 20px;
-		margin-bottom: 40px;
+		margin-top: 0.5em;
+		margin-bottom: 2em;
 		height: max-content;
 	}
 
@@ -214,18 +213,19 @@
 	}
 	.el-main :deep(.edit-item.operations .el-button) {
 		width: 100%;
-		font-size: 20px;
+		font-size: 1.2em;
 		height: 2em;
 	}
 	.edit-item.operations .link {
 		line-height: 1;
 		width: max-content;
-		margin-top: 15px;
-		font-size: 14px;
+		margin-top: 1em;
+		font-size: 0.9em;
 		cursor: pointer;
 		height: initial;
+		transition: color var(--transition-duration) ease-in-out;
 	}
 	.edit-item.operations .link:hover {
-		color: var(--el-color-primary);
+		color: var(--primary-color);
 	}
 </style>

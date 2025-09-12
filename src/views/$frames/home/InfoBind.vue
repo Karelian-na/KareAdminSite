@@ -246,13 +246,9 @@
 
 <style scoped lang="css">
 	.el-steps {
-		width: 700px;
+		width: 45em;
 		line-height: 1;
 		box-sizing: border-box;
-	}
-
-	.el-steps :deep(.iconfont) {
-		font-size: 14px;
 	}
 
 	.el-form {
@@ -263,7 +259,7 @@
 
 	.verify .cancel {
 		margin-bottom: 1em;
-		color: var(--el-color-primary);
+		color: var(--primary-color);
 		text-decoration: underline;
 		text-align: right;
 		cursor: pointer;
@@ -272,7 +268,7 @@
 	.el-form .success {
 		margin-bottom: 2em;
 		text-align: center;
-		color: car(--el-color-primary);
+		color: car(--primary-color);
 	}
 
 	.el-form-item.operations :deep(.el-form-item__content) > .el-button {

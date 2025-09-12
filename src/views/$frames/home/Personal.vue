@@ -8,10 +8,11 @@
 
 	import InfoBind from "./InfoBind.vue";
 	import RevisePwd from "./Revisepwd.vue";
+	import KButton from "@/components/KButton.vue";
 	import IconFont from "@/components/IconFont.vue";
 	import EditItem from "@/views/$frames/templates/EditItem.vue";
 	import EditTemplate from "@/views/$frames/templates/EditTemplate.vue";
-	import { ElSpace, ElCard, ElButton, ElContainer, ElAside, ElMain, ElCol, ElRow, ElDialog } from "element-plus";
+	import { ElCard, ElContainer, ElAside, ElMain, ElCol, ElRow, ElDialog } from "element-plus";
 
 	import { EmptyObject } from "@/common/utils";
 	import { TemplateUtils } from "../templates";
@@ -133,123 +134,127 @@
 		@before-submit="onBeforeSubmit"
 	>
 		<template #layouts="{ formData, references }">
-			<ElSpace direction="vertical">
-				<ElCard class="base">
+			<ElCard class="base">
+				<EditItem
+					:ref="references"
+					v-model="formData['avatar']"
+					:field="userFields['avatar']"
+				/>
+				<div class="info">
 					<EditItem
 						:ref="references"
-						v-model="formData['avatar']"
-						:field="userFields['avatar']"
-					/>
-					<div class="info">
-						<EditItem
-							:ref="references"
-							v-for="fieldName in ['id', 'uid', 'name', 'profile']"
-							v-model="formData[fieldName]"
-							:field="userFields[fieldName]"
-						/>
-					</div>
-				</ElCard>
-				<ElCard>
-					<template #header>
-						<span>基本信息</span>
-						<span class="operation">
-							<ElButton
-								type="primary"
-								v-if="mode === 'edit'"
-								@click="editTemplateIns.submit"
-								>立即修改
-							</ElButton>
-							<ElButton @click="onMsgOperButtonClick">{{ mode === "details" ? "编辑" : "退出" }}</ElButton>
-						</span>
-					</template>
-					<EditItem
-						:ref="references"
-						v-for="fieldName in ['age', 'gender', 'clan', 'political_status', 'phone', 'email', 'roles', 'add_time']"
+						v-for="fieldName in ['id', 'uid', 'name', 'profile']"
 						v-model="formData[fieldName]"
 						:field="userFields[fieldName]"
 					/>
-				</ElCard>
-				<ElCard class="security">
-					<template #header>账号安全</template>
-					<ElContainer v-for="key in Object.keys(securityOptions).filter((item) => item !== 'pwd')">
-						<ElAside>
-							<IconFont :value="securityOptions[key].icon" />
-						</ElAside>
-						<ElMain>
-							<ElRow>
-								<ElCol
-									:span="10"
-									class="bind-tip"
+				</div>
+			</ElCard>
+			<ElCard>
+				<template #header>
+					<span>基本信息</span>
+					<span class="operation">
+						<KButton
+							type="primary"
+							v-if="mode === 'edit'"
+							@click="editTemplateIns.submit"
+							>立即修改
+						</KButton>
+						<KButton
+							:class="{
+								transparent: mode === 'edit',
+							}"
+							@click="onMsgOperButtonClick"
+							>{{ mode === "details" ? "编辑" : "退出" }}</KButton
+						>
+					</span>
+				</template>
+				<EditItem
+					:ref="references"
+					v-for="fieldName in ['age', 'gender', 'clan', 'political_status', 'phone', 'email', 'roles', 'add_time']"
+					v-model="formData[fieldName]"
+					:field="userFields[fieldName]"
+				/>
+			</ElCard>
+			<ElCard class="security">
+				<template #header>账号安全</template>
+				<ElContainer v-for="key in Object.keys(securityOptions).filter((item) => item !== 'pwd')">
+					<ElAside>
+						<IconFont :value="securityOptions[key].icon" />
+					</ElAside>
+					<ElMain>
+						<ElRow>
+							<ElCol
+								:span="10"
+								class="bind-tip"
+							>
+								<p class="name">{{ securityOptions[key].title }}绑定</p>
+								<p class="">绑定{{ securityOptions[key].title }}后可使用{{ securityOptions[key].title }}登录</p>
+								<p
+									class="state"
+									:class="formData[key] ? 'has-value' : ''"
 								>
-									<p class="name">{{ securityOptions[key].title }}绑定</p>
-									<p class="">绑定{{ securityOptions[key].title }}后可使用{{ securityOptions[key].title }}登录</p>
-									<p
-										class="state"
-										:class="formData[key] ? 'has-value' : ''"
-									>
-										{{ formData[key] ? "当前已绑定" : "暂未绑定" }}
-									</p>
-								</ElCol>
-								<ElCol
-									:span="10"
-									class="bind-value"
-								>
-									{{ formData[key] }}
-								</ElCol>
-								<ElCol
-									:span="4"
-									class="bind-operation"
-								>
-									<ElButton @click="onSecurityButtonClick(key)">去{{ formData[key] ? "修改" : "绑定" }}</ElButton>
-								</ElCol>
-							</ElRow>
-						</ElMain>
-					</ElContainer>
-					<ElContainer>
-						<!-- 密码 -->
-						<ElAside>
-							<IconFont value="pwd" />
-						</ElAside>
-						<ElMain>
-							<ElRow>
-								<ElCol
-									:span="8"
-									class="bind-tip"
-								>
-									<p class="name">密码安全</p>
-									<p>设置更复杂的密码可提高账号安全性</p>
-								</ElCol>
-								<ElCol :span="12" />
-								<ElCol
-									:span="4"
-									class="bind-operation"
-								>
-									<ElButton @click="onSecurityButtonClick('pwd')">去修改</ElButton>
-								</ElCol>
-							</ElRow>
-						</ElMain>
-					</ElContainer>
-					<ElDialog
-						draggable
-						destroy-on-close
-						width="max-content"
-						v-model="securityDialogProps.show"
-						:close-on-click-modal="false"
-						:title="`账号安全-${securityDialogProps.operLabel}`"
-					>
-						<InfoBind
-							v-if="infoMode !== 'pwd'"
-							:type="infoMode"
-							:modal-dialog-props="securityDialogProps"
-							v-model:secret-serial="editTemplateIns.formData[infoMode]"
-						/>
-						<RevisePwd
-							v-else
-							mode="revise"
-						/>
-					</ElDialog>
-				</ElCard>
-			</ElSpace>
+									{{ formData[key] ? "当前已绑定" : "暂未绑定" }}
+								</p>
+							</ElCol>
+							<ElCol
+								:span="10"
+								class="bind-value"
+							>
+								{{ formData[key] }}
+							</ElCol>
+							<ElCol
+								:span="4"
+								class="bind-operation"
+							>
+								<KButton @click="onSecurityButtonClick(key)">去{{ formData[key] ? "修改" : "绑定" }}</KButton>
+							</ElCol>
+						</ElRow>
+					</ElMain>
+				</ElContainer>
+				<ElContainer>
+					<!-- 密码 -->
+					<ElAside>
+						<IconFont value="pwd" />
+					</ElAside>
+					<ElMain>
+						<ElRow>
+							<ElCol
+								:span="8"
+								class="bind-tip"
+							>
+								<p class="name">密码安全</p>
+								<p>设置更复杂的密码可提高账号安全性</p>
+							</ElCol>
+							<ElCol :span="12" />
+							<ElCol
+								:span="4"
+								class="bind-operation"
+							>
+								<KButton @click="onSecurityButtonClick('pwd')">去修改</KButton>
+							</ElCol>
+						</ElRow>
+					</ElMain>
+				</ElContainer>
+				<ElDialog
+					draggable
+					destroy-on-close
+					width="max-content"
+					v-model="securityDialogProps.show"
+					:close-on-click-modal="false"
+					:title="`账号安全-${securityDialogProps.operLabel}`"
+				>
+					<InfoBind
+						v-if="infoMode !== 'pwd'"
+						:type="infoMode"
+						:modal-dialog-props="securityDialogProps"
+						v-model:secret-serial="editTemplateIns.formData[infoMode]"
+					/>
+					<RevisePwd
+						v-else
+						mode="revise"
+					/>
+				</ElDialog>
+			</ElCard>
 		</template>
 
 		<!-- do not display default commit button -->
@@ -262,19 +267,16 @@
 		padding: 2em 10vw 1em;
 	}
 
-	.edit-template .el-space,
-	.edit-template .el-space :deep(.el-space__item) {
-		width: 100%;
+	.edit-template .el-card {
+		margin-bottom: 1em;
 	}
 
-	.edit-template .edit-item {
-		margin-bottom: 0.5em;
+	.edit-template .edit-item,
+	.edit-template.edit .base .edit-item.name {
+		margin-bottom: 0.6em;
 	}
 	.edit-template .base .edit-item {
 		margin-bottom: 0em;
-	}
-	.edit-template.edit .base .edit-item.name {
-		margin-bottom: 0.5em;
 	}
 
 	/* base card, avatar and base info */
@@ -285,8 +287,8 @@
 		flex-direction: row;
 	}
 	.edit-template .base .avatar :deep(.ao-upload) {
-		height: 200px;
-		width: 200px;
+		height: 12.5em;
+		width: 12.5em;
 	}
 	.edit-template .base .avatar :deep(.el-upload) {
 		border-radius: 50%;
@@ -295,7 +297,7 @@
 		flex-grow: 1;
 		overflow: hidden;
 		padding: 0 2em;
-		transition: 0.5s cubic-bezier(0.075, 0.82, 0.165, 1);
+		transition: var(--transition-duration) cubic-bezier(0.075, 0.82, 0.165, 1);
 	}
 
 	.base .info .profile {
@@ -303,9 +305,7 @@
 	}
 	.profile :deep(.el-form-item__content > span),
 	.profile :deep(.el-form-item__content > .el-input) {
-		margin-top: 0.4em;
 		word-wrap: break-word;
-		line-height: 1.25em;
 	}
 	.profile :deep(span::-webkit-scrollbar) {
 		display: none;
@@ -314,19 +314,20 @@
 	/* common card */
 	.el-card .operation {
 		float: right;
+		transform: translateY(-25%);
 	}
 	.el-container .el-aside {
-		padding: 20px;
+		padding: 1.3em;
 		display: flex;
 		align-items: center;
 		width: max-content;
 		padding-right: 0;
 	}
 	.el-container .el-main .name {
-		font-size: 20px;
+		font-size: 1.3em;
 	}
 	.el-card.security .el-aside :deep(.iconfont) {
-		font-size: 72px;
+		font-size: 4.5em;
 	}
 
 	/* security card */
@@ -334,10 +335,10 @@
 		line-height: 1.5;
 	}
 	.el-card.security .bind-tip .state {
-		color: var(--el-color-danger);
+		color: var(--danger-color);
 	}
 	.el-card.security .bind-tip .state.has-value {
-		color: var(--el-color-primary);
+		color: var(--primary-color);
 	}
 	.el-card.security .bind-value {
 		display: flex;
@@ -348,5 +349,8 @@
 		display: flex;
 		align-items: center;
 		justify-content: flex-end;
+	}
+	.el-card.security .el-row {
+		margin-bottom: 0;
 	}
 </style>

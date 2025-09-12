@@ -22,7 +22,7 @@ time, mark, audio, video {
 	font-size: inherit;
 	font: inherit;
 	color: inherit;
-	vertical-align: inherit;
+	background-color: transparent;
 }
 /* HTML5 display-role reset for older browsers */
 article, aside, details, figcaption, figure, 

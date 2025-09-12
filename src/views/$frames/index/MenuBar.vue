@@ -79,7 +79,7 @@
 					:src="userInfo.avatar"
 				/>
 				<span class="name">{{ userInfo.name }}</span>
-				<ul class="options">
+				<ul class="options popup">
 					<li
 						class="item"
 						@click="onPersonalTabClick"
@@ -100,34 +100,46 @@
 
 <style scoped>
 	.menubar {
-		white-space: nowrap;
-		line-height: 2.5em;
+		display: flex;
+		align-items: center;
 	}
 
 	.menubar .operations {
 		/* Layout */
 		display: inline-block;
 	}
+	.operations :deep(.iconfont) {
+		width: 2.5em;
+		cursor: pointer;
+		transition: color 0.3s ease-in-out;
+	}
+	.operations :deep(.iconfont:hover) {
+		font-weight: bold;
+		color: var(--hover-text-color);
+	}
 
 	.menubar .personal {
 		/* Layout */
-		float: right;
 		padding-right: 1em;
+		height: 100%;
+		margin-left: auto;
 	}
-	.menubar .personal .info {
+	.personal .info {
 		/* Layout */
 		position: relative;
+		height: 100%;
 
 		/* Appearance */
 		cursor: pointer;
+		display: flex;
+		align-items: center;
 	}
 
 	.personal .info .avatar {
-		margin: 0.4em;
-		width: 1.7em;
-		height: 1.7em;
+		width: 1.5em;
+		height: 1.5em;
+		margin-right: 0.5em;
 	}
-
 	.personal .info .options {
 		/* Layout */
 		display: none;
@@ -137,8 +149,7 @@
 		z-index: 10;
 
 		/* Appearance */
-		border: 1px solid #aaaaaa;
-		background-color: white;
+		border: 1px solid var(--border-color);
 
 		/* Other */
 		border-radius: 5px;
@@ -150,13 +161,13 @@
 
 		/* Animation */
 		animation: shrinked-display-animation 0.3s ease-in-out;
-		transform-origin: 120px 0;
+		transform-origin: 8em 0;
 	}
 
 	.info .options .item {
 		/* Layout */
 		margin: 0 1em;
-		white-space: nowrap;
+		line-height: 2.5em;
 
 		/* Animation */
 		transition: color 0.3s ease-in-out;
@@ -164,7 +175,7 @@
 
 	.info .options .item:hover {
 		/* Appearance */
-		color: black;
+		color: var(--hover-text-color);
 	}
 
 	@keyframes shrinked-display-animation {

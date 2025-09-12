@@ -3,12 +3,11 @@
 <script setup lang="ts">
 	import type { Ref } from "vue";
 	import type { Optional } from "@/common/utils";
-	import type { ILoading } from "@/common/utils/Interactive";
 	import type { ItemTabMapType, TabPageMapType, ITab, SwitchPageFunction, CloseTabFunction } from ".";
 
 	import IconFont from "@/components/IconFont.vue";
 
-	import { CreateTabFunction, specialTabs } from ".";
+	import { specialTabs } from ".";
 	import { ref, inject } from "vue";
 	import { EmptyObject } from "@/common/utils";
 	import { error } from "@/common/utils/Interactive";
@@ -144,7 +143,7 @@
 			@click="optionDisplayed = !optionDisplayed"
 		/>
 		<ul
-			class="options"
+			class="options popup"
 			:class="{ display: optionDisplayed }"
 		>
 			<li
@@ -174,33 +173,46 @@
 		/* Layout */
 		display: flex;
 		position: relative;
+		align-items: center;
 	}
 
-	.tabbar :deep(.icon-double-arrow-left),
-	.tabbar :deep(.icon-double-arrow-right),
-	.tabbar :deep(.icon-more) {
+	.tabbar :deep(.iconfont) {
+		width: 2.5em;
+		cursor: pointer;
+		transition: color var(--transition-duration) ease-in-out;
+	}
+	.tabbar :deep(.iconfont:hover) {
+		font-weight: bold;
+		color: var(--hover-text-color);
+	}
+	.tabbar > :deep(.iconfont) {
 		flex-shrink: 0;
 	}
 
 	.tabbar .items {
 		/* Layout */
 		flex-grow: 1;
-		overflow: hidden;
-		white-space: nowrap;
+		overflow: auto;
+		height: 100%;
+		display: inline-flex;
+		flex-direction: row;
+		gap: 0.5em;
+	}
+	.tabbar .items::-webkit-scrollbar {
+		display: none;
 	}
 
 	.items .item {
-		display: inline-block;
-		position: relative;
 		cursor: pointer;
-	}
-	.items .item:not(:first-of-type) {
-		padding: 0 5px;
+		position: relative;
+		display: flex;
+		align-items: center;
+		transition: color var(--transition-duration) ease-in-out;
 	}
 	.items .item:hover,
 	.items .item.tab-item-selected {
 		/* Appearance */
-		color: black;
+		color: var(--hover-text-color);
 	}
 
 	.items .item:hover::before,
@@ -216,28 +228,21 @@
 		height: 0.15em;
 
 		/* Appearance */
-		background-color: var(--el-color-primary);
+		background: var(--primary-color);
 
 		/* Animation */
-		animation: tip-ani 0.3s ease-in-out;
+		animation: tip-ani var(--transition-duration) ease-in-out;
 	}
 
 	.items .item .name {
-		vertical-align: top;
-		margin-right: 0.1em;
+		white-space: nowrap;
+		margin-right: 0.2em;
 	}
 
 	.items .item :deep(.icon-close) {
 		/* Layout */
 		position: relative;
 		width: 1em;
-	}
-	.items .item :deep(.icon-close):hover {
-		/* Appearance */
-		color: white;
-
-		/* Animation */
-		transition: color 0.3s ease-in-out;
 	}
 	/* make sure close icon is above background when hover */
 	.items .item :deep(.icon-close)::before {
@@ -247,6 +252,9 @@
 		display: block;
 		transform: scale(0.6);
 	}
+	.items .item :deep(.icon-close:hover) {
+		color: var(--contrasted-text-color);
+	}	
 	.items .item :deep(.icon-close:hover::after) {
 		/* Content Generater */
 		content: "";
@@ -261,10 +269,10 @@
 		height: 1em;
 
 		/* Appearance */
-		background-color: tomato;
+		background-color: var(--danger-color);
 
 		/* Animation */
-		animation: bac-ani 0.3s;
+		animation: bac-ani var(--transition-duration);
 
 		/* Other */
 		border-radius: 50%;
@@ -286,8 +294,7 @@
 		z-index: 5;
 
 		/* Appearance */
-		border: 1px solid #aaaaaa;
-		background-color: white;
+		border: 1px solid var(--border-color);
 
 		/* Other */
 		border-radius: 5px;
@@ -299,9 +306,11 @@
 
 	.options .item {
 		cursor: pointer;
+		line-height: 2.5em;
+		transition: color var(--transition-duration) ease-in-out;
 	}
 	.options .item:hover {
-		color: black;
+		color: var(--hover-text-color);
 	}
 
 	@keyframes tip-ani {
@@ -320,7 +329,7 @@
 			background-color: transparent;
 		}
 		to {
-			background-color: tomato;
+			background-color: var(--danger-color);
 		}
 	}
 </style>

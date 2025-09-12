@@ -19,18 +19,18 @@
 	</span>
 </template>
 
-<style>
+<style lang="css">
 	.ao-tag {
-		padding: 5px;
-		color: white;
-		background-color: var(--el-color-primary);
-		border-radius: 5px;
-		font-size: 12px;
-		vertical-align: initial;
+		display: inline-block;
+		color: var(--contrasted-text-color);
+		background-color: var(--primary-color);
+		padding: 0.4em;
+		border-radius: 0.5em;
+		font-size: 0.8em;
 		white-space: nowrap;
 	}
 
-	.ao-tag+.ao-tag {
+	.ao-tag + .ao-tag {
 		margin-left: 0.5em;
 	}
 </style>

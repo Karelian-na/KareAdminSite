@@ -1,0 +1,99 @@
+/** @format */
+
+:root {
+	--font-size: 16px;
+	--transition-duration: 0.3s;
+}
+
+html,
+html[data-theme="dark"] {
+	--background-color: #11101c;
+	--background-color-1: #181c24;
+	--hover-background-color: #2c3140;
+
+	--text-color: #999999;
+	--contrasted-text-color: #eeeeee;
+	--hover-contrasted-text-color: #ffffff;
+	--hover-text-color: #ffffff;
+	--disabled-text-color: #666666;
+	--placeholder-color: #666666;
+
+	--border-color: #2c3140;
+	--hover-border-color: #999999;
+
+	--primary-color: #006fc4;
+	--danger-color: darkred;
+	--overlay-color: rgba(0, 0, 0, 0.5);
+}
+
+html[data-theme="light"] {
+	--background-color: #fafafa;
+	--background-color-1: #f5f5f5;
+	--hover-background-color: #fafafa;
+
+	--text-color: #26285e;
+	--contrasted-text-color: #eeeeee;
+	--hover-contrasted-text-color: #ffffff;
+	--hover-text-color: #000000;
+	--hover-text-color-light: #ffffff;
+
+	--border-color: #dcdfe6;
+	--hover-border-color: #a9abb3;
+
+	--primary-color: #006fc4;
+	--danger-color: darkred;
+	--overlay-color: rgba(0, 0, 0, 0.5);
+}
+
+html {
+	font-size: var(--font-size);
+	background-color: var(--background-color);
+	color: var(--text-color);
+	border-color: var(--border-color);
+}
+
+html[data-theme="dark"] {
+	--el-bg-color: #11101c;
+	--el-bg-color-overlay: #11101c;
+
+	--el-fill-color-blank: #11101c;
+	--el-fill-color-lighter: #181c24;
+	--el-fill-color-light: #232e40;
+
+	--el-text-color: #999999;
+	--el-text-color-regular: #999999;
+	--el-text-color-primary: #999999;
+	--el-text-color-placeholder: #666666;
+
+	--el-border-color: #2c3140;
+	--el-border-color-lighter: #2c3140;
+	--el-border-color-light: #2c3140;
+	--el-border-color-hover: #999999;
+
+	--el-color-primary: #006fc4;
+
+	--el-mask-color: rgba(0, 0, 0, 0.6);
+}
+
+html[data-theme="light"] {
+	--el-bg-color: #fafafa;
+	--el-bg-color-overlay: #fafafa;
+
+	--el-fill-color-blank: #fafafa;
+	--el-fill-color-lighter: #f5f5f5;
+	--el-fill-color-light: #eeeff6;
+
+	--el-text-color: #26285e;
+	--el-text-color-regular: #26285e;
+	--el-text-color-primary: #26285e;
+	--el-text-color-placeholder: #999999;
+
+	--el-border-color: #dcdfe6;
+	--el-border-color-lighter: #dcdfe6;
+	--el-border-color-light: #dcdfe6;
+	--el-border-color-hover: #a9abb3;
+
+	--el-color-primary: #006fc4;
+
+	--el-mask-color: rgba(0, 0, 0, 0.2);
+}

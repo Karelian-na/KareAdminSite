@@ -142,9 +142,10 @@
 		margin-bottom: 10px;
 	}
 	.verify :deep(.descrip .secret) {
-		color: var(--el-color-primary);
+		color: var(--primary-color);
 	}
 
+	.verify :deep(.el-input-group__prepend),
 	.verify .code .el-button {
 		height: 2.5em;
 	}

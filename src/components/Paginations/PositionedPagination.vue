@@ -86,42 +86,30 @@
 <style scoped lang="css">
 	.ui-pagination {
 		/* Layout */
-		height: 1.8em;
 		width: max-content;
-		white-space: nowrap;
+		display: flex;
+		gap: 5px;
+		line-height: 2em;
 		margin-top: 0.5em;
 	}
 
-	.ui-pagination .ui-button {
-		padding: 0 0.5em;
-	}
-	.ui-pagination .ui-button {
-		/* Appearance */
-		border: 1px solid #cdcdcd;
+	.ui-button {
+		height: inherit;
+		border-color: var(--border-color);
+		color: var(--text-color);
 		background-color: transparent;
-		transition: background-color 0.5s ease-in-out, color 0.5s ease-in-out;
+		margin: 0;
+		padding: 0.5em;
+		transition: background-color var(--transition-duration) ease-in-out, color var(--transition-duration) ease-in-out;
 	}
-	.ui-pagination .ui-button:not(:disabled):hover,
-	.ui-pagination .ui-button:not(:disabled).current {
+	.ui-button:not(:disabled):hover,
+	.ui-button:not(:disabled).current {
 		/* Appearance */
 		opacity: 1;
-		color: white;
-		background-color: var(--el-color-primary);
-	}
-	.ui-pagination .ui-button.current {
-		cursor: not-allowed;
+		color: var(--contrasted-text-color);
+		background-color: var(--primary-color);
 	}
 
-	.ui-pagination > * {
-		height: 100%;
-	}
-	.ui-pagination > *,
-	.pager > .ui-button {
-		vertical-align: top;
-		margin-right: 5px;
-		margin-left: 0;
-		color: inherit;
-	}
 	.ui-pagination > .el-select.page-size {
 		/* Layout */
 		width: 8.5em;
@@ -130,14 +118,5 @@
 		/* Layout */
 		min-height: unset;
 		height: 100%;
-	}
-
-	.pager .ui-button {
-		height: 100%;
-	}
-
-	.ui-pagination > .total {
-		display: inline-flex;
-		align-items: center;
 	}
 </style>

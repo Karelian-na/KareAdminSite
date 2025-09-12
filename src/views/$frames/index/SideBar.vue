@@ -141,14 +141,14 @@
 	}
 	/* header */
 
-	.sidebar .header,
-	.sidebar .search {
+	.sidebar .header {
 		/* couldn't wrap when shrink */
 		white-space: nowrap;
 		overflow: hidden;
 		flex-shrink: 0;
 
-		color: white;
+		color: var(--hover-text-color);
+		height: 3em;
 	}
 
 	.header .logo {
@@ -176,24 +176,6 @@
 
 		/* Text */
 		font: normal bold 1.2em/48px "consolas";
-
-		/* Appearance */
-		color: white;
-	}
-
-	.search {
-		padding: 0 20px;
-		background-color: transparent;
-		color: white;
-		transition: padding-left 0.3s ease-in-out;
-	}
-	.search .el-input :deep(.el-input-group__prepend),
-	.search .el-input :deep(.el-input__wrapper) {
-		background-color: transparent;
-	}
-
-	.search .el-input :deep(.el-input-group__prepend) {
-		padding: 0;
 	}
 
 	/* navigation 开始  */
@@ -202,10 +184,14 @@
 		min-height: 18em;
 		flex-grow: 1;
 		overflow: hidden auto;
+		background-color: inherit;
 	}
 	.navigation::-webkit-scrollbar {
 		/* Layout */
 		display: none;
+	}
+	.navigation > ul {
+		background-color: inherit;
 	}
 
 	.navigation-option {
@@ -214,24 +200,27 @@
 		overflow: hidden;
 		text-align: center;
 		flex-shrink: 0;
-		background-color: #11101c;
+		background-color: inherit;
 		z-index: 10;
 
 		/* Animation */
-		transition: padding-left 0.3s ease-in-out;
+		transition: padding-left var(--transition-duration) ease-in-out;
 	}
 	.navigation-option :deep(.iconfont) {
 		/* Text */
 		width: 2em;
 		font-size: 1.5em;
 		margin: 0 1em;
-		color: white;
 		cursor: pointer;
 		vertical-align: top;
+		transition: color var(--transition-duration) ease-in-out;
+	}
+	.navigation-option :deep(.iconfont:hover) {
+		color: var(--hover-text-color);
 	}
 	.navigation-option :deep(.icon-shrink) {
 		/* Layout */
-		transition: transform 0.3s ease-in-out, margin 0.3s ease-in-out;
+		transition: color var(--transition-duration) ease-in-out, transform var(--transition-duration) ease-in-out, margin 0.3s ease-in-out;
 	}
 
 	.shrinked .header .title {
@@ -250,7 +239,7 @@
 	}
 	.shrinked .navigation-option {
 		/* Layout */
-		padding-left: 0px;
+		padding-left: 0;
 	}
 	.shrinked .navigation-option :deep(.icon-shrink) {
 		/* Layout */

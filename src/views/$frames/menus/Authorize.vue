@@ -5,8 +5,8 @@
 	import type Node from "element-plus/es/components/tree/src/model/node";
 	import type { BeforeLeaveCallback, CollectingPostDataHandler, EditTemplateProps, UpdatingFormDataHandler } from "@/views/$frames/templates";
 
+	import { ElTree } from "element-plus";
 	import IconFont from "@/components/IconFont.vue";
-	import { ElTree, ElRow, ElCol } from "element-plus";
 	import EditTemplate from "@/views/$frames/templates/EditTemplate.vue";
 
 	import { Menu } from ".";
@@ -454,8 +454,8 @@
 		@collecting-post-data="onCollectingPostData"
 	>
 		<template #layouts>
-			<ElRow class="content">
-				<ElCol class="handle">
+			<div class="content">
+				<div class="handle">
 					<p>权限列表:</p>
 					<ElTree
 						v-bind="treeProps"
@@ -483,8 +483,8 @@
 							</span>
 						</template>
 					</ElTree>
-				</ElCol>
-				<ElCol class="change">
+				</div>
+				<div class="change">
 					<p>更改列表:</p>
 					<ElTree
 						v-bind="treeProps"
@@ -512,8 +512,8 @@
 							</span>
 						</template>
 					</ElTree>
-				</ElCol>
-			</ElRow>
+				</div>
+			</div>
 		</template>
 		<template
 			v-if="userMode"
@@ -533,10 +533,13 @@
 	}
 
 	.authorize .content {
-		height: 450px;
+		height: 30em;
 		display: flex;
 		overflow: auto;
-		justify-content: space-between;
+		flex-wrap: nowrap;
+		flex-direction: row;
+		gap: 2%;
+		overflow: hidden;
 	}
 
 	.infor > span {
@@ -546,14 +549,18 @@
 	.content .handle,
 	.content .change {
 		border-radius: 5px;
-		border: 1px solid #cdcdcd;
-		height: 100%;
-		flex: 0 0 49%;
+		border: 1px solid var(--border-color);
 		display: flex;
+		min-width: max-content;
+		width: 49%;
 		flex-direction: column;
-		padding-left: 20px;
+		padding-left: 1em;
 	}
 
+	.content .handle > p,
+	.content .change > p {
+		margin: 1em 0;
+	}
 	.content .el-tree {
 		overflow: auto;
 	}

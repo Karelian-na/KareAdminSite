@@ -74,7 +74,7 @@
 					v-if="navItem.icon"
 					:value="navItem.icon"
 					:style="`--level:${navItem.level}`"
-					:class="`level-${navItem.level}`"
+					:class="`left level-${navItem.level}`"
 				/>
 				<a
 					href="javascript: void(0);"
@@ -82,7 +82,10 @@
 					:class="`level-${navItem.level}`"
 					>{{ navItem.name }}
 				</a>
-				<IconFont value="expand" />
+				<IconFont
+					value="expand"
+					class="right"
+				/>
 			</div>
 			<ul>
 				<NavItem
@@ -100,6 +103,7 @@
 	>
 		<IconFont
 			v-if="navItem.icon"
+			class="left"
 			:value="navItem.icon"
 		/>
 		<ul>
@@ -118,6 +122,7 @@
 				<IconFont
 					v-if="navItem.url != '#' && !navItem.url.startsWith('/')"
 					value="external-link"
+					class="right"
 				/>
 			</li>
 		</ul>
@@ -133,7 +138,7 @@
 			v-if="navItem.icon"
 			:value="navItem.icon"
 			:style="`--level:${navItem.level}`"
-			:class="`level-${navItem.level}`"
+			:class="`left level-${navItem.level}`"
 		/>
 		<a
 			:href="navItem.url == '#' ? (navItem.children ? navItem.children[0].url : '#') : navItem.url"
@@ -145,6 +150,7 @@
 		<IconFont
 			v-if="navItem.url != '#' && !navItem.url.startsWith('/')"
 			value="external-link"
+			class="right"
 		/>
 	</li>
 </template>
@@ -154,11 +160,12 @@
 		/* Layout */
 		position: relative;
 		overflow: hidden;
-		color: #999999;
-		background-color: #11101c;
+		background-color: inherit;
 	}
 	.nav-directory:not(.pseudo):hover::before,
-	.nav-directory:not(.pseudo).selected::before {
+	.nav-directory:not(.pseudo).selected::before,
+	.shrinked .nav-directory.pseudo:hover::before,
+	.shrinked .nav-directory.pseudo.selected::before {
 		/* Content Generater */
 		content: "";
 
@@ -168,15 +175,12 @@
 		width: 5px;
 
 		/* Appearance */
-		background-color: var(--el-color-primary);
+		background-color: var(--primary-color);
 
 		/* Animation */
-		animation: height-ani 0.3s ease-in-out;
+		animation: height-ani var(--transition-duration);
 	}
 
-	.nav-directory > ul {
-		background-color: inherit;
-	}
 	.nav-directory:not(.pseudo) > ul {
 		/* Layout */
 		display: none;
@@ -187,41 +191,44 @@
 	}
 
 	/* all menu icon */
-	.trigger > :deep(.iconfont:first-child) {
+	.trigger :deep(.iconfont.left) {
 		/* Layout */
 		left: calc((var(--level) - 1) * 20px);
 		position: absolute;
 		z-index: 10;
 	}
 	/* sub menu icon special */
-	.nav-directory > ul :deep(.iconfont:first-child) {
+	.nav-directory ul :deep(.iconfont.left) {
 		width: unset;
 		left: calc(2.5em + (var(--level) - 2) * 1em);
 		position: absolute;
 		z-index: 10;
 	}
 
-	.trigger {
-		white-space: nowrap;
-		/* Animation */
-		transition: color 0.3s ease-in-out;
-	}
 	.nav-item,
 	.trigger {
 		/* Layout */
+		position: relative;
 		height: 3em;
 		cursor: pointer;
+		transition: background-color var(--transition-duration) ease-in-out, color var(--transition-duration) ease-in-out;
 	}
-
-	.nav-item:hover,
 	.trigger:hover {
 		/* Appearance */
-		color: white;
+		color: var(--hover-text-color);
+	}
+	.nav-item:hover,
+	.nav-item.selected,
+	.nav-directory.pseudo:hover,
+	.nav-directory.pseudo.selected,
+	.nav-directory.pseudo.selected .nav-item {
+		background-color: var(--primary-color);
+		color: var(--contrasted-text-color);
 	}
 
 	/* operation icon, like expand, external-link */
-	.trigger :deep(.iconfont:last-child),
-	.nav-item :deep(.iconfont:last-child) {
+	.trigger :deep(.iconfont.right),
+	.nav-item :deep(.iconfont.right) {
 		/* Layout */
 		right: 0;
 		position: absolute;
@@ -235,23 +242,6 @@
 		transform: rotate(0.5turn);
 	}
 
-	.nav-item {
-		/* Animation */
-		transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
-	}
-
-	.nav-item:hover,
-	.nav-item.selected,
-	.nav-directory.pseudo:hover,
-	.nav-directory.pseudo.selected {
-		/* Appearance */
-		background-color: var(--el-color-primary);
-		color: white;
-	}
-	.nav-directory.pseudo.selected .nav-item {
-		background-color: var(--el-color-primary);
-	}
-
 	a {
 		/* Layout */
 		display: inline-block;
@@ -262,36 +252,39 @@
 		text-decoration: none;
 
 		/* Animation */
-		transition: padding-left 0.3s ease-in-out;
+		transition: padding-left var(--transition-duration) ease-in-out;
 	}
 
 	.nav-item :deep(.iconfont),
 	.nav-directory :deep(.iconfont) {
-		/* Animation */
-		transition: padding-left 0.3s ease-in-out;
+		transition: padding-left var(--transition-duration) ease-in-out, color var(--transition-duration) ease-in-out;
 	}
 
-	.nav-item:hover > :deep(.iconfont),
-	.nav-item.selected > :deep(.iconfont),
-	.nav-item:hover a,
-	.nav-item.selected a,
+	.nav-item:hover > *:not(.right),
+	.nav-item.selected > *:not(.right),
 	.nav-directory.pseudo:hover > :deep(.iconfont),
-	.nav-directory.pseudo:hover a,
 	.nav-directory.pseudo.selected > :deep(.iconfont),
-	.nav-directory.pseudo.selected a {
+	.nav-directory.pseudo.selected a,
+	.shrinked .nav-directory.pseudo.selected a {
 		/* Layout */
 		padding-left: 5px;
 
 		/* Text */
 		font-size: 1.04em;
+	}
 
-		/* Appearance */
-		color: white;
+	.shrinked .nav-directory.pseudo .nav-item {
+		color: var(--text-color);
+	}
+	.shrinked .nav-directory.pseudo .nav-item:hover,
+	.shrinked .nav-directory.pseudo.selected .nav-item {
+		color: var(--contrasted-text-color);
 	}
 	.shrinked .nav-directory.pseudo:hover > :deep(.iconfont),
 	.shrinked .nav-directory.pseudo.selected > :deep(.iconfont) {
 		padding-left: initial;
-		font-size: initial;
+		font-size: inherit;
+		color: var(--hover-text-color);
 	}
 
 	.shrinked .nav-directory {
@@ -300,15 +293,15 @@
 	}
 	.shrinked .nav-directory.pseudo:hover,
 	.shrinked .nav-directory.pseudo.selected {
-		background-color: #11101c;
+		background-color: inherit;
 	}
-	.shrinked .nav-directory > ul > .nav-directory:first-child:hover::before,
-	.shrinked .nav-directory > ul > .nav-directory:last-child:hover::before {
+	.shrinked .nav-directory .nav-directory:first-child:hover::before,
+	.shrinked .nav-directory .nav-directory:last-child:hover::before {
 		/* Layout */
 		height: 2.5em;
-		animation: height-ani-first 0.3s ease-in-out;
+		animation: height-ani-first var(--transition-duration) ease-in-out;
 	}
-	.shrinked .nav-directory > ul > .nav-directory:first-child:hover::before {
+	.shrinked .nav-directory .nav-directory:first-child:hover::before {
 		top: 0.5em;
 	}
 
@@ -325,24 +318,7 @@
 		left: 1em;
 	}
 
-	.shrinked .nav-directory.pseudo:hover::before,
-	.shrinked .nav-directory.pseudo.selected::before {
-		/* Content Generater */
-		content: "";
-
-		/* Layout */
-		position: absolute;
-		height: 3em;
-		width: 5px;
-
-		/* Appearance */
-		background-color: var(--el-color-primary);
-
-		/* Animation */
-		animation: height-ani 0.3s;
-	}
-
-	.shrinked .trigger :deep(.icon-expand) {
+	.shrinked .trigger :deep(.iconfont.icon-expand) {
 		/* Other */
 		transform: rotate(0.75turn);
 	}
@@ -358,6 +334,8 @@
 
 		/* Appearance */
 		background-clip: content-box;
+		background-color: inherit;
+		filter: drop-shadow(0 0 2px var(--hover-border-color));
 
 		/* Other */
 		border-radius: 1em;
@@ -367,7 +345,7 @@
 		display: initial;
 
 		/* Animation */
-		animation: shrinked-display-animation 0.3s ease-in-out;
+		animation: shrinked-display-animation var(--transition-duration) ease-in-out;
 		transform-origin: 0 0;
 	}
 
@@ -387,7 +365,11 @@
 	.shrinked .nav-item a,
 	.shrinked .trigger a {
 		/* Layout */
-		margin-left: 3em;
+		margin-left: 2.5em;
+	}
+	.shrinked .nav-directory.pseudo a {
+		/* Layout */
+		margin-left: 1em;
 	}
 
 	@keyframes height-ani {

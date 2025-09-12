@@ -111,19 +111,14 @@
 		height: 35px;
 		line-height: 35px;
 		cursor: pointer;
-		border: 1px solid var(--el-border-color);
+		border: 1px solid var(--border-color);
 		border-radius: 5px;
 		margin: 5px;
-		transition: opacity 0.3s ease-in-out;
+		transition: border-color var(--transition-duration) ease-in-out, color var(--transition-duration) ease-in-out;
 		box-sizing: border-box;
 	}
-
-	.icons-container :deep(.iconfont:hover) {
-		opacity: 0.5;
-	}
-
-	.icons-container :deep(.iconfont.selected) {
-		border-color: var(--el-color-primary);
-		color: var(--el-color-primary);
+	.icons-container :deep(.iconfont:hover)， .icons-container :deep(.iconfont.selected) {
+		border-color: var(--primary-color);
+		color: var(--primary-color);
 	}
 </style>

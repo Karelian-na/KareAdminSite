@@ -272,7 +272,7 @@
 		flex-wrap: nowrap;
 		flex-shrink: 0;
 		width: fit-content;
-		justify-content: center;
+		align-items: center;
 	}
 	.el-row.name .el-avatar {
 		flex-shrink: 0;
@@ -280,7 +280,6 @@
 	.el-row.name .msg {
 		text-align: left;
 		margin-left: 1em;
-		height: 50px;
 		display: flex;
 		flex-direction: column;
 		justify-content: center;

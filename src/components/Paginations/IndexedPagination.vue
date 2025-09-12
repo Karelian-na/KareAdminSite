@@ -3,7 +3,6 @@
 <script setup lang="ts">
 	import type { IPaginationModeValue, PaginationChangeCallback, PaginationRefreshCallback } from ".";
 
-	import IconFont from "@/components/IconFont.vue";
 	import KButton from "@/components/KButton.vue";
 	import { ElInputNumber, ElSelect, ElOption } from "element-plus";
 
@@ -116,27 +115,23 @@
 			>首页</KButton
 		>
 		<KButton
+			icon="arrow-left"
 			:props="{ disabled: !modelValue.pageIdx || modelValue.pageIdx === 1 }"
 			@click="changePage(modelValue.pageIdx! - 1)"
-		>
-			<IconFont value="arrow-left" />
-		</KButton>
-		<div class="pager">
-			<KButton
-				v-for="idx in new Array(endIdx - startIdx + 1).fill(0).map((value, index) => startIdx + index)"
-				class="page-index"
-				:key="idx"
-				:class="{ current: idx == modelValue.pageIdx }"
-				@click="changePage(idx)"
-				>{{ idx }}</KButton
-			>
-		</div>
+		/>
 		<KButton
+			v-for="idx in new Array(endIdx - startIdx + 1).fill(0).map((value, index) => startIdx + index)"
+			class="page-index"
+			:key="idx"
+			:class="{ current: idx == modelValue.pageIdx }"
+			@click="changePage(idx)"
+			>{{ idx }}</KButton
+		>
+		<KButton
+			icon="arrow-right"
 			:props="{ disabled: !modelValue.pageIdx || modelValue.pageIdx === pageAmount }"
 			@click="changePage(modelValue.pageIdx! + 1)"
-		>
-			<IconFont value="arrow-right" />
-		</KButton>
+		/>
 		<KButton
 			v-if="endIdx != pageAmount"
 			@click="modelValue.pageIdx != pageAmount && changePage(pageAmount)"
@@ -173,53 +168,36 @@
 <style scoped lang="css">
 	.ui-pagination {
 		/* Layout */
-		height: 1.8em;
 		width: max-content;
-		white-space: nowrap;
+		display: flex;
+		gap: 5px;
+		line-height: 2em;
+		margin-top: 0.5em;
 	}
 
-	.ui-pagination .ui-button {
-		padding: 0 0.5em;
-	}
-	.ui-pagination .ui-button:not(#jump) {
-		/* Appearance */
-		border: 1px solid #cdcdcd;
+	.ui-button {
+		height: inherit;
+		border-color: var(--border-color);
+		color: var(--text-color);
 		background-color: transparent;
-		transition: background-color 0.5s ease-in-out, color 0.5s ease-in-out;
+		margin: 0;
+		padding: 0.5em;
+		transition: background-color var(--transition-color) ease-in-out, color var(--transition-color) ease-in-out;
 	}
-	.ui-pagination .ui-button:not(#jump):not(:disabled):hover,
-	.ui-pagination .ui-button:not(#jump):not(:disabled).current {
+	.ui-button:not(:disabled):hover,
+	.ui-button:not(:disabled).current {
 		/* Appearance */
 		opacity: 1;
-		color: white;
-		background-color: var(--el-color-primary);
+		color: var(--contrasted-text-color);
+		background-color: var(--primary-color);
 	}
-	.ui-pagination .ui-button:not(#jump).current {
+	.ui-button.current {
 		cursor: not-allowed;
 	}
+	.ui-button :deep(.iconfont) {
+		margin: 0;
+	}
 
-	.ui-pagination > * {
-		height: 100%;
-	}
-	.ui-pagination > :deep(*:not(.pager)),
-	.pager > .ui-button {
-		vertical-align: top;
-		margin-right: 5px;
-		margin-left: 0;
-		color: inherit;
-	}
-	.ui-pagination > .pager {
-		/* Layout */
-		display: inline-block;
-		white-space: nowrap;
-	}
-	.ui-pagination > .ui-button#jump {
-		color: white;
-	}
-	.ui-pagination > .total {
-		display: inline-flex;
-		align-items: center;
-	}
 	.ui-pagination > .el-input-number.page-number {
 		/* Layout */
 		width: 6em;
@@ -231,10 +209,6 @@
 	.ui-pagination > .el-select.page-size :deep(.el-select__wrapper) {
 		/* Layout */
 		min-height: unset;
-		height: 100%;
-	}
-
-	.pager .ui-button {
 		height: 100%;
 	}
 </style>

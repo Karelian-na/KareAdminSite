@@ -265,15 +265,4 @@
 	.edit-template :deep(.icon-movehandler) {
 		cursor: move;
 	}
-
-	.edit-template.details :deep(.el-table__cell) {
-		padding: 2px 0;
-	}
-
-	.edit-template :deep(tr) {
-		background-color: white;
-	}
-	.edit-template :deep(tr.dragging) {
-		background-color: #efefef;
-	}
 </style>

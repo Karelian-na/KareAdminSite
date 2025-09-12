@@ -48,10 +48,7 @@
 	.iconfont {
 		display: inline-block;
 		text-align: center;
-		vertical-align: baseline;
-		letter-spacing: 0;
 		font-size: inherit;
-		color: inherit;
 	}
 
 	.icon {

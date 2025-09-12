@@ -466,6 +466,13 @@
 	</ElForm>
 </template>
 
+<style>
+	.vjs-tree-node.is-highlight,
+	.vjs-tree-node:hover {
+		background-color: var(--hover-background-color);
+	}
+</style>
+
 <style scoped lang="css">
 	.edit-template {
 		padding-left: 0.5em;
@@ -475,7 +482,7 @@
 		padding: 0.5em;
 	}
 	.edit-template .empty-layouts {
-		height: 500px;
+		height: 30em;
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -497,8 +504,16 @@
 		margin-left: 1em;
 	}
 
+	.edit-template :deep(.el-form-item__label) {
+		padding: 0.5em 0;
+		padding-right: 0.5em;
+	}
+
 	:global(.index-template .edit-item.operations) {
 		margin-bottom: 0em;
+	}
+	.operations {
+		margin-top: 1em;
 	}
 	.operations :deep(.el-form-item__content) {
 		margin-left: 0 !important;

@@ -35,7 +35,10 @@
 		@oper-column-button-click="onOperColumnButtonClick"
 	>
 		<template #status="{ data }">
-			<KTag :label="data['status'] ? '启用' : '禁用'"></KTag>
+			<KTag
+				:label="data['status'] ? '启用' : '禁用'"
+				:class="data['status'] ? 'enabled' : 'disabled'"
+			></KTag>
 		</template>
 
 		<template #oper_type="{ data }">
@@ -56,13 +59,17 @@
 </template>
 
 <style scoped lang="css">
-	.index-template .oper_type .ao-tag {
-		margin: 0 2px;
+	.ao-tag.single {
+		background-color: darkcyan;
 	}
-	.index-template .oper_type .ao-tag.single {
-		background-color: coral;
+	.ao-tag.batch {
+		background-color: darkorange;
 	}
-	.index-template .oper_type .ao-tag.batch {
-		background-color: darkgoldenrod;
+
+	.ao-tag.enabled {
+		background-color: var(--primary-color);
+	}
+	.ao-tag.disabled {
+		background-color: var(--danger-color);
 	}
 </style>
