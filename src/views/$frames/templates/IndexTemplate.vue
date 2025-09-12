@@ -28,7 +28,7 @@
 	import { EmptyObject } from "@/common/utils";
 	import { detailButton, TemplateUtils } from ".";
 	import { ObjectUtils } from "@/common/utils/Object";
-	import { adminRequest } from "@/common/utils/Network";
+	import { axiosRequest } from "@/common/utils/Network";
 	import { error, confirm, success, info } from "@/common/utils/Interactive";
 	import { ICommonPaginationModelValue, IPaginationExposes, Paginations } from "@/components/Paginations";
 	import { ref, onBeforeMount, reactive, provide, watch, inject, getCurrentInstance, markRaw, proxyRefs, onUpdated, onUnmounted } from "vue";
@@ -282,7 +282,7 @@
 				operAttrs.extraMsgBoxOptions.callback = (action, _ins) => {
 					if (action != "confirm") return;
 
-					adminRequest({
+					axiosRequest({
 						method: "DELETE",
 						url: operAttrs.action,
 						params: operAttrs.sendData,
@@ -377,7 +377,7 @@
 			props.onRefreshData?.(configs);
 		}
 
-		const result = await adminRequest(configs);
+		const result = await axiosRequest(configs);
 		if (init) {
 			return result;
 		}

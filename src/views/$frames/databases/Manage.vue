@@ -16,8 +16,8 @@
 	import { ElTable, ElTableColumn, ElCheckbox, ElInput } from "element-plus";
 
 	import { error } from "@/common/utils/Interactive";
-	import { adminRequest } from "@/common/utils/Network";
 	import { Constants } from "@/common/utils/Constants";
+	import { axiosRequest } from "@/common/utils/Network";
 
 	const props = defineProps<EditTemplateProps>();
 
@@ -32,7 +32,7 @@
 
 		const formData = base(rawData, "fields");
 
-		await adminRequest({
+		await axiosRequest({
 			url: props.modalDialogProps!.action,
 			method: "GET",
 			params: {
@@ -264,5 +264,9 @@
 <style scoped lang="css">
 	.edit-template :deep(.icon-movehandler) {
 		cursor: move;
+	}
+
+	.edit-template.details :deep(tbody .el-table__cell) {
+		padding: 2px;
 	}
 </style>

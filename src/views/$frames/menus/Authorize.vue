@@ -11,7 +11,7 @@
 
 	import { Menu } from ".";
 	import { ref } from "vue";
-	import { adminRequest } from "@/common/utils/Network";
+	import { axiosRequest } from "@/common/utils/Network";
 
 	type ElTreeInstance = InstanceType<typeof ElTree>;
 
@@ -61,7 +61,7 @@
 		}
 
 		const formData = base(rawData);
-		await adminRequest({
+		await axiosRequest({
 			method: "GET",
 			url: props.modalDialogProps!.action,
 			params: params,

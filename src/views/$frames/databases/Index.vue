@@ -9,7 +9,7 @@
 	import { ref } from "vue";
 	import { EmptyObject } from "@/common/utils";
 	import { confirm } from "@/common/utils/Interactive";
-	import { adminRequest } from "@/common/utils/Network";
+	import { axiosRequest } from "@/common/utils/Network";
 
 	const props = defineProps<IndexTemplateProps>();
 
@@ -24,7 +24,7 @@
 							return;
 						}
 
-						adminRequest({
+						axiosRequest({
 							url: button.action,
 						});
 					},

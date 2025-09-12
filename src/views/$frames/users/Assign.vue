@@ -10,7 +10,7 @@
 	import { ref } from "vue";
 	import { KasConfig } from "@/configs";
 	import { ObjectUtils } from "@/common/utils/Object";
-	import { adminRequest } from "@/common/utils/Network";
+	import { axiosRequest } from "@/common/utils/Network";
 
 	interface Option {
 		key: number;
@@ -25,7 +25,7 @@
 	const onUpdatingFormData: UpdatingFormDataHandler = async function (rawData, base, modalDialogProps) {
 		const formData: KeyStringObject = { ids: Array.isArray(rawData) ? rawData.map((item) => item["id"]) : [rawData!["id"]] };
 
-		await adminRequest({
+		await axiosRequest({
 			url: props.modalDialogProps!.action,
 			method: "GET",
 			extraOptions: {

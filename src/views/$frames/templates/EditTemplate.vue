@@ -14,7 +14,7 @@
 	import { CollectEnd } from ".";
 	import { EmptyObject } from "@/common/utils";
 	import { ObjectUtils } from "@/common/utils/Object";
-	import { adminRequest } from "@/common/utils/Network";
+	import { axiosRequest } from "@/common/utils/Network";
 	import { confirm, error, info, success } from "@/common/utils/Interactive";
 	import { onBeforeMount, onMounted, provide, ref, toRaw, watch, nextTick, computed } from "vue";
 
@@ -287,7 +287,7 @@
 
 					let result: Result;
 					if (typeof handledRes != "object") {
-						result = await adminRequest({
+						result = await axiosRequest({
 							url: action,
 							method: reqMethod,
 							data: toRaw(postData.value),

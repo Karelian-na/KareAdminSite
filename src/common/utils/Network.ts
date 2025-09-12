@@ -30,9 +30,24 @@ export async function axiosRequest(config: AxiosRequestOption) {
 		config.baseURL = KasConfig.axios.serverHost;
 	}
 
-	// 保存回调
-	const callback = config.callback;
-	callback && delete config.callback;
+	const oldCallback = config.callback;
+	config.callback = (result) => {
+		// 登录状态失效或未登录，跳转到登录页面
+		if (result.code == Result.ERROR_UN_LOGIN) {
+			// const handled = await callback?.(result);
+			Store.namespace("cookie").each((val, key) => {
+				Store.namespace("cookie").remove(key);
+			});
+			const router = (window as any).router as Router;
+			router.replace({ name: "login" });
+			return true;
+		}
+
+		if (oldCallback) {
+			return oldCallback?.(result);
+		}
+		return false;
+	};
 
 	// 保存额外选项
 	const extraOptions = config.extraOptions;
@@ -61,7 +76,7 @@ export async function axiosRequest(config: AxiosRequestOption) {
 	}
 
 	// 如果未指定请求反馈或指定请求反馈后调用方不处理反馈，则使用缺省反馈消息
-	if ((!callback || !(await callback(result))) && extraOptions?.alwaysShowFeedbackMsg !== false) {
+	if ((!config.callback || !(await config.callback(result))) && extraOptions?.alwaysShowFeedbackMsg !== false) {
 		if (result.success) {
 			success("msg", { message: "操作成功!" });
 		} else {
@@ -130,32 +145,4 @@ export async function uploadFile(files: Arrayable<UploadUserFile>, extraOptions?
 	}
 
 	return urls;
-}
-
-export async function adminRequest(config: AxiosRequestOption) {
-	if (!config.baseURL) {
-		if (!config.url || !config.url.startsWith("/admin")) {
-			config.baseURL = `${KasConfig.axios.serverHost}/admin`;
-		} else {
-			config.baseURL = `${KasConfig.axios.serverHost}`;
-		}
-	}
-
-	const oldCallback = config.callback;
-	config.callback = (result) => {
-		// 登录状态失效或未登录，跳转到登录页面
-		if (result.code == Result.ERROR_UN_LOGIN) {
-			// const handled = await callback?.(result);
-			Store.namespace("cookie").each((val, key) => {
-				Store.namespace("cookie").remove(key);
-			});
-			const router = (window as any).router as Router;
-			router.replace({ name: "login" });
-			return true;
-		}
-
-		return oldCallback?.(result);
-	};
-
-	return axiosRequest(config);
 }

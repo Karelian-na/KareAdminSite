@@ -24,7 +24,7 @@
 	import { KasConfig } from "@/configs";
 	import { EmptyObject } from "@/common/utils";
 	import { ObjectUtils } from "@/common/utils/Object";
-	import { adminRequest } from "@/common/utils/Network";
+	import { axiosRequest } from "@/common/utils/Network";
 	import { TemplateUtils } from "@/views/$frames/templates";
 	import { confirm, error } from "@/common/utils/Interactive";
 
@@ -84,7 +84,7 @@
 					callback: (action, _ins) => {
 						if (action != "confirm") return;
 
-						adminRequest({
+						axiosRequest({
 							method: "PUT",
 							url: button.action,
 							data: ids,
@@ -136,7 +136,7 @@
 					callback: async (action, _ins) => {
 						if (action != "confirm") return;
 
-						const result = await adminRequest({
+						const result = await axiosRequest({
 							method: "PUT",
 							url: button.action,
 							data: ids,
