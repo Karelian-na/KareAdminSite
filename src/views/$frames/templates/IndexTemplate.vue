@@ -31,7 +31,7 @@
 	import { adminRequest } from "@/common/utils/Network";
 	import { error, confirm, success, info } from "@/common/utils/Interactive";
 	import { ICommonPaginationModelValue, IPaginationExposes, Paginations } from "@/components/Paginations";
-	import { ref, onBeforeMount, reactive, provide, watch, inject, getCurrentInstance, markRaw, proxyRefs } from "vue";
+	import { ref, onBeforeMount, reactive, provide, watch, inject, getCurrentInstance, markRaw, proxyRefs, onUpdated, onUnmounted } from "vue";
 
 	const props = defineProps<IndexTemplateProps>();
 	const router = useRouter();
@@ -66,9 +66,37 @@
 
 	var initPageData = new Array<KeyStringObject>();
 
+	var resizeTimeoutId: Optional<NodeJS.Timeout>;
 	var loading: Optional<ReturnType<typeof ElLoading.service>>;
+	const paginationResizeObserver = new ResizeObserver(() => {
+		clearTimeout(resizeTimeoutId);
+		resizeTimeoutId = setTimeout(() => {
+			if (templateRootEle.value) {
+				templateRootEle.value.style.width = "";
+				const computedStyle = getComputedStyle(templateRootEle.value);
+				const horizontalPadding = parseFloat(computedStyle.paddingLeft) + parseFloat(computedStyle.paddingRight);
+
+				const parentWidth = templateRootEle.value.parentElement!.clientWidth;
+				const paginationWidth = pagination.value!.$el.clientWidth + horizontalPadding;
+
+				const maxWidth = Math.max(parentWidth, paginationWidth);
+				if (maxWidth !== parentWidth) {
+					templateRootEle.value.style.width = maxWidth + "px";
+				}
+			}
+		}, 100);
+	});
 
 	onBeforeMount(updateTemplate);
+	onUpdated(() => {
+		if (pagination.value && templateRootEle.value.parentElement) {
+			paginationResizeObserver.observe(pagination.value.$el);
+			paginationResizeObserver.observe(templateRootEle.value.parentElement);
+		}
+	});
+	onUnmounted(() => {
+		paginationResizeObserver.disconnect();
+	});
 
 	watch(
 		() => props.url + "☆" + JSON.stringify(props.query),
