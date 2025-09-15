@@ -23,7 +23,7 @@
 	const rules = ref<FormRules>();
 	const initFormData: KeyStringObject = {};
 
-	const labelWidth = ref(4);
+	const labelWidth = ref(2);
 	const layouts = ref<Array<string[]>>([]);
 	const formData = ref<KeyStringObject>({});
 	const formIns = ref<FormInstance>(EmptyObject);
@@ -84,14 +84,14 @@
 		};
 
 		const res =
-			props.onBeforeLeave?.(
+			(await props.onBeforeLeave?.(
 				{
 					raw: props.rawData,
 					init: initFormData,
 					current: formData.value,
 				},
 				func
-			) ?? func();
+			)) ?? func();
 
 		if (res === true) {
 			return true;

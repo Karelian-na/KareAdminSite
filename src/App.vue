@@ -12,9 +12,9 @@
 	import { zhCn } from "element-plus/es/locale";
 	import { error } from "@/common/utils/Interactive";
 	import { axiosRequest } from "@/common/utils/Network";
-	import { onBeforeMount, provide, reactive, ref } from "vue";
 	import { IndexTemplateProps } from "@/views/$frames/templates";
 	import { ElConfigProvider, vLoading, ElDialog } from "element-plus";
+	import { onBeforeMount, provide, reactive, ref, watchEffect } from "vue";
 
 	const router = useRouter();
 	const rawItems = new Array<Menu>();
@@ -103,6 +103,10 @@
 
 	async function handleIndexData(data: IIndexInfo) {
 		userInfo.value = data.userMsg;
+		if (!userInfo.value.preferences) {
+			userInfo.value.preferences = {};
+		}
+		updateAppTheme();
 
 		const blob = new Blob([data.fieldsConfig], { type: "application/javascript" });
 		const url = URL.createObjectURL(blob);
@@ -169,6 +173,19 @@
 			};
 			router.addRoute("admin", route);
 		});
+	}
+
+	watchEffect(updateAppTheme);
+
+	function updateAppTheme() {
+		if (userInfo.value?.preferences?.theme) {
+			const theme = userInfo.value.preferences.theme;
+			if (theme == "light") {
+				document.documentElement.setAttribute("data-theme", "light");
+			} else if (theme == "dark") {
+				document.documentElement.setAttribute("data-theme", "dark");
+			}
+		}
 	}
 </script>
 

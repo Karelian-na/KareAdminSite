@@ -14,7 +14,11 @@ import type { BeforeLeaveCallback, DataOperAction } from "@/views/$frames/templa
  */
 export interface IRecord extends KeyStringObject {
 	id: number;
-};
+}
+
+export interface ISettings {
+	theme?: "light" | "dark";
+}
 
 /**
  * @description 用户简要信息接口
@@ -24,8 +28,10 @@ export interface IRecord extends KeyStringObject {
  * @interface IUserInfo
  */
 export interface IUserInfo {
+	id: string;
 	name: string;
 	avatar: string;
+	preferences: ISettings;
 }
 
 /**

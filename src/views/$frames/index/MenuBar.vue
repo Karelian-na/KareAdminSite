@@ -2,16 +2,18 @@
 
 <script setup lang="ts">
 	import type { IUserInfo } from "@/common";
+	import type { Component, ComponentPublicInstance } from "vue";
 	import type { ITab, SwitchPageFunction, TabPageMapType } from ".";
 
-	import { ElAvatar } from "element-plus";
+	import Settings from "./Settings.vue";
 	import IconFont from "@/components/IconFont.vue";
+	import { ElAvatar, ElDrawer } from "element-plus";
 
 	import Store from "store";
 
 	import { specialTabs } from ".";
-	import { inject, Ref } from "vue";
 	import { useRouter } from "vue-router";
+	import { inject, ref, Ref, shallowRef } from "vue";
 	import { axiosRequest } from "@/common/utils/Network";
 	import { confirm, success } from "@/common/utils/Interactive";
 
@@ -20,6 +22,10 @@
 	const userInfo = inject<Ref<IUserInfo>>("userInfo")!;
 	const switchPage = inject<SwitchPageFunction>("switchPage")!;
 	const tabMapPage = inject<Ref<TabPageMapType>>("tabMapPage")!;
+
+	const drawer = ref(false);
+	const drawerComponentIns = ref<ComponentPublicInstance>();
+	const drawerComponent = shallowRef<Component>(undefined as any);
 
 	function fullscreenOnclick() {
 		document.documentElement.requestFullscreen();
@@ -56,6 +62,23 @@
 			},
 		});
 	}
+
+	function onSettingsClick() {
+		drawer.value = true;
+		drawerComponent.value = Settings;
+	}
+
+	async function onDrawerBeforClose(done: () => void) {
+		let res = true;
+		if ((drawerComponentIns.value as any)?.onExit) {
+			res = await (drawerComponentIns.value as any).onExit();
+		}
+
+		if (res) {
+			done();
+			drawerComponent.value = undefined as any;
+		}
+	}
 </script>
 
 <template>
@@ -73,6 +96,26 @@
 			/>
 		</div>
 		<div class="personal">
+			<div class="preferences">
+				<IconFont
+					title="设置"
+					value="settings"
+					@click="onSettingsClick"
+				/>
+				<ElDrawer
+					destroy-on-close
+					v-model="drawer"
+					title="设置"
+					direction="rtl"
+					size="22em"
+					:before-close="onDrawerBeforClose"
+				>
+					<component
+						ref="drawerComponentIns"
+						:is="drawerComponent"
+					></component>
+				</ElDrawer>
+			</div>
 			<div class="info">
 				<ElAvatar
 					class="avatar"
@@ -123,7 +166,34 @@
 		padding-right: 1em;
 		height: 100%;
 		margin-left: auto;
+		display: inline-flex;
+		align-items: center;
 	}
+
+	.personal .preferences {
+		/* Layout */
+		display: inline-flex;
+	}
+	.preferences :deep(.iconfont) {
+		/* Layout */
+		display: inline-block;
+		width: 2em;
+		font-size: 1.2em;
+
+		/* Appearance */
+		cursor: pointer;
+	}
+	.preferences :deep(.iconfont:hover) {
+		/* Appearance */
+		color: var(--hover-text-color);
+		font-weight: bold;
+		transition: color var(--transition-duration) ease-in-out;
+	}
+	.preferences :deep(.el-drawer__body) {
+		padding: 0;
+		padding-right: 1em;
+	}
+
 	.personal .info {
 		/* Layout */
 		position: relative;

@@ -128,6 +128,10 @@
 	function isFileUpload() {
 		return props.field.config.type == "image" || props.field.config.type == "file";
 	}
+
+	function updateControlInstance(ins: any) {
+		controlIns.value = ins;
+	}
 </script>
 
 <template>
@@ -171,7 +175,11 @@
 			<template v-else>
 				<slot
 					name="input"
+					:controlIns="updateControlInstance"
 					:field="field"
+					:modelValue="internalModelValue"
+					:disabled="disabled"
+					:updateModelValue="onInternalModelValueChanged"
 				>
 					<ElInput
 						v-if="field.config.type == 'text'"
