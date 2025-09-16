@@ -198,28 +198,21 @@ export const specialTabs: Record<SpecialTabName, ITab> = {
 		...specialRoute.personal,
 		title: "个人中心",
 	},
+	error: {
+		...specialRoute.error,
+		title: "错误",
+	},
 };
 
 /**
  * 主页下特殊标签对应的业内属性
  */
-export const specialInPageProps: Record<SpecialTabName, IInPageProps> = {
-	home: {
-		tabs: [
-			{
-				id: 0,
-				...specialRoute.home,
-			},
-		],
+export const specialInPageProps: Record<SpecialTabName, IInPageProps> = Object.values(specialTabs).reduce((prev, cur) => {
+	prev[cur.name as SpecialTabName] = {
+		tabs: [{ id: 0, ...cur }],
 		curTab: 0,
-	},
-	personal: {
-		tabs: [
-			{
-				id: 0,
-				...specialRoute.personal,
-			},
-		],
-		curTab: 0,
-	},
-};
+	};
+	return prev;
+}, {} as Record<SpecialTabName, IInPageProps>);
+
+export const skipTabNames = [specialTabs.home.name, specialTabs.error.name];

@@ -3,7 +3,7 @@
 <script setup lang="ts">
 	import type { IIndexInfo } from ".";
 	import type { IUserInfo } from "@/common";
-	import { RouteLocationNormalizedGeneric, RouteRecordRaw } from "vue-router";
+	import type { RouteLocationNormalizedGeneric, RouteRecordRaw } from "vue-router";
 
 	import Store from "store";
 

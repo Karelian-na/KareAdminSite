@@ -16,8 +16,8 @@
 	import { Menu } from "@/views/$frames/menus";
 	import { error } from "@/common/utils/Interactive";
 	import { RouterView, useRouter } from "vue-router";
-	import { specialTabs, specialInPageProps } from ".";
 	import { EmptyObject, Nullable, Optional } from "@/common/utils";
+	import { specialTabs, specialInPageProps, skipTabNames } from ".";
 	import { onBeforeMount, provide, ref, nextTick, inject, shallowRef, reactive, watch, toRaw } from "vue";
 
 	const rawItems = inject<Array<Menu>>("rawItems")!;
@@ -43,8 +43,8 @@
 	});
 
 	const curNavItem = ref<number>(0);
-	const curPage = ref<string>("home");
 	const curTab = ref<ITab>(specialTabs.home);
+	const curPage = ref<string>(specialTabs.home.name);
 	const curInPageProps = ref<IInPageProps>(specialInPageProps.home);
 
 	provide("curTab", curTab);
@@ -64,9 +64,11 @@
 		document.body.onresize = determinIfNeedShrinkWhenResize;
 		window.onbeforeunload = recordTabsWhenUnload;
 
-		tabMapPage.value.set(curTab.value, curTab.value.name);
-		pageMapInPageProps.value.set(curTab.value.name, specialInPageProps.home);
-		pageMapInPageProps.value.set(specialTabs.personal.name, specialInPageProps.personal);
+		// make sure home tab always exists
+		tabMapPage.value.set(specialTabs.home, specialTabs.home.name);
+		Object.values(specialTabs).forEach((tab) => {
+			pageMapInPageProps.value.set(tab.name, specialInPageProps[tab.name as SpecialTabName]);
+		});
 
 		const tabProps = cookieStore.get("tabProps") as Optional<Array<ITab>>;
 		if (!tabProps) {
@@ -74,8 +76,7 @@
 			return;
 		}
 
-		// 还原上次离开时所有的标签页
-		tabProps.shift();
+		// restore tabs from cookie
 		tabProps.forEach((tab) => {
 			const matches = tab.name.match(/r(\d{1,})/);
 			if (matches) {
@@ -131,12 +132,13 @@
 		if (!cookieStore.get("value")) {
 			return;
 		}
+		const recordingTabs = Array.from(tabMapPage.value.keys()).filter((val) => !skipTabNames.includes(val.name));
 
 		cookieStore.set("shrinked", shrinked.value);
 		cookieStore.set("autoShrink", autoShrink.value);
 		cookieStore.set(
 			"tabProps",
-			Array.from(tabMapPage.value.keys()).map((item) => ({
+			recordingTabs.map((item) => ({
 				name: item.name,
 				url: item.url,
 			}))
@@ -149,22 +151,23 @@
 		);
 		let tab = entry ? tabMapPage.value.getByValue(entry[0]) : undefined;
 
-		// 标签已关闭的情况，重新创建标签
+		// if tab not found, try to create tab from menu
 		if (!tab) {
 			const navItem = getNavItem(route);
 			if (navItem) {
-				// 如果当前路由对应的菜单类型为 Item，则直接创建主页面标签
+				// if the corresponding menu type of the current route is Item, create a main page tab directly
 				if (navItem.isItem()) {
 					tab = createTab(navItem, route);
-
-					// 当前路由对应的菜单类型为 Page
-				} else {
+				}
+				// the corresponding menu type of the current route is Page
+				else {
 					const parent = navItem.parent;
 
-					// 查找该页内标签对应的主页面标签
+					// find the main page tab corresponding to the in-page tab
 					tab = tabMapPage.value.getByValue(`r${parent!.id}`);
 
-					// 该页内标签对应的主页面标签已关闭，则根据当前路由和其父菜单创建主页面标签
+					// the main page tab corresponding to the in-page tab has been closed,
+					// then create the main page tab according to the current route and its parent menu
 					if (!tab) {
 						tab = createTab(parent!, route);
 					}
@@ -172,13 +175,20 @@
 			}
 		}
 
-		// 若主页面标签仍未空，则直接跳转错误页面
+		// if still not found, try to find special tabs
 		if (!tab) {
-			router.replace("error");
-			return;
+			tab = Object.values(specialTabs).find((t) => t.url === route);
+			if (tab) {
+				tabMapPage.value.set(tab!, tab!.name);
+			}
 		}
 
-		if (curTab.value.name !== tab.name) {
+		// if still not found, go to error page
+		if (!tab) {
+			curTab.value = specialTabs.error;
+			tabMapPage.value.set(curTab.value, curTab.value.name);
+			route = specialTabs.error.url;
+		} else if (curTab.value.name !== tab.name) {
 			curTab.value.lastRecordUrl = lastFullPath;
 			curTab.value = tab;
 			curNavItem.value = itemMapTab.value.getByValue(curTab.value, (l, r) => l.name == r.name);
@@ -202,11 +212,11 @@
 					navItemComponentIns.exposed.selected.value = true;
 				}
 			});
-			curPage.value = tabMapPage.value.get(toRaw(curTab.value))!;
-			curInPageProps.value = pageMapInPageProps.value.get(curPage.value)!;
+			curTab.value.url = route;
 		}
 
-		curTab.value.url = route;
+		curPage.value = tabMapPage.value.get(toRaw(curTab.value))!;
+		curInPageProps.value = pageMapInPageProps.value.get(curPage.value)!;
 		curInPageProps.value.curTab = curInPageProps.value.tabs.find((item) => item.url === route)!.id;
 		sidebar.value?.onLocateCurNavItem?.();
 	}
@@ -287,6 +297,7 @@
 		if (tabProps.name != specialTabs.home.name) {
 			if (curTab.value == tabProps) {
 				const tabs = Array.from(tabMapPage.value.keys());
+				// the first tab is always home tab, so idx - 1 is safe
 				const idx = tabs.findIndex((val) => val.name == tabProps.name) - 1;
 				switchPage(tabs[idx], false);
 				pageLoading.value = false;

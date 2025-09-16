@@ -7,9 +7,9 @@
 
 	import IconFont from "@/components/IconFont.vue";
 
-	import { specialTabs } from ".";
 	import { ref, inject } from "vue";
 	import { EmptyObject } from "@/common/utils";
+	import { skipTabNames, specialTabs } from ".";
 	import { error } from "@/common/utils/Interactive";
 
 	let timeId: Optional<NodeJS.Timeout>;
@@ -87,6 +87,10 @@
 		closeTab(curTab.value);
 		optionDisplayed.value = false;
 	}
+
+	function getTabs() {
+		return Array.from(tabMapPage.value.keys()).filter((val) => !skipTabNames.includes(val.name));
+	}
 </script>
 
 <template>
@@ -113,7 +117,7 @@
 				/>
 			</li>
 			<li
-				v-for="tab in Array.from(tabMapPage.keys()).filter((val) => val.name != 'home')"
+				v-for="tab in getTabs()"
 				class="item"
 				:ref="(vnode) => (tab.element = vnode as HTMLLIElement)"
 				:key="tab.name"
@@ -254,7 +258,7 @@
 	}
 	.items .item :deep(.icon-close:hover) {
 		color: var(--contrasted-text-color);
-	}	
+	}
 	.items .item :deep(.icon-close:hover::after) {
 		/* Content Generater */
 		content: "";

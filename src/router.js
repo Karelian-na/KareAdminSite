@@ -11,6 +11,10 @@ export const specialRoute = {
 		name: "personal",
 		url: "/admin/personal",
 	},
+	error: {
+		name: "error",
+		url: "/admin/error",
+	},
 };
 
 export const router = createRouter({
@@ -54,12 +58,14 @@ export const router = createRouter({
 						personal: () => import("@/views/$frames/home/Personal.vue"),
 					},
 				},
+				{
+					path: "/:path(.*)",
+					name: specialRoute.error.name,
+					components: {
+						error: () => import("@/views/$frames/error.vue"),
+					},
+				},
 			],
-		},
-		{
-			path: "/:path(.*)",
-			name: "404",
-			component: () => import("@/views/$frames/error/404.vue"),
 		},
 	],
 	history: createWebHistory(),
