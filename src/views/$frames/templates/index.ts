@@ -597,11 +597,6 @@ export type RenderedCallback = (formData: KeyStringObject) => void;
  */
 export type BeforeLeaveCallback = (formData: IDiaglogFormData, base: () => boolean) => Promisable<Function | boolean>;
 
-export interface IBeforeSubmitResult {
-	result: Result;
-	feedbackType?: Parameters<typeof error>[0];
-}
-
 /**
  * 在提交表单时，执行的回调。
  *
@@ -610,7 +605,12 @@ export interface IBeforeSubmitResult {
  * 而该回调是用户确认提交后，在执行提交动作前的回调，一般用于执行此次提交前的某些特定提交或处理
  * @param {KeyStringObject} postData 将要提交的表单的数据
  */
-export type BeforeSubmitHandler = (postData: KeyStringObject) => Promisable<boolean | IBeforeSubmitResult>;
+export type BeforeSubmitHandler = (postData: KeyStringObject) => Promisable<boolean | Result>;
+
+/**
+ * callback after submit data to server, the return value decide whether to feedback to user.
+ */
+export type SubmitCallback = (result: Result, base: SubmitCallback) => Parameters<typeof error>[0] | void;
 
 export type Prop<T> = {
 	type: PropType<T>;
@@ -662,6 +662,7 @@ declare const editTemplateProps: {
 	onUpdatedData: OptionalProp<DataChangedCallback>;
 	onBeforeLeave: OptionalProp<BeforeLeaveCallback>;
 	onBeforeSubmit: OptionalProp<BeforeSubmitHandler>;
+	onSubmit: OptionalProp<SubmitCallback>;
 	onUpdatingFormData: OptionalProp<UpdatingFormDataHandler>;
 	onCollectingPostData: OptionalProp<CollectingPostDataHandler>;
 };

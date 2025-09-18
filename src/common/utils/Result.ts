@@ -7,6 +7,7 @@ import type { AxiosResponse } from "axios";
 
 export class Result extends Object {
 	public static readonly ERROR_UN_LOGIN = 0x5000005;
+	public static readonly FIELD_VALIDATION_ERROR = 0x6000000;
 
 	public code: number = -1;
 	public success: boolean = false;
@@ -29,5 +30,19 @@ export class Result extends Object {
 
 	public isNetworkError() {
 		return this.msg === "Network Error";
+	}
+
+	public isFieldValidationError() {
+		return !this.success && this.code & Result.FIELD_VALIDATION_ERROR;
+	}
+
+	public getErrorField() {
+		if (this.isFieldValidationError()) {
+			const commaIdx = this.msg?.indexOf(":");
+			if (commaIdx && commaIdx !== -1) {
+				return this.msg!.substring(commaIdx + 1).trim();
+			}
+		}
+		return undefined;
 	}
 }

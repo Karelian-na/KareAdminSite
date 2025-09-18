@@ -190,7 +190,7 @@
 		}
 	}
 
-	function onSubmit(buttonFlags?: any) {
+	async function onSubmit(buttonFlags?: any) {
 		if (mode.value === "details") {
 			return;
 		}
@@ -201,131 +201,141 @@
 			return;
 		}
 
-		formIns.value!.validate(async (state, fields) => {
-			if (!state) return;
+		let valid = false;
+		try {
+			valid = await formIns.value!.validate();
+		} catch (error) {}
 
-			const reqMethod = (props.operAction ?? props.mode) == "add" ? "POST" : "PUT";
+		if (!valid) {
+			return;
+		}
 
-			let postData: Ref<KeyStringObject>;
-			if ("PUT" == reqMethod) {
-				postData = ref(ObjectUtils.getChangedAttributes(initFormData, formData.value) ?? {});
-			} else {
-				const temp = toRaw(formData.value);
-				postData = ref(Object.assign({}, temp));
-			}
+		const reqMethod = (props.operAction ?? props.mode) == "add" ? "POST" : "PUT";
 
-			if (props.onCollectingPostData) {
-				const temp = props.onCollectingPostData(
-					{
-						raw: props.rawData,
-						init: initFormData,
-						current: formData.value,
-					},
-					postData,
-					mode.value,
-					buttonFlags
-				);
+		let postData: Ref<KeyStringObject>;
+		if ("PUT" == reqMethod) {
+			postData = ref(ObjectUtils.getChangedAttributes(initFormData, formData.value) ?? {});
+		} else {
+			const temp = toRaw(formData.value);
+			postData = ref(Object.assign({}, temp));
+		}
 
-				if (temp === CollectEnd) {
-					return;
-				} else if (temp?.startsWith("/")) {
-					action = temp;
-				} else if (temp) {
-					action = action + "?" + temp;
-				}
-			}
+		if (props.onCollectingPostData) {
+			const temp = props.onCollectingPostData(
+				{
+					raw: props.rawData,
+					init: initFormData,
+					current: formData.value,
+				},
+				postData,
+				mode.value,
+				buttonFlags
+			);
 
-			if (Object.keys(postData.value).length == 0) {
-				info("msg", { message: "当前未作任何修改!" });
+			if (temp === CollectEnd) {
 				return;
+			} else if (temp?.startsWith("/")) {
+				action = temp;
+			} else if (temp) {
+				action = action + "?" + temp;
 			}
+		}
 
-			if (props.mode != "add" && !postData.value["ids"] && !postData.value["id"]) {
-				if (Array.isArray(props.rawData)) {
-					postData.value["ids"] = props.rawData.map((item) => item["id"]);
-				} else {
-					postData.value["id"] = props.rawData!["id"];
-				}
+		if (Object.keys(postData.value).length == 0) {
+			info("msg", { message: "当前未作任何修改!" });
+			return;
+		}
+
+		if (props.mode != "add" && !postData.value["ids"] && !postData.value["id"]) {
+			if (Array.isArray(props.rawData)) {
+				postData.value["ids"] = props.rawData.map((item) => item["id"]);
+			} else {
+				postData.value["id"] = props.rawData!["id"];
 			}
+		}
 
+		return new Promise((resolve) => {
 			confirm(`确定要${props.title}吗?`, {
 				callback: async (dialogAction, _ins) => {
 					if (dialogAction != "confirm") return;
-
-					for (let idx = 0; idx < editItemInses.value.length; idx++) {
-						const editItemIns = editItemInses.value[idx];
-
-						if (!editItemIns.isFileUpload()) {
-							continue;
-						}
-
-						const uploadContrlIns = editItemIns.controlIns as InstanceType<typeof KUpload>;
-						if (false === uploadContrlIns.$props.autoUploadWhenSubmit) {
-							continue;
-						}
-
-						const res = await uploadContrlIns.upload({
-							alwaysShowFeedbackMsg: false,
-							loading: props.modalDialogProps?.loading,
-						});
-						if (res === true) {
-							continue;
-						}
-
-						if (!res) {
-							error("msg", { message: `上传 ${editItemIns.field.display_name} 失败！` });
-							return;
-						}
-						postData.value[editItemIns.field.field_name] = res;
-					}
-
-					let handledRes: Awaited<ReturnType<NonNullable<typeof props.onBeforeSubmit>>> | undefined;
-					if (props.onBeforeSubmit && !(handledRes = await props.onBeforeSubmit(postData.value))) {
-						props.modalDialogProps && (props.modalDialogProps.loading.value = false);
-						return;
-					}
-
-					let result: Result;
-					if (typeof handledRes != "object") {
-						result = await axiosRequest({
-							url: action,
-							method: reqMethod,
-							data: toRaw(postData.value),
-							extraOptions: {
-								loading: props.modalDialogProps?.loading,
-								alwaysShowFeedbackMsg: false,
-							},
-						});
-					} else {
-						result = handledRes.result;
-					}
-
-					const feedbackType = typeof handledRes === "object" ? handledRes.feedbackType : undefined;
-					if (!result.success) {
-						// 字段校验错误，对应服务端错误代码
-						if (result.code & 0x6000000) {
-							const commaIdx = result.msg?.indexOf(":");
-							if (commaIdx && commaIdx !== -1) {
-								const fieldName = result.msg!.substring(commaIdx + 1).trim();
-								const field = props.fields[fieldName];
-								if (field) {
-									result.msg = result.msg!.replace(fieldName, field.display_name);
-								}
-							}
-						}
-						error(feedbackType ?? "msg", { message: `操作失败! ${result.msg ?? ""}` });
-						return;
-					}
-
-					if (feedbackType === "msg") {
-						success("msg");
-						onUpdatedData(postData, result);
-					} else {
-						success("alert", { callback: onUpdatedData.bind(undefined, postData, result) });
-					}
+					resolve(dialogAction);
+					submit(toRaw(postData), action, reqMethod);
 				},
 			});
 		});
+	}
+
+	async function submit(postData: KeyStringObject, action: string, reqMethod: string) {
+		for (let idx = 0; idx < editItemInses.value.length; idx++) {
+			const editItemIns = editItemInses.value[idx];
+
+			if (!editItemIns.isFileUpload()) {
+				continue;
+			}
+
+			const uploadContrlIns = editItemIns.controlIns as InstanceType<typeof KUpload>;
+			if (false === uploadContrlIns.$props.autoUploadWhenSubmit) {
+				continue;
+			}
+
+			const res = await uploadContrlIns.upload({
+				alwaysShowFeedbackMsg: false,
+				loading: props.modalDialogProps?.loading,
+			});
+			if (res === true) {
+				continue;
+			}
+
+			if (!res) {
+				error("msg", { message: `上传 ${editItemIns.field.display_name} 失败！` });
+				return;
+			}
+			postData.value[editItemIns.field.field_name] = res;
+		}
+
+		let handledRes: Awaited<ReturnType<NonNullable<typeof props.onBeforeSubmit>>> | undefined;
+		if (props.onBeforeSubmit && !(handledRes = await props.onBeforeSubmit(postData.value))) {
+			props.modalDialogProps && (props.modalDialogProps.loading.value = false);
+			return;
+		}
+
+		const result =
+			typeof handledRes === "object"
+				? handledRes
+				: await axiosRequest({
+						url: action,
+						method: reqMethod,
+						data: toRaw(postData.value),
+						extraOptions: {
+							loading: props.modalDialogProps?.loading,
+							alwaysShowFeedbackMsg: false,
+						},
+				  });
+
+		const feedbackType = props.onSubmit ? props.onSubmit(result, defaultSubmitCallback) : defaultSubmitCallback(result);
+		if (!feedbackType) {
+			return;
+		}
+
+		if (result.success) {
+			success(feedbackType);
+			onUpdatedData(postData, result);
+		} else {
+			error(feedbackType, { message: `操作失败! ${result.msg ?? ""}` });
+		}
+	}
+
+	function defaultSubmitCallback(result: Result): Parameters<typeof error>[0] {
+		if (result.isFieldValidationError()) {
+			const fieldName = result.getErrorField();
+			if (fieldName) {
+				const field = props.fields[fieldName];
+				if (field) {
+					result.msg = result.msg!.replace(fieldName, field.display_name);
+				}
+			}
+		}
+		return "msg";
 	}
 
 	function onUpdatedData(postData: KeyStringObject, result: Result) {
@@ -368,6 +378,7 @@
 		:rules="rules"
 		:model="formData"
 		:label-width="`${labelWidth + 0.5}em`"
+		v-bind="$attrs"
 	>
 		<template v-if="layouts.length">
 			<slot
@@ -504,7 +515,7 @@
 		margin-left: 1em;
 	}
 
-	.edit-template :deep(.el-form-item__label) {
+	.edit-template:not(.el-form--label-top) :deep(.el-form-item__label) {
 		padding: 0.5em 0;
 		padding-right: 0.5em;
 	}
