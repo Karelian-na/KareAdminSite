@@ -24,6 +24,7 @@
 
 	import { sha256 } from "js-sha256";
 	import { securityOptions } from ".";
+	import { topRoutes } from "@/router";
 	import { useRouter } from "vue-router";
 	import { axiosRequest } from "@/common/utils/Network";
 	import { EmptyObject, requiredRule } from "@/common/utils";
@@ -208,7 +209,7 @@
 
 	async function onNextStep() {
 		if (step.value == RevisepwdStep.SUCCESS) {
-			router.push({ name: "login" });
+			router.push(topRoutes.login);
 			return;
 		}
 		loading.value = true;

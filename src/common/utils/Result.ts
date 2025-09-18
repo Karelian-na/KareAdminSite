@@ -8,6 +8,7 @@ import type { AxiosResponse } from "axios";
 export class Result extends Object {
 	public static readonly ERROR_UN_LOGIN = 0x5000005;
 	public static readonly FIELD_VALIDATION_ERROR = 0x6000000;
+	public static readonly SYSTEM_NOT_INITIALIZED = 0x500000c;
 
 	public code: number = -1;
 	public success: boolean = false;
@@ -44,5 +45,9 @@ export class Result extends Object {
 			}
 		}
 		return undefined;
+	}
+
+	public isInitializationError() {
+		return !this.success && this.code === Result.SYSTEM_NOT_INITIALIZED;
 	}
 }

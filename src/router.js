@@ -1,5 +1,6 @@
 /** @format */
 
+import { Databases } from "./views/$frames/databases";
 import { createWebHistory, createRouter } from "vue-router";
 
 export const specialRoute = {
@@ -17,27 +18,37 @@ export const specialRoute = {
 	},
 };
 
+/** @type {Record<"login" | "retrieve" | "init" | "index", import("vue-router").RouteRecordRaw>} */
+export const topRoutes = {
+	login: {
+		path: "/admin/login",
+		name: "login",
+		component: () => import("@/views/$frames/login/Login.vue"),
+	},
+	retrieve: {
+		path: "/admin/retrieve",
+		name: "retrieve",
+		component: () => import("@/views/$frames/home/Revisepwd.vue"),
+		props: (route) => ({
+			mode: "retrieve",
+			account: route.query.account,
+		}),
+	},
+	init: {
+		path: Databases.initUrl,
+		name: "init",
+		component: () => import("@/views/$frames/databases/Init.vue"),
+	},
+	index: {
+		path: "/admin/index",
+		name: "index",
+		redirect: "/admin",
+	},
+};
+
 export const router = createRouter({
 	routes: [
-		{
-			path: "/admin/login",
-			name: "login",
-			component: () => import("@/views/$frames/login/Login.vue"),
-		},
-		{
-			path: "/admin/index",
-			name: "index",
-			redirect: "/admin",
-		},
-		{
-			path: "/admin/retrieve",
-			name: "retrieve",
-			component: () => import("@/views/$frames/home/Revisepwd.vue"),
-			props: (route) => ({
-				mode: "retrieve",
-				account: route.query.account,
-			}),
-		},
+		...Object.values(topRoutes),
 		{
 			path: "/admin",
 			name: "admin",

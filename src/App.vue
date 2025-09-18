@@ -3,7 +3,7 @@
 <script setup lang="ts">
 	import type { IIndexInfo } from ".";
 	import type { IUserInfo } from "@/common";
-	import type { RouteLocationNormalizedGeneric, RouteRecordRaw } from "vue-router";
+	import type { NavigationGuardNext, RouteLocationNormalizedGeneric, RouteRecordRaw } from "vue-router";
 
 	import Store from "store";
 
@@ -11,6 +11,8 @@
 	import { Menu } from "@/views/$frames/menus";
 	import { zhCn } from "element-plus/es/locale";
 	import { error } from "@/common/utils/Interactive";
+	import { specialRoute, topRoutes } from "./router";
+	import { Databases } from "./views/$frames/databases";
 	import { axiosRequest } from "@/common/utils/Network";
 	import { IndexTemplateProps } from "@/views/$frames/templates";
 	import { ElConfigProvider, vLoading, ElDialog } from "element-plus";
@@ -60,8 +62,16 @@
 	});
 
 	const navigate: Parameters<typeof router.beforeEach>[0] = async function (to, _from, next) {
+		// 检查是否需要初始化
+		const redirect = await checkAndRedirectInit(to, next);
+		if (redirect) {
+			next(redirect);
+			return;
+		}
+
 		// 跳过不需要登陆验证的路由
-		if (["retrieve", "login"].includes(to.name as string)) {
+		const initRoutes = Object.keys(topRoutes);
+		if (initRoutes.includes(to.name as string)) {
 			next();
 			return;
 		}
@@ -69,7 +79,7 @@
 		// 未登录情况
 		const cookieStore = Store.namespace("cookie");
 		if (!cookieStore.get("value")) {
-			const option = to.name != "login" ? { name: "login" } : undefined;
+			const option = to.name != topRoutes.login.name ? topRoutes.login : undefined;
 			next(option!);
 			return;
 		}
@@ -92,7 +102,7 @@
 
 		if (!result.success) {
 			error("alert", { content: result.msg ?? "菜单获取失败!" });
-			next({ name: "login" });
+			next(topRoutes.login);
 			return true;
 		}
 
@@ -142,11 +152,6 @@
 				route.path = item.url;
 			}
 
-			if (route.path.endsWith("/")) {
-				route.path = route.path + "index";
-				item.url += "index";
-			}
-
 			if (item.isItem() && !item.children) {
 				viewName = `r${item.id}`;
 			} else if (!item.isPage()) {
@@ -186,6 +191,28 @@
 				document.documentElement.setAttribute("data-theme", "dark");
 			}
 		}
+	}
+
+	async function checkAndRedirectInit(to: RouteLocationNormalizedGeneric, next: NavigationGuardNext) {
+		let isInitialized = Databases.isInitialized();
+		if (!isInitialized) {
+			const result = await axiosRequest({
+				method: "GET",
+				url: Databases.initUrl,
+				extraOptions: {
+					loading: mainLoading,
+					alwaysShowFeedbackMsg: false,
+				},
+			});
+
+			isInitialized = !result.success;
+			Databases.setInitFlag(isInitialized);
+		}
+
+		if (to.name == topRoutes.init.name) {
+			return isInitialized ? specialRoute.home : undefined;
+		}
+		return isInitialized ? undefined : topRoutes.init;
 	}
 </script>
 

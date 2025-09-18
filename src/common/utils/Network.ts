@@ -6,9 +6,11 @@ import type { AxiosRequestConfig } from "axios";
 import type { ILoading } from "@/common/utils/Interactive";
 
 import { nextTick } from "vue";
+import { topRoutes } from "@/router";
 import { KasConfig } from "@/configs";
 import { UploadUserFile } from "element-plus";
 import { Result } from "@/common/utils/Result";
+import { Databases } from "@/views/$frames/databases";
 import { error, success } from "@/common/utils/Interactive";
 
 import Store from "store";
@@ -32,6 +34,13 @@ export async function axiosRequest(config: AxiosRequestOption) {
 
 	const oldCallback = config.callback;
 	config.callback = (result) => {
+		if (result.isInitializationError()) {
+			Databases.setInitFlag(false);
+			const router = (window as any).router as Router;
+			router.replace(topRoutes.init);
+			return true;
+		}
+
 		// 登录状态失效或未登录，跳转到登录页面
 		if (result.code == Result.ERROR_UN_LOGIN) {
 			// const handled = await callback?.(result);
@@ -39,7 +48,7 @@ export async function axiosRequest(config: AxiosRequestOption) {
 				Store.namespace("cookie").remove(key);
 			});
 			const router = (window as any).router as Router;
-			router.replace({ name: "login" });
+			router.replace(topRoutes.login);
 			return true;
 		}
 

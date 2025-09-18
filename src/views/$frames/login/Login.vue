@@ -15,6 +15,7 @@
 
 	import { loginFields } from ".";
 	import { sha256 } from "js-sha256";
+	import { topRoutes } from "@/router";
 	import { useRouter } from "vue-router";
 	import { CollectEnd } from "../templates";
 	import { EmptyObject } from "@/common/utils";
@@ -80,7 +81,7 @@
 			}
 
 			Store.namespace("cookie").set("value", true);
-			router.push({ name: "index" });
+			router.push(topRoutes.index);
 			success("msg", { message: "登陆成功!" });
 		}, 10);
 		return CollectEnd;
@@ -89,7 +90,7 @@
 	function onForgetPasswordClick() {
 		if (!loginLoading.value) {
 			router.push({
-				name: "retrieve",
+				...topRoutes.retrieve,
 				query: {
 					account: formData.account,
 				},
@@ -105,7 +106,7 @@
 			<ElMain>
 				<EditTemplate
 					title="登陆"
-					mode="login"
+					mode="edit"
 					action="/login"
 					oper-action="add"
 					ref="editTemplateIns"

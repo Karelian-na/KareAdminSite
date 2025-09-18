@@ -12,6 +12,7 @@
 	import Store from "store";
 
 	import { specialTabs } from ".";
+	import { topRoutes } from "@/router";
 	import { useRouter } from "vue-router";
 	import { inject, ref, Ref, shallowRef } from "vue";
 	import { axiosRequest } from "@/common/utils/Network";
@@ -55,7 +56,7 @@
 							Store.namespace("cookie").remove(key);
 						});
 						success("msg", { message: "退出成功!" });
-						router.replace({ name: "login" });
+						router.replace(topRoutes.login);
 						return true;
 					},
 				});
