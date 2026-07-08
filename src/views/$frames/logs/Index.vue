@@ -1,12 +1,16 @@
 <!-- @format -->
 
 <script setup lang="ts">
-	import type { IndexTemplateProps } from "@/views/$frames/templates";
+	import type { EditTemplateProps, IndexTemplateProps, IOperButton, PageInfoHandler } from "@/views/$frames/templates";
 
 	import KTag from "@/components/KTag.vue";
+	import LogDetails from "@/views/$frames/logs/Details.vue";
 	import IndexTemplate from "@/views/$frames/templates/IndexTemplate.vue";
 
+	import { ref } from "vue";
+
 	const props = defineProps<IndexTemplateProps>();
+	const decryptButton = ref<IOperButton>();
 
 	function getRequestTimeConsumingLevel(value: number): string {
 		if (value < 100) {
@@ -17,12 +21,26 @@
 			return "danger";
 		}
 	}
+
+	const onPageInfoHandled: PageInfoHandler = function (pageProps) {
+		decryptButton.value = pageProps.operColumnButtons.decrypt;
+		delete pageProps.operColumnButtons.decrypt;
+		props.onPageInfoHandled?.(pageProps);
+	};
+
+	function handleDetailTemplateAttrs(attrs: EditTemplateProps) {
+		if (attrs.modalDialogProps) {
+			attrs.modalDialogProps.width = 860;
+		}
+		return attrs;
+	}
 </script>
 
 <template>
 	<IndexTemplate
 		v-bind="props"
 		:selection-column-props="{ fixed: true }"
+		@page-info-handled="onPageInfoHandled"
 	>
 		<template #type="{ value }">
 			<template v-if="value">
@@ -49,6 +67,19 @@
 					:label="value ? '成功' : '失败'"
 				/>
 			</template>
+		</template>
+
+		<template #editContent="attrs">
+			<LogDetails
+				v-if="attrs.mode === 'details'"
+				v-bind="handleDetailTemplateAttrs(attrs)"
+				:decrypt-button="decryptButton"
+			/>
+			<slot
+				v-else
+				name="editContent"
+				v-bind="attrs"
+			></slot>
 		</template>
 	</IndexTemplate>
 </template>
@@ -87,13 +118,13 @@
 		background-color: #faad14;
 	}
 	.ao-tag.danger {
-		background-color: #ff4d4f;
+		background-color: darkred;
 	}
 
 	.ao-tag.success {
 		background-color: #52c41a;
 	}
 	.ao-tag.fail {
-		background-color: #ff4d4f;
+		background-color: darkred;
 	}
 </style>

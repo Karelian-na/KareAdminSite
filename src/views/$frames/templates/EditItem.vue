@@ -62,13 +62,25 @@
 
 	defineExpose({ controlIns, field: props.field, isFileUpload });
 
+	function resolveJsonValue(value: unknown) {
+		if (typeof value !== "string") {
+			return value as EditItemValueType;
+		}
+
+		try {
+			return JSON.parse(value);
+		} catch {
+			return value;
+		}
+	}
+
 	watch(
 		() => props.modelValue,
 		(newVal) => {
 			switch (props.field.config.type) {
 				case "json":
-					internalModelValue.value = JSON.parse(newVal as string);
-					break;
+					internalModelValue.value = resolveJsonValue(newVal);
+					return;
 				default:
 					break;
 			}
@@ -84,11 +96,7 @@
 				break;
 			case "json":
 				if (props.modelValue) {
-					try {
-						internalModelValue.value = JSON.parse(props.modelValue as string);
-					} catch (error) {
-						internalModelValue.value = `${props.modelValue}`;
-					}
+					internalModelValue.value = resolveJsonValue(props.modelValue);
 				}
 				break;
 			default:
