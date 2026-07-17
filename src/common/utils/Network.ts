@@ -1,7 +1,7 @@
 /** @format */
 
+import type { Arrayable } from ".";
 import type { Router } from "vue-router";
-import type { Arrayable, Nullable } from ".";
 import type { AxiosRequestConfig } from "axios";
 import type { ILoading } from "@/common/utils/Interactive";
 
@@ -97,17 +97,16 @@ export async function axiosRequest(config: AxiosRequestOption) {
 }
 
 let uploadedFilePaths = {} as Record<number, string>;
-export async function uploadFile(files: Arrayable<UploadUserFile>, extraOptions?: AxiosRequestOption["extraOptions"]): Promise<Nullable<Array<string>>> {
+export async function uploadFile(files: Arrayable<UploadUserFile>, extraOptions?: AxiosRequestOption["extraOptions"]): Promise<Result<Array<string>>> {
 	const urls = [] as Array<string>;
 	const formData = new FormData();
 	const unUploadFiles = [] as UploadUserFile[];
 
 	const targets = Array.isArray(files) ? files : [files];
-	Object.values(targets).forEach((file) => {
+	for (const file of targets) {
 		if (!uploadedFilePaths[file.uid!]) {
 			if (!file.raw || !(file.raw instanceof File)) {
-				error("msg", { message: `文件上传失败：文件数据异常！` });
-				return;
+				return new Result("文件上传失败：文件数据异常！");
 			}
 
 			formData.append("files", new Blob([file.raw as File]), file.name);
@@ -115,7 +114,7 @@ export async function uploadFile(files: Arrayable<UploadUserFile>, extraOptions?
 		} else {
 			urls.push(uploadedFilePaths[file.uid!]);
 		}
-	});
+	}
 
 	const loading = extraOptions?.loading;
 	if (unUploadFiles.length) {
@@ -149,9 +148,11 @@ export async function uploadFile(files: Arrayable<UploadUserFile>, extraOptions?
 			});
 		} else if (options?.extraOptions?.alwaysShowFeedbackMsg) {
 			error("msg", { message: `文件上传失败：${result.msg}！` });
-			return null;
+			return result;
+		} else {
+			return result;
 		}
 	}
 
-	return urls;
+	return new Result(true, urls);
 }

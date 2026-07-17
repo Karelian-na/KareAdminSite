@@ -5,7 +5,7 @@
 
 import type { AxiosResponse } from "axios";
 
-export class Result extends Object {
+export class Result<T = any> extends Object {
 	public static readonly ERROR_UN_LOGIN = 0x5000005;
 	public static readonly FIELD_VALIDATION_ERROR = 0x6000000;
 	public static readonly SYSTEM_NOT_INITIALIZED = 0x500000c;
@@ -13,13 +13,13 @@ export class Result extends Object {
 	public code: number = -1;
 	public success: boolean = false;
 	public msg?: string;
-	public data?: any;
-	public response?: AxiosResponse<Result, any>;
+	public data?: T;
+	public response?: AxiosResponse<Result<T>, any>;
 
-	constructor(success: boolean, data?: any);
+	constructor(success: boolean, data?: T);
 	constructor(msg: string);
 
-	constructor(successOrMsg: boolean | string, data?: any) {
+	constructor(successOrMsg: boolean | string, data?: T) {
 		super();
 		if (typeof successOrMsg === "boolean") {
 			this.success = successOrMsg;

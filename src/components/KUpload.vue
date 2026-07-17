@@ -8,6 +8,7 @@
 	import { ElUpload, genFileId, ElButton, UploadFile } from "element-plus";
 
 	import { EmptyObject } from "@/common/utils";
+	import { Result } from "@/common/utils/Result";
 	import { error } from "@/common/utils/Interactive";
 	import { onBeforeMount, ref, useAttrs, watch } from "vue";
 	import { AxiosRequestOption, uploadFile } from "@/common/utils/Network";
@@ -30,7 +31,7 @@
 		}>(),
 		{
 			autoUploadWhenSubmit: void 0,
-		}
+		},
 	);
 	const $attrs = useAttrs();
 
@@ -42,13 +43,27 @@
 	const fileList = new Array<UploadFile>();
 
 	const tempImageSrc = ref<string>("");
-	const internalModelValue = ref(mapInternalModelValue());
+	const internalModelValue = ref<Array<KUploadFileItem>>([]);
 
 	const uploadIns = ref<InstanceType<typeof ElUpload>>(EmptyObject);
 
 	defineExpose({ upload: uploadFiles, fileList });
 
 	onBeforeMount(() => {
+		if (props.modelValue) {
+			// restore unloaded files
+			const value = Array.isArray(props.modelValue) ? props.modelValue : [props.modelValue];
+			for (const item of value) {
+				if (typeof item !== "string") {
+					fileList.push(item);
+				}
+			}
+			if (fileList.length) {
+				internalModelValue.value = fileList;
+				return;
+			}
+		}
+
 		if (props.type === "image") {
 			if (!props.modelValue || typeof props.modelValue === "string") {
 				tempImageSrc.value = props.modelValue;
@@ -56,10 +71,8 @@
 				tempImageSrc.value = props.modelValue[0];
 				console.warn("upload type of image's modelValue should be a string! current value is:", props.modelValue);
 			}
-		} else {
-			if (props.modelValue && !Array.isArray(props.modelValue)) {
-				console.error("upload type of file's modelValue must be a string array! current value is:", props.modelValue);
-			}
+		} else if (props.modelValue) {
+			internalModelValue.value = mapInternalModelValue();
 		}
 	});
 
@@ -67,7 +80,7 @@
 		() => props.modelValue,
 		() => {
 			internalModelValue.value = mapInternalModelValue();
-		}
+		},
 	);
 
 	const onUploadExceed: UploadProps["onExceed"] = function (files: File[], uploadFiles: UploadUserFile[]) {
@@ -163,7 +176,11 @@
 			if (uploadPromise) {
 				await uploadPromise;
 			}
-			return props.modelValue ?? true;
+
+			if (!props.modelValue) {
+				return new Result(true);
+			}
+			return new Result(true, Array.isArray(props.modelValue) ? props.modelValue : [props.modelValue]);
 		}
 
 		const uploadingFiles = new Array<UploadUserFile>();
@@ -178,20 +195,20 @@
 		});
 
 		if (uploadingFiles.length === 0) {
-			return true;
+			return new Result(true);
 		}
 
-		const urls = await uploadFile(uploadingFiles, extraOptions);
-		if (!urls) {
-			return false;
+		const res = await uploadFile(uploadingFiles, extraOptions);
+		if (res.success) {
+			res.data!.concat(uploadedFiles);
 		}
-		return urls.concat(uploadedFiles);
+		return res;
 	}
 
 	function mapInternalModelValue(): Array<KUploadFileItem> {
 		const value = Array.isArray(props.modelValue) ? props.modelValue : props.modelValue ? [props.modelValue] : [];
 		const uploadedFiles: Array<KUploadFileItem> = value
-			.filter((item) => !item.startsWith("__"))
+			.filter((item) => typeof item === "string" && !item.startsWith("__"))
 			.map((item) => ({
 				name: item.substring(item.lastIndexOf("/") + 1),
 				url: item,

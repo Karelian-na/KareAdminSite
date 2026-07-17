@@ -90,7 +90,7 @@
 					init: initFormData,
 					current: formData.value,
 				},
-				func
+				func,
 			)) ?? func();
 
 		if (res === true) {
@@ -171,6 +171,29 @@
 		}
 	}
 
+	function cloneFormData(data: KeyStringObject, ...ignoreFields: Array<string>) {
+		const blobFields = [];
+		for (const fieldName of Object.keys(data)) {
+			if (ignoreFields.includes(fieldName)) {
+				continue;
+			}
+
+			const field = props.fields[fieldName];
+			if (field && (field.config.type === "file" || field.config.type === "image")) {
+				blobFields.push(fieldName);
+				ignoreFields.push(fieldName);
+			}
+		}
+
+		const res = ObjectUtils.clone(data, ...ignoreFields);
+		for (const fieldName of blobFields) {
+			if (data[fieldName]) {
+				(res as any)[fieldName] = data[fieldName];
+			}
+		}
+		return res;
+	}
+
 	async function updateFormData(attrs?: KeyStringObject) {
 		if (attrs) {
 			Object.assign(formData.value, attrs);
@@ -180,13 +203,12 @@
 					return {};
 				}
 
-				const res = ObjectUtils.clone(rawData, ...ignoreFields);
-				return res;
+				return cloneFormData(rawData, ...ignoreFields);
 			};
 
 			const data = toRaw(props.rawData);
 			formData.value = (await props.onUpdatingFormData?.(data, func, props.modalDialogProps)) ?? func(data);
-			Object.assign(initFormData, ObjectUtils.clone(toRaw(formData.value)));
+			Object.assign(initFormData, cloneFormData(formData.value));
 		}
 	}
 
@@ -229,7 +251,7 @@
 				},
 				postData,
 				mode.value,
-				buttonFlags
+				buttonFlags,
 			);
 
 			if (temp === CollectEnd) {
@@ -282,15 +304,15 @@
 				alwaysShowFeedbackMsg: false,
 				loading: props.modalDialogProps?.loading,
 			});
-			if (res === true) {
-				continue;
-			}
 
-			if (!res) {
-				error("msg", { message: `上传 ${editItemIns.field.display_name} 失败！` });
+			if (!res.success) {
+				error("msg", { message: `上传 ${editItemIns.field.display_name} 失败，原因：${res.msg}` });
 				return;
 			}
-			postData.value[editItemIns.field.field_name] = res;
+
+			if (res.data) {
+				postData.value[editItemIns.field.field_name] = res.data;
+			}
 		}
 
 		let handledRes: Awaited<ReturnType<NonNullable<typeof props.onBeforeSubmit>>> | undefined;
@@ -310,7 +332,7 @@
 							loading: props.modalDialogProps?.loading,
 							alwaysShowFeedbackMsg: false,
 						},
-				  });
+					});
 
 		const feedbackType = props.onSubmit ? props.onSubmit(result, defaultSubmitCallback) : defaultSubmitCallback(result);
 		if (!feedbackType) {
