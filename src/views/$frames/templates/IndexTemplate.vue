@@ -49,7 +49,6 @@
 
 	const templateRootEle = ref<HTMLDivElement>(EmptyObject);
 	const tableIns = ref<InstanceType<typeof ElTable>>(EmptyObject);
-	const operbar = ref<InstanceType<typeof OperationBar>>(EmptyObject);
 	const pagination = ref<ComponentPublicInstance<IPaginationExposes>>();
 
 	const pageQuery = reactive<ICommonPaginationModelValue>({} as any);
@@ -66,7 +65,7 @@
 
 	var initPageData = new Array<KeyStringObject>();
 
-	var resizeTimeoutId: Optional<NodeJS.Timeout>;
+	var resizeTimeoutId: Optional<ReturnType<typeof setTimeout>>;
 	var loading: Optional<ReturnType<typeof ElLoading.service>>;
 	const paginationResizeObserver = new ResizeObserver(() => {
 		clearTimeout(resizeTimeoutId);
@@ -113,7 +112,7 @@
 			} else if (oldSearch != newSearch) {
 				await refreshData();
 			}
-		}
+		},
 	);
 	watch(
 		() => modalDialogProps.loading.value,
@@ -127,11 +126,11 @@
 				loading.close();
 				loading = void 0;
 			}
-		}
+		},
 	);
 	watch(
 		() => modalDialogProps.loading.tip,
-		(newVal) => loading?.setText(newVal ?? "处理中...")
+		(newVal) => loading?.setText(newVal ?? "处理中..."),
 	);
 
 	defineExpose({
@@ -622,11 +621,11 @@
 									<slot
 										:name="field.field_name"
 										v-bind="{
-												data: row as KeyStringObject, 
-												field: field, 
-												value: row[field.field_name],
-												clickHandler: operColumnButtonClick 
-											}"
+											data: row as KeyStringObject,
+											field: field,
+											value: row[field.field_name],
+											clickHandler: operColumnButtonClick,
+										}"
 									></slot>
 								</template>
 								<template
