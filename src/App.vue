@@ -44,6 +44,7 @@
 		"/admin/menus/index": () => import("@/views/$frames/menus/Index.vue"),
 		"/admin/permissions/index": () => import("@/views/$frames/permissions/Index.vue"),
 		"/admin/logs/index": () => import("@/views/$frames/logs/Index.vue"),
+		"/admin/logs/user/index": () => import("@/views/$frames/logs/Index.vue"),
 		"/admin/verifications/codes/index": () => import("@/views/$frames/verifications/Index.vue"),
 		"/admin/verifications/templates/index": () => import("@/views/$frames/verifications/TemplateIndex.vue"),
 	};
