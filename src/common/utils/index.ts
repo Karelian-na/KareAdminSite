@@ -29,6 +29,12 @@ export type SecurityOption = {
 	type?: number;
 };
 
+export enum DataChangeAction {
+	Add = "add",
+	Edit = "edit",
+	Delete = "delete",
+}
+
 // 验证相关
 export type VerifyCodeSendingHandler = (data: KeyStringObject) => void;
 export type VerifyCodeSentCallback = (result: Result) => void;
