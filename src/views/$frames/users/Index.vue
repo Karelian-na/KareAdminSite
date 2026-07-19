@@ -21,7 +21,6 @@
 	import IndexTemplate from "@/views/$frames/templates/IndexTemplate.vue";
 
 	import { inject, ref } from "vue";
-	import { KasConfig } from "@/configs";
 	import { EmptyObject } from "@/common/utils";
 	import { ObjectUtils } from "@/common/utils/Object";
 	import { axiosRequest } from "@/common/utils/Network";
@@ -49,24 +48,15 @@
 				pageProps.allFields["roles_id"].config!.enumItems = assignableRoles.map((value) => ({
 					value: value["id"],
 					label: value["name"],
+					disabled: !value["assignable"],
 				}));
 			}
 		} else {
-			["edit", "delete"].forEach((field) => {
-				if (!pageProps.operColumnButtons[field]) {
-					return;
+			["edit", "delete", "authorize"].forEach((key) => {
+				if (pageProps.operColumnButtons[key]) {
+					pageProps.operColumnButtons[key].condition = (data) => Boolean(data[key.replace(/(.*?)e?$/, "$1able")]);
 				}
-
-				pageProps.operColumnButtons[field].condition = (data) => {
-					return ![KasConfig.adminRole, KasConfig.commonUserRole].includes(data["id"]);
-				};
 			});
-
-			if (pageProps.operColumnButtons["authorize"]) {
-				pageProps.operColumnButtons["authorize"].condition = (data) => {
-					return ![KasConfig.commonUserRole].includes(data["id"]);
-				};
-			}
 		}
 	};
 
@@ -182,8 +172,8 @@
 
 	const onEditTemplatePrepared: PreparedCallback = function (formData, fields, mode) {
 		if (!userMode) {
-			if (mode === "edit" && formData["id"] <= 2) {
-				fields["level"].editable = false;
+			if (mode === "edit") {
+				fields["level"].editable = Boolean(formData["levelEditable"]);
 			} else if (mode !== "details") {
 				fields["level"].editable = true;
 			}

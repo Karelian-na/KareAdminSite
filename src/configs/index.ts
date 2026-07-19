@@ -4,9 +4,6 @@ export namespace KasConfig {
 	export const idRegex = /^[1-9]\d{7}$/;
 	export const uidRegex = /^[a-zA-Z]\w{5,20}$/;
 
-	export const adminRole = 2;
-	export const commonUserRole = 9;
-
 	export const sysTitle = "Kas 后台管理系统";
 	export const sysIcon = "/admin/assets/imgs/favicon.png";
 

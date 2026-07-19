@@ -8,13 +8,13 @@
 	import EditTemplate from "@/views/$frames/templates/EditTemplate.vue";
 
 	import { ref } from "vue";
-	import { KasConfig } from "@/configs";
 	import { ObjectUtils } from "@/common/utils/Object";
 	import { axiosRequest } from "@/common/utils/Network";
 
 	interface Option {
 		key: number;
 		label: string;
+		disabled?: boolean;
 	}
 
 	const props = defineProps<EditTemplateProps>();
@@ -40,7 +40,7 @@
 				roles.value = (result.data["roles"] as Array<KeyStringObject>).map((item) => ({
 					key: item["id"],
 					label: item["name"],
-					disabled: [KasConfig.commonUserRole].includes(item["id"]),
+					disabled: !item["assignable"],
 				}));
 				assignedRoles.value = result.data["common"];
 				formData["roles_id"] = ObjectUtils.clone(assignedRoles.value);
